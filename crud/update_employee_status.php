@@ -10,9 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("si", $status, $employee_id);
     
     if ($stmt->execute()) {
-        header("Location: employees.php?success=Employee status updated successfully");
+        header("Location: ../employees.php?success=Employee status updated successfully");
     } else {
-        header("Location: employees.php?error=Error updating employee status");
+        header("Location: ../employees.php?error=Error updating employee status: " . $conn->error);
     }
     
     exit();

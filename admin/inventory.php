@@ -3,7 +3,7 @@ session_start();
 
 // Redirect to login if not authenticated
 if (!isset($_SESSION['account_id'])) {
-    header("Location: public/login.php");
+    header("Location: ../public/login.php");
     exit();
 }
 
