@@ -1,0 +1,2 @@
+{ "name": "starroofing/project", "description": "Web-based construction management system for Star Roofing", "type": "project", "autoload": { "psr-4": { "Admin\\Starroofing\\": "src/" } }, "require": { "phpmailer/phpmailer": "^6.9",
+        "vlucas/phpdotenv": "^5.6" } }
