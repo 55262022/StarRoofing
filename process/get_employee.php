@@ -1,5 +1,5 @@
 <?php
-require_once '../../database/starroofing_db.php';
+include '../database/starroofing_db.php';
 
 if (isset($_GET['id'])) {
     $employee_id = intval($_GET['id']);
