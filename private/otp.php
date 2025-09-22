@@ -1,8 +1,9 @@
 <?php 
 session_start();
-include '../database/starroofing_db.php'; 
+require_once __DIR__ . '/../database/starroofing_db.php';
 
 $error_message = '';
+$error_type = '';
 
 if (!isset($_SESSION['reset_email'])) {
     header('Location: enter_email.php');
@@ -21,8 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $row = $result->fetch_assoc();
 
     if (!$row || $row['token'] != $code) {
+        $error_type = 'incorrect';
         $error_message = 'Incorrect verification code.';
     } elseif (strtotime($row['expires_at']) < time()) {
+        $error_type = 'expired';
         $error_message = 'Verification code has expired.';
     } elseif ($row['used'] == 1) {
         $error_message = 'This code has already been used.';
@@ -46,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/otp.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <div class="otp-container">
@@ -57,17 +61,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             
             <div class="otp-body">
-                <?php if (!empty($error_message)): ?>
-                    <div class="error-message">
-                        <i class="fas fa-exclamation-circle"></i> <?php echo $error_message; ?>
-                    </div>
-                <?php endif; ?>
-                
                 <form id="otpForm" method="POST" action="">
                     <div class="form-group">
                         <label for="codeInput">Verification Code</label>
                         <i class="fas fa-key input-icon"></i>
-                        <input type="text" id="codeInput" name="code" placeholder="Enter 6-digit code" maxlength="6" required>
+                        <input type="text" id="codeInput" name="code" placeholder="Enter 6-digit code" maxlength="6" required autocomplete="off">
                     </div>
                     <button type="submit" class="otp-button">Verify Code</button>
                 </form>
@@ -79,34 +77,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-bottom">
-                <p>&copy; 2025 Star Roofing & Construction. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const codeInput = document.getElementById('codeInput');
-            
             codeInput.addEventListener('input', function() {
                 this.value = this.value.replace(/\D/g, '');
-                if (this.value.length === 6) {
-                    document.getElementById('otpForm').submit();
-                }
             });
 
             codeInput.focus();
 
             document.getElementById('otpForm').addEventListener('submit', function(e) {
-                const code = document.getElementById('codeInput').value;
+                const code = codeInput.value;
                 if (code.length !== 6 || !/^\d+$/.test(code)) {
                     e.preventDefault();
-                    alert('Please enter a valid 6-digit numeric code');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Please enter a valid 6-digit numeric code',
+                        confirmButtonColor: '#e9b949'
+                    });
                 }
             });
+
+            <?php if ($error_type === 'incorrect'): ?>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Incorrect verification code',
+                    confirmButtonColor: '#e9b949'
+                });
+            <?php elseif ($error_type === 'expired'): ?>
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Verification code has expired',
+                    confirmButtonColor: '#e9b949'
+                });
+            <?php endif; ?>
         });
     </script>
 </body>

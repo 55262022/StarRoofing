@@ -1,5 +1,5 @@
 <?php
-include '../database/starroofing_db.php';
+require_once __DIR__ . '/../database/starroofing_db.php';
 
 if (isset($_POST['email'])) {
     $email = mysqli_real_escape_string($conn, $_POST['email']);

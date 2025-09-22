@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 14, 2025 at 05:43 PM
+-- Generation Time: Sep 22, 2025 at 04:56 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -43,8 +43,11 @@ CREATE TABLE `accounts` (
 --
 
 INSERT INTO `accounts` (`id`, `email`, `password`, `role_id`, `account_status`, `last_login`, `created_at`, `updated_at`) VALUES
-(7, 'ajmacaraig19@gmail.com', '$2y$10$Gwf3Dx11g/6RXk6BGabrbebOWJsQVwgGFHzUAHpd4RTfBsAbyH5CW', 2, 'active', '2025-09-12 14:16:02', '2025-09-12 11:34:43', '2025-09-12 14:16:02'),
-(8, 'ajmacaraig20@gmail.com', '$2y$10$Ls7fYC93AlgT4LiKWrmN9OhqcejQnACuT/hzdbKkxaFvjO8MAX5CO', 2, 'active', '2025-09-14 12:23:01', '2025-09-12 11:45:37', '2025-09-14 12:23:01');
+(7, 'ajmacaraig19@gmail.com', '$2y$10$Ikzxt/KyPqurqMGrfb9qKejLEJZEvCLD16CpFSHlJ4AN9Lsp3Woy6', 2, 'active', '2025-09-12 14:16:02', '2025-09-12 11:34:43', '2025-09-16 11:53:38'),
+(8, 'ajmacaraig20@gmail.com', '$2y$10$Ls7fYC93AlgT4LiKWrmN9OhqcejQnACuT/hzdbKkxaFvjO8MAX5CO', 2, 'active', '2025-09-22 11:25:13', '2025-09-12 11:45:37', '2025-09-22 11:25:13'),
+(9, 'ajmacaraig18@gmail.com', '$2y$10$qzctyn/aS52IskG7hufgm.SIUzpsjoPamDq0Kfca.eFyqFXdsX7tq', 2, 'active', NULL, '2025-09-15 09:34:45', '2025-09-17 16:36:13'),
+(10, '57842022@holycross.edu.ph', '$2y$10$VbwIwOWnPmhDvFsPwccoaOBzujWxl9waRxoJJbhXxMZpWPIR/Mmlu', 2, 'active', NULL, '2025-09-16 11:56:11', '2025-09-16 11:59:57'),
+(11, 'ajmacaraig1827@gmail.com', '$2y$10$g6qXtUuUtyQOXoBWDkvxjOLNsfFe8DewrA/VIED9ZhT0Ic.j6xP5S', 2, 'active', NULL, '2025-09-17 02:21:30', '2025-09-17 02:21:30');
 
 -- --------------------------------------------------------
 
@@ -77,6 +80,35 @@ INSERT INTO `categories` (`category_id`, `category_code`, `category_name`, `desc
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `employees`
+--
+
+CREATE TABLE `employees` (
+  `employee_id` int(11) NOT NULL,
+  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `position` varchar(50) NOT NULL,
+  `department` varchar(50) NOT NULL,
+  `hire_date` date NOT NULL,
+  `salary` decimal(10,2) DEFAULT NULL,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `image_path` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `employees`
+--
+
+INSERT INTO `employees` (`employee_id`, `first_name`, `last_name`, `email`, `phone`, `position`, `department`, `hire_date`, `salary`, `status`, `image_path`, `created_at`, `updated_at`) VALUES
+(1, 'archie', 'ramirez', 'chiechie@gmail.com', '09627646372', '69', 'Sales', '2025-09-17', 45345.00, 'active', 'uploads/employees/68cff607c1937.jpg', '2025-09-21 12:56:39', '2025-09-21 13:04:05');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `login_attempts`
 --
 
@@ -98,10 +130,10 @@ CREATE TABLE `password_resets` (
   `reset_id` int(11) NOT NULL,
   `email` varchar(255) NOT NULL,
   `token` varchar(255) NOT NULL,
-  `expires_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `expires_at` datetime NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `used` tinyint(1) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -130,7 +162,15 @@ CREATE TABLE `products` (
 
 INSERT INTO `products` (`product_id`, `category_id`, `name`, `description`, `price`, `stock_quantity`, `unit`, `image_path`, `created_by`, `created_at`, `updated_at`, `is_archived`) VALUES
 (1, 2, 'Roofing', 'Bubong', 1000.00, 75, 'piece', 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.ugc.ph%2Fproduct%2Fduratile%2F&psig=AOvVaw3X_uMdXyDZnuuECXufnzjQ&ust=1757939065451000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCOCD-L6f2I8DFQAAAAAdAAAAABAL', 8, '2025-09-14 12:25:05', '2025-09-14 15:43:06', 1),
-(2, 4, 'Aluminum Window', 'Aluminum, Glass, Window', 2500.00, 50, 'sqm', 'uploads/products/1757862544_538629338_1241032341369672_5542304872222334214_n.jpg', 8, '2025-09-14 13:07:13', '2025-09-14 15:09:04', 0);
+(2, 4, 'Aluminum Window', 'Aluminum, Glass, Window', 300.00, 1, 'meter', 'uploads/products/1757905503_wp6786949.jpg', 8, '2025-09-14 13:07:13', '2025-09-15 03:05:03', 0),
+(5, 4, 'Tempered Window', 'Water Proof', 6000.00, 25, 'piece', 'uploads/products/1757904798_images.jpg', 8, '2025-09-15 02:53:18', '2025-09-15 02:53:18', 0),
+(6, 6, 'Cabinet', 'Water Proof', 600.00, 50, 'set', 'uploads/products/1757905716_1722505054150.jpeg', 8, '2025-09-15 03:08:36', '2025-09-15 03:08:36', 0),
+(7, 5, 'glass', 'heat proof', 500.00, 3, 'set', 'uploads/products/1757983610_10619874-the-light-trails-on-the-modern-building-background-in-shanghai-china-.jpg', 8, '2025-09-16 00:46:50', '2025-09-16 00:46:50', 0),
+(8, 1, 'Bungalow', 'good quality', 10000000.00, 2, 'set', 'uploads/products/1757983690_Infrastructure.jpg', 8, '2025-09-16 00:48:10', '2025-09-18 03:41:50', 0),
+(9, 3, 'steel', 'bakal', 800.00, 25, 'sqm', 'uploads/products/1757983757_images.jpg', 8, '2025-09-16 00:49:17', '2025-09-16 00:49:17', 0),
+(10, 7, 'Doors', 'high quality', 10000.00, 100, 'piece', 'uploads/products/1757984677_1750499159122.jpeg', 8, '2025-09-16 01:04:37', '2025-09-18 07:17:02', 1),
+(11, 1, 'Different kinds of construction', 'Limited products, must buy', 5000.00, 64, 'sad', 'uploads/products/1757985178_3124496.jpg', 8, '2025-09-16 01:12:58', '2025-09-16 07:39:51', 1),
+(12, 5, 'Baso', 'sdsad', 400.00, 60, 'KG', NULL, 8, '2025-09-18 07:07:58', '2025-09-18 07:09:42', 1);
 
 -- --------------------------------------------------------
 
@@ -188,7 +228,10 @@ CREATE TABLE `user_profiles` (
 
 INSERT INTO `user_profiles` (`id`, `account_id`, `first_name`, `last_name`, `middle_name`, `birthdate`, `contact_number`, `gender`, `region_code`, `region_name`, `province_code`, `province_name`, `city_code`, `city_name`, `barangay_code`, `barangay_name`, `street`, `created_at`, `updated_at`) VALUES
 (2, 7, 'aj', 'lin', 'mac', '2025-09-02', '091287382173721', 'male', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', '2025-09-12 11:34:43', '2025-09-12 11:43:27'),
-(3, 8, 'haha', 'ai', 'no', '2025-09-01', '09127312983', 'male', '10', 'Region X (Northern Mindanao)', '1018', 'Camiguin', '101802', 'Guinsiliban', '101802003', 'Cantaan', 'haha', '2025-09-12 11:45:37', '2025-09-12 11:45:37');
+(3, 8, 'haha', 'ai', 'no', '2025-09-01', '09127312983', 'male', '10', 'Region X (Northern Mindanao)', '1018', 'Camiguin', '101802', 'Guinsiliban', '101802003', 'Cantaan', 'haha', '2025-09-12 11:45:37', '2025-09-12 11:45:37'),
+(4, 9, 'haha', 'hah', 'hah', '2025-09-15', '080282', 'female', '17', 'Region IV-B (MIMAROPA)', '1752', 'Oriental Mindoro', '175210', 'Pola', '175210011', 'Malibago', 'haha', '2025-09-15 09:34:45', '2025-09-15 09:34:45'),
+(5, 10, 'Alvin', 'Bayabos', 'S', '2025-01-14', '09871123213', 'male', '07', 'Region VII (Central Visayas)', '0712', 'Bohol', '071211', 'Candijay', '071211014', 'Panadtaran', 'bahay', '2025-09-16 11:56:11', '2025-09-16 11:56:11'),
+(6, 11, 'aj', 'linsangan', 'm', '2000-10-18', '09123232132', 'male', '11', 'Region XI (Davao Region)', '1182', 'Compostela Valley', '118207', 'Monkayo', '118207014', 'Rizal', 'bahay', '2025-09-17 02:21:30', '2025-09-17 02:21:30');
 
 --
 -- Indexes for dumped tables
@@ -208,6 +251,13 @@ ALTER TABLE `accounts`
 ALTER TABLE `categories`
   ADD PRIMARY KEY (`category_id`),
   ADD UNIQUE KEY `category_code` (`category_code`);
+
+--
+-- Indexes for table `employees`
+--
+ALTER TABLE `employees`
+  ADD PRIMARY KEY (`employee_id`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Indexes for table `login_attempts`
@@ -251,13 +301,19 @@ ALTER TABLE `user_profiles`
 -- AUTO_INCREMENT for table `accounts`
 --
 ALTER TABLE `accounts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
   MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `employees`
+--
+ALTER TABLE `employees`
+  MODIFY `employee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `login_attempts`
@@ -269,13 +325,13 @@ ALTER TABLE `login_attempts`
 -- AUTO_INCREMENT for table `password_resets`
 --
 ALTER TABLE `password_resets`
-  MODIFY `reset_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `reset_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -287,7 +343,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `user_profiles`
 --
 ALTER TABLE `user_profiles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables

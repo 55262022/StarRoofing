@@ -1,14 +1,6 @@
 <?php
-// Add this at the top of all protected pages
-session_start();
-
-// Redirect to login if not authenticated
-if (!isset($_SESSION['account_id'])) {
-    header("Location: public/login.php");
-    exit();
-}
-
-// ... rest of your page code
+include '../includes/auth.php';
+require_once '../database/starroofing_db.php';
 ?>
 
 <!DOCTYPE html>

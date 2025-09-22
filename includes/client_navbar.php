@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="../css/admin_navbar.css">
+<link rel="stylesheet" href="../css/client_navbar.css">
 <!-- SweetAlert2 CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
@@ -20,7 +20,7 @@
                 if (isset($_SESSION['first_name']) && isset($_SESSION['last_name'])) {
                     echo htmlspecialchars($_SESSION['first_name'] . ' ' . $_SESSION['last_name']);
                 } else {
-                    echo 'Admin';
+                    echo 'Client';
                 }
                 ?>
             </div>

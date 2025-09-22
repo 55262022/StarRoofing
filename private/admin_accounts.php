@@ -202,13 +202,8 @@
         </div>
         <div id="validationStatus" class="validation-status"></div>
       </div>
-      
       <button type="submit" class="btn-primary" id="verifyBtn" disabled>Verify & Create Account</button>
     </form>
-    
-    <div class="footer">
-      <p>© 2025 Star Roofing & Construction. All rights reserved.</p>
-    </div>
 
   <script>
     $(document).ready(function() {

@@ -1,0 +1,31 @@
+{
+  "name": "roofing-estimator",
+  "version": "1.0.0",
+  "description": "An automated estimation tool for roofing materials with 3D visualization.",
+  "main": "src/index.tsx",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "4.0.3",
+    "three": "^0.132.2"
+  },
+  "devDependencies": {
+    "typescript": "^4.1.3",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2"
+  },
+  "keywords": [
+    "roofing",
+    "estimation",
+    "3D",
+    "visualization"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

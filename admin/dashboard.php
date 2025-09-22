@@ -1,10 +1,11 @@
 <?php
-session_start();
+include '../includes/auth.php';
+require_once '../database/starroofing_db.php';
 
 $welcome_message = '';
 if (isset($_SESSION['success'])) {
     $welcome_message = $_SESSION['success'];
-    unset($_SESSION['success']); // remove so it won’t repeat
+    unset($_SESSION['success']);
 }
 ?>
 
@@ -457,6 +458,7 @@ if (isset($_SESSION['success'])) {
             icon: 'info',
             title: 'Welcome Admin',
             text: '<?php echo addslashes($welcome_message); ?>',
+            timer: 3000,
             confirmButtonColor: '#3B71CA'
         });
     <?php endif; ?>

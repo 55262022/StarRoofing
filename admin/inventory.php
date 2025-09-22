@@ -1,13 +1,6 @@
 <?php
-session_start();
-
-// Redirect to login if not authenticated
-if (!isset($_SESSION['account_id'])) {
-    header("Location: ../public/login.php");
-    exit();
-}
-
-require_once '../database/starroofing_db.php'; 
+include '../includes/auth.php';
+require_once '../database/starroofing_db.php';
 
 // Function to determine status based on stock quantity
 function getStockStatus($quantity) {

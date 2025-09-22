@@ -191,47 +191,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             });
         });
-        
-        // Form validation with SweetAlert
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            if (email.trim() === '') {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Please enter your email address',
-                    confirmButtonColor: '#3B71CA'
-                });
-                return;
-            }
-            
-            // Basic email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid Email',
-                    text: 'Please enter a valid email address',
-                    confirmButtonColor: '#3B71CA'
-                });
-                return;
-            }
-            
-            if (password.length < 6) {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Password Too Short',
-                    text: 'Password must be at least 6 characters long',
-                    confirmButtonColor: '#3B71CA'
-                });
-                return;
-            }
-        });
 
         // Display PHP error messages with SweetAlert
         <?php if (!empty($error)): ?>
@@ -243,15 +202,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             });
         <?php endif; ?>
 
-        // Display success message if redirected from another page
-        <?php if (isset($_GET['reset_test_passwords']) && !empty($error)): ?>
+        // Display password reset success message
+        <?php if (isset($_GET['reset']) && $_GET['reset'] === 'success'): ?>
             Swal.fire({
                 icon: 'success',
-                title: 'Success',
-                text: '<?php echo addslashes($error); ?>',
+                title: 'Password reset Successful',
+                text: 'You can now log in with your new password.',
+                timer: 3000,
                 confirmButtonColor: '#3B71CA'
             });
         <?php endif; ?>
+
     </script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../database/starroofing_db.php';
-require_once '../vendor/autoload.php';
+require_once __DIR__ . '../database/starroofing_db.php';
+require '../vendor/autoload.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();

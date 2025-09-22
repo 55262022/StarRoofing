@@ -1,7 +1,6 @@
 <?php
+include '../includes/auth.php';
 require_once '../database/starroofing_db.php';
-
-header('Content-Type: application/json');
 
 if (isset($_GET['id'])) {
     $employee_id = intval($_GET['id']);

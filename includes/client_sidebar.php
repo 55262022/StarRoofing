@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="../css/admin_sidebar.css">
+<link rel="stylesheet" href="../css/client_sidebar.css">
 
 <aside class="sidebar">
     <div class="sidebar-header">
@@ -8,13 +8,13 @@
     
     <ul class="sidebar-menu">
         <li><a href="dashboard.php"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
-        <li><a href="employees.php"><i class="fas fa-users"></i> <span>Employees</span></a></li>
-        <li><a href="project.php"><i class="fas fa-hard-hat"></i> <span>Projects</span></a></li>
-        <li><a href="inventory.php"><i class="fas fa-boxes"></i> <span>Inventory</span></a></li>
-        <li><a href="estimate.php"><i class="fas fa-tools"></i> <span>3D Estimate</span></a></li>
+        <!-- <li><a href="employees.php"><i class="fas fa-users"></i> <span>Employees</span></a></li> -->
+        <!-- <li><a href="#"><i class="fas fa-hard-hat"></i> <span>Projects</span></a></li> -->
+        <!-- <li><a href="inventory.php"><i class="fas fa-boxes"></i> <span>Inventory</span></a></li> -->
+        <li><a href="materials.php"><i class="fas fa-tools"></i> <span>Materials</span></a></li>
         <!-- <li><a href="#"><i class="fas fa-file-invoice-dollar"></i> <span>Invoices</span></a></li> -->
-        <li><a href="schedule.php"><i class="fas fa-calendar-alt"></i> <span>Schedule</span></a></li>
-        <li><a href="reports.php"><i class="fas fa-chart-bar"></i> <span>Reports</span></a></li>
+        <!-- <li><a href="#"><i class="fas fa-calendar-alt"></i> <span>Schedule</span></a></li>
+        <li><a href="#"><i class="fas fa-chart-bar"></i> <span>Reports</span></a></li> -->
         
         <!-- Settings with Dropdown -->
         <li class="has-dropdown">

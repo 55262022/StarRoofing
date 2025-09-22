@@ -1,13 +1,6 @@
 <?php
-session_start();
-
-// Redirect to login if not authenticated
-if (!isset($_SESSION['account_id'])) {
-    header("Location: ../public/login.php");
-    exit();
-}
-
-require_once '../database/starroofing_db.php'; 
+include '../includes/auth.php';
+require_once '../database/starroofing_db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_product'])) {
     $product_id     = intval($_POST['product_id']);

@@ -1,12 +1,6 @@
 <?php
 session_start();
-include '../database/starroofing_db.php';
-
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-header('Content-Type: application/json');
+require_once __DIR__ . '/../database/starroofing_db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'])) {
     $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);

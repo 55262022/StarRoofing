@@ -1,4 +1,5 @@
 <?php
+include '../includes/auth.php';
 require_once '../database/starroofing_db.php';
 
 if (isset($_GET['id'])) {

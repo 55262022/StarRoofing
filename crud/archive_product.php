@@ -1,5 +1,5 @@
 <?php
-session_start();
+include '../includes/auth.php';
 require_once '../database/starroofing_db.php';
 
 if (isset($_POST['archive_product'])) {

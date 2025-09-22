@@ -1,3 +1,9 @@
+<?php
+session_start();
+$error_message = $_SESSION['error_message'] ?? '';
+$old_email = $_SESSION['old_email'] ?? '';
+unset($_SESSION['error_message'], $_SESSION['old_email']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/forgot_password.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <!-- Forgot Password Content -->
@@ -19,23 +26,12 @@
             </div>
             
             <div class="forgot-body">
-                <?php if (isset($error_message) && !empty($error_message)): ?>
-                    <div class="error-message">
-                        <i class="fas fa-exclamation-circle"></i> <?php echo $error_message; ?>
-                    </div>
-                <?php endif; ?>
-                
-                <?php if (isset($success_message) && !empty($success_message)): ?>
-                    <div class="success-message">
-                        <i class="fas fa-check-circle"></i> <?php echo $success_message; ?>
-                    </div>
-                <?php endif; ?>
-                
                 <form id="forgotForm" method="POST" action="enter_email.php">
                     <div class="form-group">
                         <label for="email">Email Address</label>
                         <i class="fas fa-envelope input-icon"></i>
-                        <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+                        <input type="email" id="email" name="email" placeholder="Enter your email address" 
+                               value="<?php echo htmlspecialchars($old_email); ?>" required>
                     </div>
                     
                     <button type="submit" class="forgot-button">Send Code</button>
@@ -49,38 +45,13 @@
     </div>
 
     <script>
-        // Form validation
-        document.getElementById('forgotForm').addEventListener('submit', function(e) {
-            const email = document.getElementById('email').value;
-            
-            if (email.trim() === '') {
-                e.preventDefault();
-                alert('Please enter your email address');
-                return;
-            }
-            
-            // Basic email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                e.preventDefault();
-                alert('Please enter a valid email address');
-                return;
-            }
-        });
-        
-        // Simple animation for input focus
-        const inputs = document.querySelectorAll('input');
-        inputs.forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.classList.add('focused');
+        <?php if (!empty($error_message)): ?>
+            Swal.fire({
+                icon: 'error',
+                title: '<?php echo $error_message; ?>',
+                confirmButtonColor: '#e9b949'
             });
-            
-            input.addEventListener('blur', function() {
-                if (this.value === '') {
-                    this.parentElement.classList.remove('focused');
-                }
-            });
-        });
+        <?php endif; ?>
     </script>
 </body>
 </html>

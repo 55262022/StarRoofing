@@ -1,11 +1,5 @@
 <?php
-session_start();
-// Redirect to login if not authenticated
-if (!isset($_SESSION['account_id'])) {
-    header("Location: ../public/login.php");
-    exit();
-}
-
+include '../includes/auth.php';
 require_once '../database/starroofing_db.php';
 
 // Check for success message from restore operation

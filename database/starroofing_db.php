@@ -1,10 +1,17 @@
 <?php
 // database/starroofing_db.php
+require __DIR__ . '/../vendor/autoload.php';
 
-$host = 'localhost';
-$dbname = 'starroofing_db';
-$username = 'root';
-$password = ''; 
+use Dotenv\Dotenv;
+
+// Load .env from project root
+$dotenv = Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
+
+$host     = $_ENV['DB_HOST'];
+$dbname   = $_ENV['DB_NAME'];
+$username = $_ENV['DB_USER'];
+$password = $_ENV['DB_PASSWORD'];
 
 // Create connection
 $conn = new mysqli($host, $username, $password, $dbname);
@@ -14,7 +21,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Set charset to utf8mb4 for proper encoding
+// Set charset
 $conn->set_charset("utf8mb4");
 
 /**
@@ -28,14 +35,12 @@ function verify_credentials($email, $password, $conn) {
             WHERE a.email = ?";
     
     $stmt = $conn->prepare($sql);
-    
     if (!$stmt) {
         error_log("Prepare failed: " . $conn->error);
         return false;
     }
     
     $stmt->bind_param("s", $email);
-    
     if (!$stmt->execute()) {
         error_log("Execute failed: " . $stmt->error);
         $stmt->close();
@@ -47,9 +52,7 @@ function verify_credentials($email, $password, $conn) {
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
         
-        // Verify password
         if (password_verify($password, $user['password'])) {
-            // Update last login
             $update_sql = "UPDATE accounts SET last_login = NOW() WHERE id = ?";
             $update_stmt = $conn->prepare($update_sql);
             $update_stmt->bind_param("i", $user['id']);
@@ -85,4 +88,3 @@ function email_exists($email, $conn) {
     
     return $exists;
 }
-?>

@@ -1,6 +1,6 @@
 <?php
-session_start();
-include '../database/starroofing_db.php';
+include '../includes/auth.php';
+require_once '../database/starroofing_db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $employee_id = $_POST['employee_id'] ?? null;

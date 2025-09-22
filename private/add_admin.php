@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../database/starroofing_db.php';
+require_once __DIR__ . '/../database/starroofing_db.php';
 require '../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
