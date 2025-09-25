@@ -81,7 +81,7 @@
             showCancelButton: true,
             confirmButtonColor: '#3B71CA',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Logout!',
+            confirmButtonText: 'Logout',
             cancelButtonText: 'Cancel',
             reverseButtons: true
         }).then((result) => {

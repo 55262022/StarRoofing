@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +10,10 @@
     <link rel="stylesheet" href="../css/home.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css"/>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         /* Additional styles for the Get Started button */
         .hero-cta {
@@ -54,7 +61,7 @@
             
             <!-- Get Started Button -->
             <div class="hero-cta">
-                <a href="register.php" class="cta-button">Get Started</a>
+                <a href="login.php" class="cta-button">Get Started</a>
             </div>
         </div>
     </section>
@@ -116,24 +123,46 @@
             (Smart) 0908-620-23-813/ (Sun) 0933-628-3312 / Tel. No.: (044) 329-0881
             or kindly write your concerns below. Thank You!</p>
             
+            <form id="contactForm">
             <div class="contact-form">
                 <div class="form-group">
-                    <input type="text" name="firstname" placeholder="Your Name" required>
+                <input type="text" name="firstname" placeholder="Your Name" required>
                 </div>
                 <div class="form-group">
-                    <input type="text" name="lastname" placeholder="Lastname" required>
+                <input type="text" name="lastname" placeholder="Lastname" required>
                 </div>
                 <div class="form-group">
-                    <input type="email" name="email" placeholder="Email" required>
+                <input type="email" name="email" placeholder="Email" required>
                 </div>
                 <div class="form-group">
-                    <textarea name="message" placeholder="Your Message" required></textarea>
+                <textarea name="message" placeholder="Your Message" required></textarea>
                 </div>
-                <button type="submit">Send Message</button>
+                <div class="form-group button-container">
+                <button type="submit">SUBMIT</button>
+                </div>
             </div>
+            </form>
         </div>
     </section>
 
     <?php include '../includes/footer.php'?>
+
+    <script>
+        $(document).ready(function(){
+            $("#contactForm").on("submit", function(e){
+            e.preventDefault(); // stop normal form submission
+
+            $.ajax({
+                url: "save_contact.php",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function(response){
+                // Inject the response (SweetAlert JS) into page
+                $("body").append(response);
+                }
+            });
+            });
+        });
+    </script>
 </body>
 </html>

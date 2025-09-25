@@ -162,7 +162,17 @@
             min-height: 150px;
             resize: vertical;
         }
-        
+
+        .button-container {
+            text-align: center;
+        }
+
+        .button-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
         button[type="submit"] {
             background-color: #1a365d;
             color: white;

@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['role_id'] = $user['role_id'];
                         
                     // Redirect to dashboard
-                    $_SESSION['success'] = "Login successful!";
+                    $_SESSION['success'] = "Log In Successful!";
                     header("Location: ../admin/dashboard.php");
                     exit();
                     }
@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 
                 <div class="register-link">
-                    Don't have an account? <a href="register.php">Register now</a>
+                    Don't have an account? <a href="homepage.php#contact">Contact Star Roofing</a>
                 </div>
             </div>
         </div>
@@ -196,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if (!empty($error)): ?>
             Swal.fire({
                 icon: 'error',
-                title: 'Login Failed',
+                title: 'Log In Failed',
                 text: 'Incorrect Email or Password',
                 confirmButtonColor: '#3B71CA'
             });

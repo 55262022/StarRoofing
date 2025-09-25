@@ -413,12 +413,14 @@ if (isset($_SESSION['success'])) {
                         </div>
                     </div>
                     
-                    <div class="stat-icon duration">
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>180</h3>
-                        <p>Total Project Days</p>
+                    <div class="stat-card">
+                        <div class="stat-icon duration">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>180</h3>
+                            <p>Total Project Days</p>
+                        </div>
                     </div>
                 </div>
                 
