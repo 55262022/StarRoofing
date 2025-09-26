@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 22, 2025 at 04:56 PM
+-- Generation Time: Sep 25, 2025 at 04:13 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -44,10 +44,9 @@ CREATE TABLE `accounts` (
 
 INSERT INTO `accounts` (`id`, `email`, `password`, `role_id`, `account_status`, `last_login`, `created_at`, `updated_at`) VALUES
 (7, 'ajmacaraig19@gmail.com', '$2y$10$Ikzxt/KyPqurqMGrfb9qKejLEJZEvCLD16CpFSHlJ4AN9Lsp3Woy6', 2, 'active', '2025-09-12 14:16:02', '2025-09-12 11:34:43', '2025-09-16 11:53:38'),
-(8, 'ajmacaraig20@gmail.com', '$2y$10$Ls7fYC93AlgT4LiKWrmN9OhqcejQnACuT/hzdbKkxaFvjO8MAX5CO', 2, 'active', '2025-09-22 11:25:13', '2025-09-12 11:45:37', '2025-09-22 11:25:13'),
-(9, 'ajmacaraig18@gmail.com', '$2y$10$qzctyn/aS52IskG7hufgm.SIUzpsjoPamDq0Kfca.eFyqFXdsX7tq', 2, 'active', NULL, '2025-09-15 09:34:45', '2025-09-17 16:36:13'),
-(10, '57842022@holycross.edu.ph', '$2y$10$VbwIwOWnPmhDvFsPwccoaOBzujWxl9waRxoJJbhXxMZpWPIR/Mmlu', 2, 'active', NULL, '2025-09-16 11:56:11', '2025-09-16 11:59:57'),
-(11, 'ajmacaraig1827@gmail.com', '$2y$10$g6qXtUuUtyQOXoBWDkvxjOLNsfFe8DewrA/VIED9ZhT0Ic.j6xP5S', 2, 'active', NULL, '2025-09-17 02:21:30', '2025-09-17 02:21:30');
+(8, 'ajmacaraig20@gmail.com', '$2y$10$Ls7fYC93AlgT4LiKWrmN9OhqcejQnACuT/hzdbKkxaFvjO8MAX5CO', 2, 'active', '2025-09-25 14:03:57', '2025-09-12 11:45:37', '2025-09-25 14:03:57'),
+(9, 'ajmacaraig18@gmail.com', '$2y$10$OZXELi0rND6kKf2RrBGOeut6xN9sAQ9sDbh/G6ExsSWBKkMKu0cpC', 2, 'active', NULL, '2025-09-15 09:34:45', '2025-09-22 17:40:32'),
+(10, '57842022@holycross.edu.ph', '$2y$10$VbwIwOWnPmhDvFsPwccoaOBzujWxl9waRxoJJbhXxMZpWPIR/Mmlu', 2, 'active', NULL, '2025-09-16 11:56:11', '2025-09-16 11:59:57');
 
 -- --------------------------------------------------------
 
@@ -76,6 +75,33 @@ INSERT INTO `categories` (`category_id`, `category_code`, `category_name`, `desc
 (5, 'glass', 'Glass & Aluminum', 'Glass and aluminum products', '2025-09-14 11:46:09', '2025-09-14 11:46:09'),
 (6, 'cabinet', 'Modular Cabinet', 'Modular cabinet solutions', '2025-09-14 11:46:09', '2025-09-14 11:46:09'),
 (7, 'doors', 'Combi/Blind & Roll Up Doors', 'Various door types', '2025-09-14 11:46:09', '2025-09-14 11:46:09');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `contact_messages`
+--
+
+CREATE TABLE `contact_messages` (
+  `id` int(11) NOT NULL,
+  `firstname` varchar(100) NOT NULL,
+  `lastname` varchar(100) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `message` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_archived` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `contact_messages`
+--
+
+INSERT INTO `contact_messages` (`id`, `firstname`, `lastname`, `email`, `message`, `created_at`, `is_archived`) VALUES
+(1, 'aj', 'linsangan', 'ajmacaraig20@gmail.com', 'testing123', '2025-09-25 07:30:51', 0),
+(2, 'aj', 'linsangan', 'ajmacaraig20@gmail.com', 'testing123', '2025-09-25 07:32:16', 0),
+(3, 'AJEY', 'MAC', 'ajmacaraig19@gmail.com', 'testing', '2025-09-25 07:33:22', 0),
+(4, 'lex', 'lucas', 'ajmacaraig18@gmail.com', '123', '2025-09-25 07:39:48', 0),
+(5, 'kas', 'poll', 'ajmacaraig1827@gmail.com', 'last try', '2025-09-25 07:41:50', 0);
 
 -- --------------------------------------------------------
 
@@ -134,6 +160,13 @@ CREATE TABLE `password_resets` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `used` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `password_resets`
+--
+
+INSERT INTO `password_resets` (`reset_id`, `email`, `token`, `expires_at`, `created_at`, `used`) VALUES
+(7, 'ajmacaraig18@gmail.com', '744744', '2025-09-22 19:42:55', '2025-09-22 17:37:55', 1);
 
 -- --------------------------------------------------------
 
@@ -230,8 +263,7 @@ INSERT INTO `user_profiles` (`id`, `account_id`, `first_name`, `last_name`, `mid
 (2, 7, 'aj', 'lin', 'mac', '2025-09-02', '091287382173721', 'male', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', '2025-09-12 11:34:43', '2025-09-12 11:43:27'),
 (3, 8, 'haha', 'ai', 'no', '2025-09-01', '09127312983', 'male', '10', 'Region X (Northern Mindanao)', '1018', 'Camiguin', '101802', 'Guinsiliban', '101802003', 'Cantaan', 'haha', '2025-09-12 11:45:37', '2025-09-12 11:45:37'),
 (4, 9, 'haha', 'hah', 'hah', '2025-09-15', '080282', 'female', '17', 'Region IV-B (MIMAROPA)', '1752', 'Oriental Mindoro', '175210', 'Pola', '175210011', 'Malibago', 'haha', '2025-09-15 09:34:45', '2025-09-15 09:34:45'),
-(5, 10, 'Alvin', 'Bayabos', 'S', '2025-01-14', '09871123213', 'male', '07', 'Region VII (Central Visayas)', '0712', 'Bohol', '071211', 'Candijay', '071211014', 'Panadtaran', 'bahay', '2025-09-16 11:56:11', '2025-09-16 11:56:11'),
-(6, 11, 'aj', 'linsangan', 'm', '2000-10-18', '09123232132', 'male', '11', 'Region XI (Davao Region)', '1182', 'Compostela Valley', '118207', 'Monkayo', '118207014', 'Rizal', 'bahay', '2025-09-17 02:21:30', '2025-09-17 02:21:30');
+(5, 10, 'Alvin', 'Bayabos', 'S', '2025-01-14', '09871123213', 'male', '07', 'Region VII (Central Visayas)', '0712', 'Bohol', '071211', 'Candijay', '071211014', 'Panadtaran', 'bahay', '2025-09-16 11:56:11', '2025-09-16 11:56:11');
 
 --
 -- Indexes for dumped tables
@@ -251,6 +283,12 @@ ALTER TABLE `accounts`
 ALTER TABLE `categories`
   ADD PRIMARY KEY (`category_id`),
   ADD UNIQUE KEY `category_code` (`category_code`);
+
+--
+-- Indexes for table `contact_messages`
+--
+ALTER TABLE `contact_messages`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `employees`
@@ -310,6 +348,12 @@ ALTER TABLE `categories`
   MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
+-- AUTO_INCREMENT for table `contact_messages`
+--
+ALTER TABLE `contact_messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
 -- AUTO_INCREMENT for table `employees`
 --
 ALTER TABLE `employees`
@@ -325,7 +369,7 @@ ALTER TABLE `login_attempts`
 -- AUTO_INCREMENT for table `password_resets`
 --
 ALTER TABLE `password_resets`
-  MODIFY `reset_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `reset_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `products`
