@@ -7,23 +7,13 @@ require_once '../database/starroofing_db.php';
 <head>
   <meta charset="utf-8" />
   <title>3D Editor — Star Roofing</title>
-
-  <!-- Meta -->
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-
-  <!-- Google Font -->
+  
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <!-- Page styles (scoped) -->
   <style>
     :root {
       --bg: #f5f7fb;
@@ -46,7 +36,6 @@ require_once '../database/starroofing_db.php';
       padding: 1.25rem;
     }
 
-    /* Left column - tools */
     .left-col {
       width: 300px;
       max-width: 30%;
@@ -56,7 +45,6 @@ require_once '../database/starroofing_db.php';
       gap: 1rem;
     }
 
-    /* Center canvas */
     .canvas-col {
       flex: 1;
       display: flex;
@@ -64,7 +52,6 @@ require_once '../database/starroofing_db.php';
       gap: 1rem;
     }
 
-    /* Right properties */
     .right-col {
       width: 320px;
       max-width: 32%;
@@ -107,9 +94,7 @@ require_once '../database/starroofing_db.php';
     }
 
     .muted { color: var(--muted); font-size: .95rem; }
-
     .small { font-size:.88rem; }
-
     .prop-row { display:flex; gap:.5rem; align-items:center; }
 
     .status-bar {
@@ -117,7 +102,6 @@ require_once '../database/starroofing_db.php';
       padding:.5rem 1rem; background: #fff; border-radius:8px; box-shadow: 0 4px 10px rgba(2,6,23,0.04);
     }
 
-    /* responsive */
     @media (max-width: 1100px) {
       .app-shell { flex-direction: column; padding: .75rem; }
       .left-col, .right-col { width: 100%; max-width: none; min-width: auto; }
@@ -131,7 +115,7 @@ require_once '../database/starroofing_db.php';
   <div class="d-flex align-items-center justify-content-between py-3">
     <h3 class="mb-0">3D Model Editor</h3>
     <div>
-      <a href="dashboard.php" class="btn btn-sm btn-outline-secondary"><i class="fa fa-arrow-left"></i> Back</a>
+      <a href="inventory.php" class="btn btn-sm btn-outline-secondary"><i class="fa fa-arrow-left"></i> Back</a>
     </div>
   </div>
 
@@ -173,7 +157,7 @@ require_once '../database/starroofing_db.php';
 
       <div class="card-panel mt-2">
         <h6 class="mb-2">Tools</h6>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
           <button id="selectTool" class="btn btn-outline-secondary btn-sm"><i class="fa fa-mouse-pointer"></i> Select</button>
           <button id="moveTool" class="btn btn-outline-secondary btn-sm"><i class="fa fa-arrows"></i> Move</button>
           <button id="rotateTool" class="btn btn-outline-secondary btn-sm"><i class="fa fa-rotate"></i> Rotate</button>
@@ -227,7 +211,7 @@ require_once '../database/starroofing_db.php';
       <div class="card-panel">
         <h6>Material</h6>
         <label class="small">Color</label>
-        <input id="colorPicker" type="color" class="form-control form-control-color p-1 mb-2">
+        <input id="colorPicker" type="color" value="#ffffff" class="form-control form-control-color p-1 mb-2">
 
         <label class="small">Metalness <span id="metalVal" class="ms-2 small muted">0.50</span></label>
         <input id="metalness" type="range" min="0" max="1" step="0.01" value="0.5" class="form-range">
@@ -248,335 +232,514 @@ require_once '../database/starroofing_db.php';
     </aside>
   </div>
 </div>
-<!-- Three.js (ESM) and utils (module import) -->
-<script type="module">
-  import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.152.0/build/three.module.js";
-  import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.152.0/examples/jsm/loaders/GLTFLoader.js";
-  import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.152.0/examples/jsm/controls/OrbitControls.js";
-  import { GLTFExporter } from "https://cdn.jsdelivr.net/npm/three@0.152.0/examples/jsm/exporters/GLTFExporter.js";
 
-  // Utilities
-  const $ = selector => document.querySelector(selector);
-  const log = (msg) => {
-    const c = document.getElementById('consoleLog');
-    document.getElementById('consoleEmpty')?.remove();
-    const div = document.createElement('div');
-    div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-    c.prepend(div);
-  };
-
-  // Elements
-  const uploadZone = $('#uploadZone');
-  const fileInput = $('#fileInput');
-  const generateBtn = $('#generateBtn');
-  const downloadBtn = $('#downloadBtn');
-  const importGLBBtn = $('#importGLBBtn');
-  const statusText = $('#statusText');
-  const modelInfo = $('#modelInfo');
-
-  // Three.js scene variables
-  let scene, camera, renderer, controls, loadedModel = null, textureLoader;
-
-  function updateStatus(txt, isError=false){
-    statusText.textContent = txt;
-    statusText.style.color = isError ? '#d6333f' : '';
+<!-- IMPORTANT: Use importmap for Three.js modules -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   }
-
-  function initThree() {
-    const container = document.getElementById('threeViewport');
-    // clear old canvas if present
-    container.innerHTML = '';
-
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xeaeef6);
-
-    const w = container.clientWidth;
-    const h = container.clientHeight;
-    camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 1000);
-    camera.position.set(2.5, 2.0, 3.5);
-
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setPixelRatio(window.devicePixelRatio || 1);
-    renderer.setSize(w, h);
-    renderer.outputEncoding = THREE.sRGBEncoding;
-    container.appendChild(renderer.domElement);
-
-    // lights
-    const dir = new THREE.DirectionalLight(0xffffff, 0.9);
-    dir.position.set(5, 10, 7.5);
-    scene.add(dir);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-
-    // grid + ground
-    const grid = new THREE.GridHelper(10, 20, 0xbfc9df, 0xe9eef6);
-    scene.add(grid);
-
-    // orbit controls
-    controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-
-    textureLoader = new THREE.TextureLoader();
-
-    window.addEventListener('resize', onWindowResize);
-    animate();
-  }
-
-  function onWindowResize(){
-    const container = document.getElementById('threeViewport');
-    if(!container) return;
-    const w = container.clientWidth;
-    const h = container.clientHeight;
-    camera.aspect = w/h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w,h);
-  }
-
-  function animate(){
-    requestAnimationFrame(animate);
-    controls && controls.update();
-    renderer && renderer.render(scene,camera);
-  }
-
-  function clearModel(){
-    if(!scene) return;
-    if(loadedModel){
-      scene.remove(loadedModel);
-      loadedModel.traverse && loadedModel.traverse(child => { if(child.geometry) child.geometry.dispose && child.geometry.dispose(); if(child.material) { 
-        if(Array.isArray(child.material)) child.material.forEach(m => m.dispose && m.dispose()); else child.material.dispose && child.material.dispose();
-      }});
-      loadedModel = null;
-      modelInfo.textContent = '';
-    }
-  }
-
-  async function loadModelFromUrl(url){
-    updateStatus('Loading model...');
-    log('Loading model from: ' + url);
-    try {
-      clearModel();
-      const loader = new GLTFLoader();
-      await new Promise((resolve, reject) => {
-        loader.load(url, gltf => {
-          loadedModel = gltf.scene;
-          // center model
-          const box = new THREE.Box3().setFromObject(loadedModel);
-          const center = box.getCenter(new THREE.Vector3());
-          loadedModel.position.sub(center); // center to origin
-          scene.add(loadedModel);
-          modelInfo.textContent = `Model: ${Math.round(box.getSize(new THREE.Vector3()).x*100)/100} x ${Math.round(box.getSize(new THREE.Vector3()).y*100)/100} x ${Math.round(box.getSize(new THREE.Vector3()).z*100)/100} units`;
-          updateStatus('Model loaded');
-          resolve();
-        }, xhr => {
-          // progress (optional)
-        }, err => {
-          reject(err);
-        });
-      });
-    } catch (err) {
-      console.error(err);
-      log('Error loading model: ' + (err.message || err));
-      updateStatus('Failed to load model', true);
-      Swal.fire('Error','Unable to load model. Check console for details.','error');
-    }
-  }
-
-  // EXPORT as .gltf (JSON)
-  function exportGLTF(){
-    if(!loadedModel){
-      Swal.fire('No model','Load or generate a model first','info');
-      return;
-    }
-    updateStatus('Exporting glTF...');
-    const exporter = new GLTFExporter();
-    exporter.parse(loadedModel, result => {
-      let output;
-      if (result instanceof ArrayBuffer) {
-        output = result;
-      } else {
-        output = JSON.stringify(result, null, 2);
-      }
-      const blob = new Blob([output], {type: result instanceof ArrayBuffer ? 'model/gltf-binary' : 'model/gltf+json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'model.gltf';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      updateStatus('Export complete');
-      log('GLTF exported');
-    }, { binary: false });
-  }
-
-  // Apply material/color changes
-  function applyMaterialSettings(){
-    if(!loadedModel) return;
-    const color = $('#colorPicker').value;
-    const metal = parseFloat($('#metalness').value);
-    const rough = parseFloat($('#roughness').value);
-    loadedModel.traverse(c => {
-      if(c.isMesh){
-        if(c.material){
-          // ensure PBR material
-          if(!('metalness' in c.material)){
-            c.material = new THREE.MeshStandardMaterial({ map: c.material.map, color: c.material.color || new THREE.Color(color) });
-          }
-          try {
-            c.material.color.set(color);
-            c.material.metalness = metal;
-            c.material.roughness = rough;
-            c.material.needsUpdate = true;
-          } catch(e){ /* ignore */ }
-        }
-      }
-    });
-  }
-
-  // Hook up UI elements
-  function hookUI(){
-    // drag/drop
-    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
-    ['dragleave','dragend'].forEach(ev => uploadZone.addEventListener(ev, e => { uploadZone.classList.remove('dragover'); }));
-    uploadZone.addEventListener('drop', e => {
-      e.preventDefault();
-      uploadZone.classList.remove('dragover');
-      const files = Array.from(e.dataTransfer.files || []);
-      handleFiles(files);
-    });
-
-    uploadZone.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', e => handleFiles(Array.from(e.target.files)));
-
-    // import local .glb
-    importGLBBtn.addEventListener('click', () => {
-      const input = document.createElement('input');
-      input.type = 'file'; input.accept = '.gltf,.glb'; input.onchange = (ev) => {
-        const f = ev.target.files[0];
-        if(!f) return;
-        const url = URL.createObjectURL(f);
-        loadModelFromUrl(url);
-      };
-      input.click();
-    });
-
-    // generate (meshy upload)
-    generateBtn.addEventListener('click', async () => {
-      // If the user already loaded local files stored in uploadFiles, use that
-      if(!window.uploadFiles || window.uploadFiles.length === 0){
-        Swal.fire('No images','Add at least one image to generate','warning');
-        return;
-      }
-      updateStatus('Uploading images to server...');
-      log('Uploading ' + window.uploadFiles.length + ' images to server');
-      const fd = new FormData();
-      for(const f of window.uploadFiles) fd.append('images[]', f);
-      try {
-        const resp = await fetch('meshy/meshy_upload.php', { method: 'POST', body: fd });
-        const text = await resp.text();
-        log('Raw response: ' + text);
-        let json;
-        try { json = JSON.parse(text); } catch(e) {
-          updateStatus('Invalid response from API', true);
-          Swal.fire('API Error','Server returned invalid JSON. Check logs.','error');
-          return;
-        }
-        if(json.status === 'success' && json.model_url){
-          await loadModelFromUrl(json.model_url);
-        } else {
-          const msg = json.message || 'Unexpected response from Meshy API';
-          updateStatus('API: ' + msg, true);
-          Swal.fire('Meshy Error', msg, 'error');
-        }
-      } catch (err) {
-        console.error(err);
-        log('Network or server error: ' + (err.message||err));
-        updateStatus('Upload failed', true);
-        Swal.fire('Error','Upload failed. See console.','error');
-      }
-    });
-
-    // export
-    downloadBtn.addEventListener('click', exportGLTF);
-
-    // transform controls
-    $('#scaleRange').addEventListener('input', e => {
-      $('#scaleVal').textContent = parseFloat(e.target.value).toFixed(2);
-      if(loadedModel) loadedModel.scale.setScalar(parseFloat(e.target.value));
-    });
-    ['rotateX','rotateY','rotateZ'].forEach(id => {
-      $('#' + id).addEventListener('input', e => {
-        if(!loadedModel) return;
-        const v = THREE.MathUtils.degToRad(parseFloat(e.target.value));
-        if(id === 'rotateX') loadedModel.rotation.x = v;
-        if(id === 'rotateY') loadedModel.rotation.y = v;
-        if(id === 'rotateZ') loadedModel.rotation.z = v;
-      });
-    });
-
-    // material controls
-    $('#colorPicker').addEventListener('input', applyMaterialSettings);
-    $('#metalness').addEventListener('input', e => { $('#metalVal').textContent = parseFloat(e.target.value).toFixed(2); applyMaterialSettings(); });
-    $('#roughness').addEventListener('input', e => { $('#roughVal').textContent = parseFloat(e.target.value).toFixed(2); applyMaterialSettings(); });
-
-    // texture
-    $('#textureUpload').addEventListener('change', e => {
-      const f = e.target.files[0];
-      if(!f || !loadedModel) return;
-      const url = URL.createObjectURL(f);
-      const tex = new THREE.TextureLoader().load(url, () => {
-        loadedModel.traverse(c => {
-          if(c.isMesh && c.material){
-            c.material.map = tex;
-            c.material.needsUpdate = true;
-          }
-        });
-        log('Texture applied');
-        URL.revokeObjectURL(url);
-      });
-    });
-
-    // wireframe toggle
-    $('#wireframeBtn').addEventListener('click', () => {
-      if(!loadedModel) return;
-      let current = false;
-      loadedModel.traverse(c => { if(c.isMesh && c.material){ current = !!c.material.wireframe; } });
-      loadedModel.traverse(c => { if(c.isMesh && c.material){ c.material.wireframe = !current; c.material.needsUpdate = true; } });
-    });
-
-    // reset view
-    $('#resetCameraBtn').addEventListener('click', () => {
-      if(!camera || !controls) return;
-      camera.position.set(2.5,2.0,3.5);
-      controls.target.set(0,0,0);
-      controls.update();
-    });
-  }
-
-  // file handling store
-  window.uploadFiles = [];
-
-  function handleFiles(files){
-    // Accept only images
-    const accepted = files.filter(f => f.type && f.type.startsWith('image/'));
-    if(accepted.length === 0){
-      Swal.fire('Invalid files','Please select image files only (jpg/png).','warning');
-      return;
-    }
-    // store
-    window.uploadFiles = window.uploadFiles.concat(accepted);
-    updateStatus(`${window.uploadFiles.length} image(s) ready`);
-    log('Added ' + accepted.length + ' images. Total: ' + window.uploadFiles.length);
-  }
-
-  // initialize everything
-  initThree();
-  hookUI();
-  log('Editor ready');
-  updateStatus('Ready');
-
+}
 </script>
 
-<!-- Bootstrap JS (non-module) -->
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+
+// Product ID no longer required
+const productId = null;
+
+// Utilities
+const $ = (sel) => document.querySelector(sel);
+const log = (msg) => {
+  const c = $('#consoleLog');
+  const empty = $('#consoleEmpty');
+  if (empty) empty.remove();
+  
+  const div = document.createElement('div');
+  div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  c.insertBefore(div, c.firstChild);
+};
+
+// Global state
+const state = {
+  scene: null,
+  camera: null,
+  renderer: null,
+  controls: null,
+  loadedModel: null,
+  textureLoader: null,
+  uploadFiles: []
+};
+
+function updateStatus(txt, isError = false) {
+  const statusEl = $('#statusText');
+  statusEl.textContent = txt;
+  statusEl.style.color = isError ? '#dc3545' : '';
+  log(txt);
+}
+
+function initThree() {
+  const container = $('#threeViewport');
+  container.innerHTML = '';
+
+  state.scene = new THREE.Scene();
+  state.scene.background = new THREE.Color(0xeaeef6);
+
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+  
+  state.camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 1000);
+  state.camera.position.set(2.5, 2.0, 3.5);
+
+  state.renderer = new THREE.WebGLRenderer({ antialias: true });
+  state.renderer.setPixelRatio(window.devicePixelRatio);
+  state.renderer.setSize(w, h);
+  state.renderer.outputColorSpace = THREE.SRGBColorSpace;
+  container.appendChild(state.renderer.domElement);
+
+  // Lighting
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.position.set(5, 10, 7.5);
+  state.scene.add(dirLight);
+  state.scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+
+  // Grid
+  const grid = new THREE.GridHelper(10, 20, 0xbfc9df, 0xe9eef6);
+  state.scene.add(grid);
+
+  // Controls
+  state.controls = new OrbitControls(state.camera, state.renderer.domElement);
+  state.controls.enableDamping = true;
+  state.controls.dampingFactor = 0.05;
+
+  state.textureLoader = new THREE.TextureLoader();
+
+  window.addEventListener('resize', onResize);
+  animate();
+  
+  log('3D Editor initialized');
+}
+
+function onResize() {
+  const container = $('#threeViewport');
+  if (!container) return;
+  
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+  
+  state.camera.aspect = w / h;
+  state.camera.updateProjectionMatrix();
+  state.renderer.setSize(w, h);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (state.controls) state.controls.update();
+  if (state.renderer && state.scene && state.camera) {
+    state.renderer.render(state.scene, state.camera);
+  }
+}
+
+function clearModel() {
+  if (!state.loadedModel) return;
+  
+  state.scene.remove(state.loadedModel);
+  
+  state.loadedModel.traverse(child => {
+    if (child.geometry) child.geometry.dispose();
+    if (child.material) {
+      if (Array.isArray(child.material)) {
+        child.material.forEach(m => m.dispose());
+      } else {
+        child.material.dispose();
+      }
+    }
+  });
+  
+  state.loadedModel = null;
+  $('#modelInfo').textContent = '';
+}
+
+async function loadModel(url) {
+  updateStatus('Loading model...');
+  
+  try {
+    clearModel();
+    
+    const loader = new GLTFLoader();
+    
+    await new Promise((resolve, reject) => {
+      loader.load(
+        url,
+        (gltf) => {
+          state.loadedModel = gltf.scene;
+          
+          // Center model
+          const box = new THREE.Box3().setFromObject(state.loadedModel);
+          const center = box.getCenter(new THREE.Vector3());
+          state.loadedModel.position.sub(center);
+          
+          state.scene.add(state.loadedModel);
+          
+          const size = box.getSize(new THREE.Vector3());
+          $('#modelInfo').textContent = 
+            `Model: ${size.x.toFixed(2)} × ${size.y.toFixed(2)} × ${size.z.toFixed(2)} units`;
+          
+          updateStatus('Model loaded successfully');
+          resolve();
+        },
+        (xhr) => {
+          if (xhr.lengthComputable) {
+            const percent = Math.round((xhr.loaded / xhr.total) * 100);
+            updateStatus(`Loading: ${percent}%`);
+          }
+        },
+        (error) => {
+          reject(error);
+        }
+      );
+    });
+  } catch (err) {
+    console.error('Load error:', err);
+    updateStatus('Failed to load model', true);
+    Swal.fire('Error', 'Unable to load model: ' + err.message, 'error');
+  }
+}
+
+function exportModel() {
+  if (!state.loadedModel) {
+    Swal.fire('No Model', 'Please load or generate a model first', 'info');
+    return;
+  }
+  
+  updateStatus('Exporting model...');
+  
+  const exporter = new GLTFExporter();
+  exporter.parse(
+    state.loadedModel,
+    (result) => {
+      const output = result instanceof ArrayBuffer 
+        ? result 
+        : JSON.stringify(result, null, 2);
+      
+      const blob = new Blob([output], {
+        type: result instanceof ArrayBuffer 
+          ? 'model/gltf-binary' 
+          : 'model/gltf+json'
+      });
+      
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'model.gltf';
+      link.click();
+      URL.revokeObjectURL(url);
+      
+      updateStatus('Export complete');
+    },
+    (error) => {
+      console.error('Export error:', error);
+      updateStatus('Export failed', true);
+    },
+    { binary: false }
+  );
+}
+
+function applyMaterial() {
+  if (!state.loadedModel) return;
+  
+  const color = $('#colorPicker').value;
+  const metalness = parseFloat($('#metalness').value);
+  const roughness = parseFloat($('#roughness').value);
+  
+  state.loadedModel.traverse(child => {
+    if (child.isMesh && child.material) {
+      if (!child.material.isMeshStandardMaterial) {
+        child.material = new THREE.MeshStandardMaterial({
+          map: child.material.map,
+          color: child.material.color || color
+        });
+      }
+      
+      child.material.color.set(color);
+      child.material.metalness = metalness;
+      child.material.roughness = roughness;
+      child.material.needsUpdate = true;
+    }
+  });
+}
+
+function handleFiles(files) {
+  const images = files.filter(f => f.type.startsWith('image/'));
+  
+  if (images.length === 0) {
+    Swal.fire('Invalid Files', 'Please select image files only', 'warning');
+    return;
+  }
+  
+  state.uploadFiles = state.uploadFiles.concat(images);
+  updateStatus(`${state.uploadFiles.length} image(s) ready`);
+  log(`Added ${images.length} image(s). Total: ${state.uploadFiles.length}`);
+}
+
+function setupUI() {
+  const uploadZone = $('#uploadZone');
+  const fileInput = $('#fileInput');
+  
+  // Drag & Drop
+  uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+  });
+  
+  ['dragleave', 'dragend'].forEach(evt => {
+    uploadZone.addEventListener(evt, () => {
+      uploadZone.classList.remove('dragover');
+    });
+  });
+  
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    handleFiles(Array.from(e.dataTransfer.files));
+  });
+  
+  uploadZone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (e) => {
+    handleFiles(Array.from(e.target.files));
+  });
+  
+  // Import GLB/GLTF
+  $('#importGLBBtn').addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.gltf,.glb';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const url = URL.createObjectURL(file);
+        loadModel(url);
+      }
+    };
+    input.click();
+  });
+  
+  // Generate 3D Model
+  $('#generateBtn').addEventListener('click', async () => {
+    if (state.uploadFiles.length === 0) {
+      Swal.fire('No Images', 'Please add at least one image', 'warning');
+      return;
+    }
+
+    Swal.fire({
+      title: 'Generating 3D Model',
+      html: 'Uploading image to Meshy AI...<br><small>This may take a few minutes</small>',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    updateStatus('Uploading to Meshy API...');
+
+    const formData = new FormData();
+    formData.append('images[]', state.uploadFiles[0]);
+
+    try {
+      const response = await fetch('meshy/meshy_upload.php', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+      const text = await response.text();
+      log('Server response: ' + text.substring(0, 500));
+      const json = JSON.parse(text);
+
+      if (json.status === 'success' && json.model_url) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Model Ready!',
+          text: 'Loading 3D model...',
+          timer: 2000,
+          showConfirmButton: false
+        });
+
+        await loadModel(json.model_url);
+        state.uploadFiles = [];
+        updateStatus('Model loaded successfully');
+
+      } else if (json.status === 'pending' && json.task_id) {
+        Swal.fire({
+          icon: 'info',
+          title: 'Processing...',
+          html: `Task ID: ${json.task_id}<br><br>Your model is being generated.<br>Checking status every 10 seconds...`,
+          showConfirmButton: false,
+          allowOutsideClick: false
+        });
+
+        updateStatus('Checking task status...');
+        pollTaskStatus(json.task_id);
+
+      } else {
+        throw new Error(json.message || 'Unknown error from API');
+      }
+
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Upload Failed',
+        html: `<strong>Error:</strong> ${err.message}<br><br><small>Check console for details</small>`,
+        confirmButtonText: 'OK'
+      });
+
+      updateStatus('Upload failed: ' + err.message, true);
+      log('ERROR: ' + err.message);
+    }
+  });
+
+  // Polling function
+  async function pollTaskStatus(taskId) {
+    const maxAttempts = 60;
+    let attempts = 0;
+
+    const checkStatus = async () => {
+      attempts++;
+      try {
+        const response = await fetch(`meshy/meshy_check_status.php?task_id=${taskId}`);
+        const json = await response.json();
+
+        if (json.status === 'success' && json.model_url) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Model Generated!',
+            text: 'Loading 3D model...',
+            timer: 2000,
+            showConfirmButton: false
+          });
+
+          await loadModel(json.model_url);
+          updateStatus('Model loaded successfully');
+
+        } else if (json.status === 'pending') {
+          const progress = json.progress || 0;
+          updateStatus(`Processing: ${progress}% (${attempts}/${maxAttempts})`);
+
+          if (attempts < maxAttempts) {
+            setTimeout(checkStatus, 10000);
+          } else {
+            throw new Error('Timeout: Model generation took too long');
+          }
+
+        } else {
+          throw new Error(json.message || 'Model generation failed');
+        }
+
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: err.message
+        });
+
+        updateStatus('Error: ' + err.message, true);
+      }
+    };
+
+    checkStatus();
+  }
+  
+  // Export
+  $('#downloadBtn').addEventListener('click', exportModel);
+  
+  // Transform controls
+  $('#scaleRange').addEventListener('input', (e) => {
+    const val = parseFloat(e.target.value);
+    $('#scaleVal').textContent = val.toFixed(2);
+    if (state.loadedModel) {
+      state.loadedModel.scale.setScalar(val);
+    }
+  });
+  
+  ['rotateX', 'rotateY', 'rotateZ'].forEach(id => {
+    $('#' + id).addEventListener('input', (e) => {
+      if (!state.loadedModel) return;
+      const rad = THREE.MathUtils.degToRad(parseFloat(e.target.value));
+      const axis = id.replace('rotate', '').toLowerCase();
+      state.loadedModel.rotation[axis] = rad;
+    });
+  });
+  
+  // Material controls
+  $('#colorPicker').addEventListener('input', applyMaterial);
+  $('#metalness').addEventListener('input', (e) => {
+    $('#metalVal').textContent = parseFloat(e.target.value).toFixed(2);
+    applyMaterial();
+  });
+  $('#roughness').addEventListener('input', (e) => {
+    $('#roughVal').textContent = parseFloat(e.target.value).toFixed(2);
+    applyMaterial();
+  });
+  
+  // Texture
+  $('#textureUpload').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file || !state.loadedModel) return;
+    
+    const url = URL.createObjectURL(file);
+    state.textureLoader.load(url, (texture) => {
+      state.loadedModel.traverse(child => {
+        if (child.isMesh && child.material) {
+          child.material.map = texture;
+          child.material.needsUpdate = true;
+        }
+      });
+      log('Texture applied');
+      URL.revokeObjectURL(url);
+    });
+  });
+  
+  // Wireframe
+  $('#wireframeBtn').addEventListener('click', () => {
+    if (!state.loadedModel) return;
+    
+    let isWireframe = false;
+    state.loadedModel.traverse(child => {
+      if (child.isMesh && child.material) {
+        isWireframe = child.material.wireframe;
+      }
+    });
+    
+    state.loadedModel.traverse(child => {
+      if (child.isMesh && child.material) {
+        child.material.wireframe = !isWireframe;
+      }
+    });
+    
+    log('Wireframe: ' + (isWireframe ? 'OFF' : 'ON'));
+  });
+  
+  // Reset camera
+  $('#resetCameraBtn').addEventListener('click', () => {
+    state.camera.position.set(2.5, 2.0, 3.5);
+    state.controls.target.set(0, 0, 0);
+    state.controls.update();
+    log('Camera reset');
+  });
+}
+
+// Initialize everything
+initThree();
+setupUI();
+updateStatus('Ready');
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
