@@ -13,8 +13,24 @@ if (!$id || !$message) {
 }
 
 // Insert the reply
-$stmt = $conn->prepare("INSERT INTO replies (inquiry_id, sender, message) VALUES (?, 'admin', ?)");
-$stmt->bind_param('is', $id, $message);
+$stmt = $conn->prepare("SELECT conversation_id, product_id FROM inquiries WHERE id = ? LIMIT 1");
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$res = $stmt->get_result();
+$inq = $res->fetch_assoc();
+$stmt->close();
+
+$conversation_id = isset($inq['conversation_id']) ? intval($inq['conversation_id']) : 0;
+$product_id = isset($inq['product_id']) ? intval($inq['product_id']) : 0;
+
+if (!$conversation_id) {
+    echo json_encode(['success' => false, 'message' => 'Conversation not found for this inquiry']);
+    exit;
+}
+
+// Insert reply with conversation_id and inquiry_id so clients fetching by conversation get it
+$stmt = $conn->prepare("INSERT INTO replies (conversation_id, inquiry_id, related_inquiry_id, related_product_id, sender, message) VALUES (?, ?, ?, ?, 'admin', ?)");
+$stmt->bind_param('iiiis', $conversation_id, $id, $id, $product_id, $message);
 $ok = $stmt->execute();
 $stmt->close();
 
@@ -36,9 +52,9 @@ if (!$inquiry) {
     exit;
 }
 
-// Fetch replies
-$stmt = $conn->prepare("SELECT id, sender, message, sent_at FROM replies WHERE inquiry_id = ? ORDER BY sent_at ASC");
-$stmt->bind_param('i', $id);
+// Fetch replies by conversation so both admin and client see the same thread
+$stmt = $conn->prepare("SELECT id, sender, message, sent_at FROM replies WHERE conversation_id = ? ORDER BY sent_at ASC");
+$stmt->bind_param('i', $conversation_id);
 $stmt->execute();
 $res = $stmt->get_result();
 $replies = $res->fetch_all(MYSQLI_ASSOC);

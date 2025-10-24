@@ -1,12 +1,12 @@
 === DEBUG LOG START ===
-2025-10-22 19:02:54 - Script started
-2025-10-22 19:02:54 - FILES: Array
+2025-10-24 04:35:13 - Script started
+2025-10-24 04:35:13 - FILES: Array
 (
     [images] => Array
         (
             [name] => Array
                 (
-                    [0] => R Panel metal roof for commercial or industrial.jpg
+                    [0] => Stone-Roofing-Sheets-Long-Span-Sheet-Heat-Resistant-Save-Labor-Installation-Stone-Coated-Metal-Roof-Tiles.jpg
                 )
 
             [type] => Array
@@ -16,7 +16,7 @@
 
             [tmp_name] => Array
                 (
-                    [0] => C:\xampp\tmp\phpAFD7.tmp
+                    [0] => C:\xampp\tmp\php86C.tmp
                 )
 
             [error] => Array
@@ -26,44 +26,26 @@
 
             [size] => Array
                 (
-                    [0] => 37201
+                    [0] => 53618
                 )
 
         )
 
 )
 
-2025-10-22 19:02:54 - POST: Array
+2025-10-24 04:35:13 - POST: Array
 (
 )
 
-2025-10-22 19:02:54 - API Key loaded: YES
-2025-10-22 19:02:54 - Images field exists
-2025-10-22 19:02:54 - Image file detected: R Panel metal roof for commercial or industrial.jpg
-2025-10-22 19:02:54 - File details: Array
-(
-    [name] => R Panel metal roof for commercial or industrial.jpg
-    [type] => image/jpeg
-    [tmp_name] => C:\xampp\tmp\phpAFD7.tmp
-    [error] => 0
-    [size] => 37201
-)
-
-2025-10-22 19:02:54 - File validation passed
-2025-10-22 19:02:54 - File read successfully. Size: 37201 bytes
-2025-10-22 19:02:54 - Data URI created. Length: 49627
-2025-10-22 19:02:54 - JSON payload size: 50726 bytes
-2025-10-22 19:02:54 - Calling Meshy API: https://api.meshy.ai/v2/image-to-3d
-2025-10-22 19:02:55 - API Response Code: 404
-2025-10-22 19:02:55 - API Response: {"message":"NoMatchingRoute: Please double check the path and method"}
-2025-10-22 19:11:12 - Script started
-2025-10-22 19:11:12 - FILES: Array
+2025-10-24 04:35:13 - API Key loaded: NO
+2025-10-24 04:51:13 - Script started
+2025-10-24 04:51:13 - FILES: Array
 (
     [images] => Array
         (
             [name] => Array
                 (
-                    [0] => R Panel metal roof for commercial or industrial.jpg
+                    [0] => Stone-Roofing-Sheets-Long-Span-Sheet-Heat-Resistant-Save-Labor-Installation-Stone-Coated-Metal-Roof-Tiles.jpg
                 )
 
             [type] => Array
@@ -73,7 +55,7 @@
 
             [tmp_name] => Array
                 (
-                    [0] => C:\xampp\tmp\php482E.tmp
+                    [0] => C:\xampp\tmp\phpAF77.tmp
                 )
 
             [error] => Array
@@ -83,51 +65,26 @@
 
             [size] => Array
                 (
-                    [0] => 37201
+                    [0] => 53618
                 )
 
         )
 
 )
 
-2025-10-22 19:11:12 - POST: Array
+2025-10-24 04:51:13 - POST: Array
 (
 )
 
-2025-10-22 19:11:12 - API Key loaded: YES
-2025-10-22 19:11:12 - Images field exists
-2025-10-22 19:11:12 - Image file detected: R Panel metal roof for commercial or industrial.jpg
-2025-10-22 19:11:12 - File details: Array
-(
-    [name] => R Panel metal roof for commercial or industrial.jpg
-    [type] => image/jpeg
-    [tmp_name] => C:\xampp\tmp\php482E.tmp
-    [error] => 0
-    [size] => 37201
-)
-
-2025-10-22 19:11:12 - File validation passed
-2025-10-22 19:11:12 - File read successfully. Size: 37201 bytes
-2025-10-22 19:11:12 - Data URI created. Length: 49627
-2025-10-22 19:11:12 - JSON payload size: 50726 bytes
-2025-10-22 19:11:12 - Calling Meshy API: https://api.meshy.ai/openapi/v1/image-to-3d
-2025-10-22 19:11:13 - API Response Code: 202
-2025-10-22 19:11:13 - API Response: {"result":"019a0ce7-3ffb-741a-8cab-1fd72342265c"}
-2025-10-22 19:11:13 - Parsed result: Array
-(
-    [result] => 019a0ce7-3ffb-741a-8cab-1fd72342265c
-)
-
-2025-10-22 19:11:13 - Task created successfully: 019a0ce7-3ffb-741a-8cab-1fd72342265c
-2025-10-22 19:11:13 - Script completed successfully
-2025-10-22 19:14:01 - Script started
-2025-10-22 19:14:01 - FILES: Array
+2025-10-24 04:51:13 - API Key loaded: NO
+2025-10-24 12:07:27 - Script started
+2025-10-24 12:07:27 - FILES: Array
 (
     [images] => Array
         (
             [name] => Array
                 (
-                    [0] => R_Panel_metal_roof.jpg
+                    [0] => Stone-Roofing-Sheets-Long-Span-Sheet-Heat-Resistant-Save-Labor-Installation-Stone-Coated-Metal-Roof-Tiles.jpg
                 )
 
             [type] => Array
@@ -137,7 +94,7 @@
 
             [tmp_name] => Array
                 (
-                    [0] => C:\xampp\tmp\phpDBAB.tmp
+                    [0] => C:\xampp\tmp\php109F.tmp
                 )
 
             [error] => Array
@@ -147,104 +104,40 @@
 
             [size] => Array
                 (
-                    [0] => 37201
+                    [0] => 53618
                 )
 
         )
 
 )
 
-2025-10-22 19:14:01 - POST: Array
+2025-10-24 12:07:27 - POST: Array
 (
 )
 
-2025-10-22 19:14:01 - API Key loaded: YES
-2025-10-22 19:14:01 - Images field exists
-2025-10-22 19:14:01 - Image file detected: R_Panel_metal_roof.jpg
-2025-10-22 19:14:01 - File details: Array
+2025-10-24 12:07:27 - API Key loaded: YES
+2025-10-24 12:07:27 - Images field exists
+2025-10-24 12:07:27 - Image file detected: Stone-Roofing-Sheets-Long-Span-Sheet-Heat-Resistant-Save-Labor-Installation-Stone-Coated-Metal-Roof-Tiles.jpg
+2025-10-24 12:07:27 - File details: Array
 (
-    [name] => R_Panel_metal_roof.jpg
+    [name] => Stone-Roofing-Sheets-Long-Span-Sheet-Heat-Resistant-Save-Labor-Installation-Stone-Coated-Metal-Roof-Tiles.jpg
     [type] => image/jpeg
-    [tmp_name] => C:\xampp\tmp\phpDBAB.tmp
+    [tmp_name] => C:\xampp\tmp\php109F.tmp
     [error] => 0
-    [size] => 37201
+    [size] => 53618
 )
 
-2025-10-22 19:14:01 - File validation passed
-2025-10-22 19:14:01 - File read successfully. Size: 37201 bytes
-2025-10-22 19:14:01 - Data URI created. Length: 49627
-2025-10-22 19:14:01 - JSON payload size: 50726 bytes
-2025-10-22 19:14:01 - Calling Meshy API: https://api.meshy.ai/openapi/v1/image-to-3d
-2025-10-22 19:14:02 - API Response Code: 202
-2025-10-22 19:14:02 - API Response: {"result":"019a0ce9-d2f4-7919-83fc-cef4c87d06c2"}
-2025-10-22 19:14:02 - Parsed result: Array
+2025-10-24 12:07:27 - File validation passed
+2025-10-24 12:07:27 - File read successfully. Size: 53618 bytes
+2025-10-24 12:07:27 - Data URI created. Length: 71515
+2025-10-24 12:07:27 - JSON payload size: 73304 bytes
+2025-10-24 12:07:27 - Calling Meshy API: https://api.meshy.ai/openapi/v1/image-to-3d
+2025-10-24 12:07:28 - API Response Code: 202
+2025-10-24 12:07:28 - API Response: {"result":"019a15b0-005a-7cc3-a88b-a7ef5fbe81d7"}
+2025-10-24 12:07:28 - Parsed result: Array
 (
-    [result] => 019a0ce9-d2f4-7919-83fc-cef4c87d06c2
+    [result] => 019a15b0-005a-7cc3-a88b-a7ef5fbe81d7
 )
 
-2025-10-22 19:14:02 - Task created successfully: 019a0ce9-d2f4-7919-83fc-cef4c87d06c2
-2025-10-22 19:14:02 - Script completed successfully
-2025-10-22 19:57:29 - Script started
-2025-10-22 19:57:29 - FILES: Array
-(
-    [images] => Array
-        (
-            [name] => Array
-                (
-                    [0] => R_Panel_metal_roof.jpg
-                )
-
-            [type] => Array
-                (
-                    [0] => image/jpeg
-                )
-
-            [tmp_name] => Array
-                (
-                    [0] => C:\xampp\tmp\phpA9AD.tmp
-                )
-
-            [error] => Array
-                (
-                    [0] => 0
-                )
-
-            [size] => Array
-                (
-                    [0] => 37201
-                )
-
-        )
-
-)
-
-2025-10-22 19:57:29 - POST: Array
-(
-)
-
-2025-10-22 19:57:29 - API Key loaded: YES
-2025-10-22 19:57:29 - Images field exists
-2025-10-22 19:57:29 - Image file detected: R_Panel_metal_roof.jpg
-2025-10-22 19:57:29 - File details: Array
-(
-    [name] => R_Panel_metal_roof.jpg
-    [type] => image/jpeg
-    [tmp_name] => C:\xampp\tmp\phpA9AD.tmp
-    [error] => 0
-    [size] => 37201
-)
-
-2025-10-22 19:57:29 - File validation passed
-2025-10-22 19:57:29 - File read successfully. Size: 37201 bytes
-2025-10-22 19:57:29 - Data URI created. Length: 49627
-2025-10-22 19:57:29 - JSON payload size: 50726 bytes
-2025-10-22 19:57:29 - Calling Meshy API: https://api.meshy.ai/openapi/v1/image-to-3d
-2025-10-22 19:57:30 - API Response Code: 202
-2025-10-22 19:57:30 - API Response: {"result":"019a0d11-a19b-71ac-b972-f25ae4ef9593"}
-2025-10-22 19:57:30 - Parsed result: Array
-(
-    [result] => 019a0d11-a19b-71ac-b972-f25ae4ef9593
-)
-
-2025-10-22 19:57:30 - Task created successfully: 019a0d11-a19b-71ac-b972-f25ae4ef9593
-2025-10-22 19:57:30 - Script completed successfully
+2025-10-24 12:07:28 - Task created successfully: 019a15b0-005a-7cc3-a88b-a7ef5fbe81d7
+2025-10-24 12:07:28 - Script completed successfully

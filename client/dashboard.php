@@ -73,6 +73,7 @@ $email = $account['email'] ?? '';
     </style>
 </head>
 <body>
+    <!-- <h1><b>lalagyan ng dedicated messages page</b></h1> -->
     <div class="dashboard-container">
         <!-- Sidebar -->
         <?php include '../includes/client_sidebar.php'; ?>
@@ -94,6 +95,10 @@ $email = $account['email'] ?? '';
             <!-- inquiry page -->
             <section id="inquiry-section" class="section hidden">
                 <iframe src="pages/inquiry.php" width="100%" height="100%" style="border:none; min-height:90vh;"></iframe>
+            </section>
+            <!-- chats page -->
+            <section id="chats-section" class="section hidden">
+                <iframe src="pages/client-messages.php" width="100%" height="100%" style="border:none; min-height:90vh;"></iframe>
             </section>
         </main>
     </div>

@@ -1,4 +1,17 @@
 <?php
+function logDebug($message, $data = null) {
+    $logFile = __DIR__ . '/debug_' . date('Y-m-d') . '.log';
+    $entry = date('H:i:s') . " - $message";
+    if ($data) {
+        $entry .= " | " . json_encode($data);
+    }
+    file_put_contents($logFile, $entry . "\n", FILE_APPEND);
+}
+
+// Usage:
+logDebug("Image hash", ['hash' => $imageHash]);
+logDebug("Duplicate check", ['found' => $existingResult->num_rows]);
+
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 header('Content-Type: application/json');
@@ -94,8 +107,10 @@ try {
         mkdir($saveDir, 0777, true);
     }
     
-    // Generate unique filename
-    $filename = 'model_' . $taskId . '.glb';
+    // Generate truly unique filename
+    $timestamp = time();
+    $uniqueId = uniqid();
+    $filename = "model_{$taskId}_{$timestamp}_{$uniqueId}.glb";
     $savePath = $saveDir . $filename;
     $relativePath = 'uploads/3dmodels/' . $filename;
     

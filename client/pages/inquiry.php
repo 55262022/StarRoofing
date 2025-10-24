@@ -109,12 +109,15 @@ body { margin:0; font-family:'Montserrat',sans-serif; background:#f5f7f9; }
 .inquiry-form label { display:block; margin-bottom:5px; font-weight:500; color:#1a365d; }
 .inquiry-form input, .inquiry-form select, .inquiry-form textarea { width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:6px; font-size:1rem; font-family:'Montserrat',sans-serif; transition:border-color 0.3s; box-sizing:border-box; }
 .inquiry-form input:focus, .inquiry-form select:focus, .inquiry-form textarea:focus { outline:none; border-color:#1a365d; box-shadow:0 0 0 2px rgba(26,54,93,0.2); }
+.inquiry-form input.error, .inquiry-form select.error, .inquiry-form textarea.error { border-color:#ef4444; }
 .inquiry-form textarea { min-height:120px; resize:vertical; }
 .button-container { grid-column:1/-1; text-align:center; }
 button[type="submit"] { background:#1a365d; color:#fff; border:none; border-radius:6px; padding:12px 25px; font-weight:600; cursor:pointer; transition:0.2s; }
 button[type="submit"]:hover { background:#2c5282; }
+button[type="submit"]:disabled { opacity:0.6; cursor:not-allowed; }
 .form-row { display:flex; gap:15px; }
 .form-row .form-group { flex:1; }
+.section-title { margin-top:10px; color:#1a365d; font-size:1.1rem; }
 @media(max-width:900px){ .page-container{flex-direction:column;align-items:center;} .inquiry-form{grid-template-columns:1fr;} .form-row { flex-direction:column; } }
 </style>
 </head>
@@ -151,14 +154,14 @@ button[type="submit"]:hover { background:#2c5282; }
 
         <div class="inquiry-form">
         <!-- Personal Info -->
-        <div class="form-group"><label>First Name</label><input type="text" name="firstname" value="<?= $clientData['firstname'] ?>" required></div>
-        <div class="form-group"><label>Last Name</label><input type="text" name="lastname" value="<?= $clientData['lastname'] ?>" required></div>
-        <div class="form-group"><label>Email</label><input type="email" name="email" value="<?= $clientData['email'] ?>" required></div>
-        <div class="form-group"><label>Phone</label><input type="tel" name="phone" value="<?= $clientData['phone'] ?>" required></div>
+        <div class="form-group"><label>First Name *</label><input type="text" name="firstname" value="<?= $clientData['firstname'] ?>" required></div>
+        <div class="form-group"><label>Last Name *</label><input type="text" name="lastname" value="<?= $clientData['lastname'] ?>" required></div>
+        <div class="form-group"><label>Email *</label><input type="email" name="email" value="<?= $clientData['email'] ?>" required></div>
+        <div class="form-group"><label>Phone *</label><input type="tel" name="phone" value="<?= $clientData['phone'] ?>" required></div>
 
         <!-- Address Section -->
         <div class="form-section full-width">
-            <h3 class="section-title" style="margin-top:10px; color:#1a365d;">Address Information</h3>
+            <h3 class="section-title">Address Information</h3>
 
             <div class="address-group">
                 <!-- Region -->
@@ -209,8 +212,8 @@ button[type="submit"]:hover { background:#2c5282; }
 
         <!-- Message -->
         <div class="form-group full-width">
-            <label>Your Inquiry</label>
-            <textarea name="message" required></textarea>
+            <label>Your Inquiry *</label>
+            <textarea name="message" placeholder="Tell us about your inquiry..." required></textarea>
         </div>
 
         <!-- Button -->
@@ -260,40 +263,83 @@ $(document).ready(function(){
         }
     }, 500);
 
+    // Form submission handler
     $('#inquiryForm').on('submit', function(e){
         e.preventDefault();
 
+        // Validate required fields
         let valid = true;
         $(this).find('input, select, textarea').each(function() {
             if ($(this).prop('required') && !$(this).val()) {
-                valid = false; $(this).addClass('error');
-            } else { $(this).removeClass('error'); }
+                valid = false; 
+                $(this).addClass('error');
+            } else { 
+                $(this).removeClass('error'); 
+            }
         });
+        
         if (!valid) {
-            Swal.fire({icon:'error', title:'Missing Information', text:'Please fill all required fields.', confirmButtonColor:'#1a365d'});
+            Swal.fire({
+                icon:'error', 
+                title:'Missing Information', 
+                text:'Please fill all required fields.', 
+                confirmButtonColor:'#1a365d'
+            });
             return;
         }
 
-        submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Processing...').prop('disabled',true);
+        // Disable button and show loading
+        submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Processing...').prop('disabled', true);
+        
+        // Submit form via AJAX
         $.ajax({
-            url:'../process/save_inquiry.php',
-            type:'POST',
-            data:$(this).serialize(),
-            dataType:'json',
-            success:function(res){
+            url: '../process/save_inquiry.php',
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function(res){
                 console.log('Response:', res);
-                if(res.status==='success'){
-                    Swal.fire({icon:'success', title:'Inquiry Submitted!', text:'Thank you for your inquiry. We will get back to you within 24 hours.', confirmButtonColor:'#1a365d'})
-                    .then(()=> $('#inquiryForm')[0].reset());
+                if(res.status === 'success'){
+                    Swal.fire({
+                        icon: 'success', 
+                        title: 'Inquiry Submitted!', 
+                        html: `
+                            <p>Thank you for your inquiry about <strong><?= htmlspecialchars($product['name']) ?></strong>.</p>
+                            <p style="margin-top: 15px;">We will review it and get back to you within 24 hours.</p>
+                            <p style="margin-top: 10px; font-weight: 600; color: #1a365d;">You can track your inquiry status in the Messages page.</p>
+                        `,
+                        confirmButtonColor: '#1a365d',
+                        confirmButtonText: 'View My Messages',
+                        showCancelButton: true,
+                        cancelButtonText: 'Continue Browsing'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Redirect to messages page
+                            window.location.href = 'client-messages.php';
+                        } else {
+                            // Go back to product details
+                            window.location.href = 'item-details.php?product_id=<?= $product_id ?>';
+                        }
+                    });
                 } else {
-                    Swal.fire({icon:'error', title:'Error', text:res.message||'Something went wrong.', confirmButtonColor:'#1a365d'});
+                    Swal.fire({
+                        icon: 'error', 
+                        title: 'Error', 
+                        text: res.message || 'Something went wrong.', 
+                        confirmButtonColor: '#1a365d'
+                    });
+                    submitBtn.html(originalText).prop('disabled', false);
                 }
-                submitBtn.html(originalText).prop('disabled',false);
             },
-            error:function(xhr, status, error){
+            error: function(xhr, status, error){
                 console.error('AJAX Error:', xhr.responseText);
-                Swal.fire({icon:'error', title:'Submission Failed', text:'Error: ' + xhr.responseText.substring(0, 100), confirmButtonColor:'#1a365d'}); 
-                submitBtn.html(originalText).prop('disabled',false); 
+                Swal.fire({
+                    icon: 'error', 
+                    title: 'Submission Failed', 
+                    text: 'An error occurred while submitting your inquiry. Please try again.', 
+                    confirmButtonColor: '#1a365d'
+                }); 
+                submitBtn.html(originalText).prop('disabled', false); 
             }
         });
     });

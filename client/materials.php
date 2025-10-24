@@ -158,7 +158,7 @@ if ($result->num_rows > 0) {
 <body>
     <div class="dashboard-container">
             <div class="materials-content">
-                <div class="page-title"><i class="fa fa-boxes"></i> Materials</div>
+                <div class="page-title"><i class="fa fa-boxes"></i> Products</div>
 
                 <!-- 🔍 Search & Filter Section -->
                 <div class="filter-bar" style="display: flex; gap: 16px; margin-bottom: 24px; align-items: center;">

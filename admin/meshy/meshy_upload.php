@@ -1,7 +1,6 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
+ob_start();
 
 header('Content-Type: application/json');
 
@@ -92,6 +91,42 @@ try {
         'size' => $_FILES['images']['size'][0]
     ];
     
+    // Generate unique hash for duplicate detection
+    $imageHash = md5_file($file['tmp_name']);
+
+    // Check for duplicates
+    $checkStmt = $conn->prepare("
+        SELECT id, model_path, generation_status, meshy_task_id 
+        FROM generated_3d_models 
+        WHERE image_hash = ? AND generation_status IN ('succeeded', 'pending')
+    ");
+    $checkStmt->bind_param("s", $imageHash);
+    $checkStmt->execute();
+    $existingResult = $checkStmt->get_result();
+
+    if ($existingResult->num_rows > 0) {
+        $existing = $existingResult->fetch_assoc();
+        
+        if ($existing['generation_status'] === 'succeeded') {
+            echo json_encode([
+                'status' => 'success',
+                'existing' => true,
+                'model_url' => $existing['model_path'],
+                'model_path' => $existing['model_path'],
+                'message' => 'Image already converted'
+            ]);
+            exit;
+        } else {
+            echo json_encode([
+                'status' => 'pending',
+                'existing' => true,
+                'task_id' => $existing['meshy_task_id'],
+                'message' => 'Image already processing'
+            ]);
+            exit;
+        }
+    }
+
     logDebug("File details: " . print_r($file, true));
     
     if ($file['error'] !== UPLOAD_ERR_OK) {
@@ -138,6 +173,15 @@ try {
         'surface_mode' => 'hard'
     ];
     
+    // Store image hash in database
+    $insertStmt = $conn->prepare("
+        INSERT INTO generated_3d_models 
+        (meshy_task_id, image_hash, original_image_name, generation_status) 
+        VALUES (?, ?, ?, 'pending')
+    ");
+    $insertStmt->bind_param("sss", $taskId, $imageHash, $file['name']);
+    $insertStmt->execute();
+
     $jsonData = json_encode($data);
     logDebug("JSON payload size: " . strlen($jsonData) . " bytes");
     
@@ -153,7 +197,7 @@ try {
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
     curl_setopt($ch, CURLOPT_TIMEOUT, 120);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // For localhost testing
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
     
     $response = curl_exec($ch);
     
@@ -223,4 +267,6 @@ try {
         'line' => $e->getLine()
     ]);
 }
+ob_end_clean();
+echo json_encode($response);
 ?>

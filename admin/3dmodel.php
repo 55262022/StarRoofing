@@ -1,6 +1,9 @@
 <?php
 include '../authentication/auth.php';
 require_once '../database/starroofing_db.php';
+
+// Check if we should load a specific model
+$loadModelPath = isset($_GET['load']) ? $_GET['load'] : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -102,6 +105,46 @@ require_once '../database/starroofing_db.php';
       padding:.5rem 1rem; background: #fff; border-radius:8px; box-shadow: 0 4px 10px rgba(2,6,23,0.04);
     }
 
+    .image-preview {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+    }
+
+    .image-preview-item {
+      position: relative;
+      width: 60px;
+      height: 60px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 2px solid #e5e7eb;
+    }
+
+    .image-preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .image-preview-item .remove-btn {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: rgba(220, 53, 69, 0.9);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
     @media (max-width: 1100px) {
       .app-shell { flex-direction: column; padding: .75rem; }
       .left-col, .right-col { width: 100%; max-width: none; min-width: auto; }
@@ -114,7 +157,8 @@ require_once '../database/starroofing_db.php';
 <div class="container-fluid">
   <div class="d-flex align-items-center justify-content-between py-3">
     <h3 class="mb-0">3D Model Editor</h3>
-    <div>
+    <div class="d-flex gap-2">
+      <a href="3dmodel_gallery.php" class="btn btn-sm btn-outline-primary"><i class="fa fa-images"></i> Gallery</a>
       <a href="inventory.php" class="btn btn-sm btn-outline-secondary"><i class="fa fa-arrow-left"></i> Back</a>
     </div>
   </div>
@@ -137,6 +181,8 @@ require_once '../database/starroofing_db.php';
 
         <input type="file" id="fileInput" accept="image/*" multiple class="d-none">
 
+        <div id="imagePreviews" class="image-preview"></div>
+
         <div class="d-grid gap-2 mt-3">
           <button id="generateBtn" class="btn btn-primary btn-lg"><i class="fa fa-gear me-2"></i>Generate 3D Model</button>
           <button id="importGLBBtn" class="btn btn-outline-secondary"><i class="fa fa-file-import me-2"></i>Import .glb / .gltf</button>
@@ -150,7 +196,7 @@ require_once '../database/starroofing_db.php';
           <ul class="small mb-0">
             <li>Use clear photos from different angles.</li>
             <li>Prefer high-res images (avoid heavy compression).</li>
-            <li>Meshy requires a subscription for task creation.</li>
+            <li>Already processed images will be detected automatically.</li>
           </ul>
         </div>
       </div>
@@ -233,7 +279,6 @@ require_once '../database/starroofing_db.php';
   </div>
 </div>
 
-<!-- IMPORTANT: Use importmap for Three.js modules -->
 <script type="importmap">
 {
   "imports": {
@@ -243,17 +288,12 @@ require_once '../database/starroofing_db.php';
 }
 </script>
 
-
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 
-// Product ID no longer required
-const productId = null;
-
-// Utilities
 const $ = (sel) => document.querySelector(sel);
 const log = (msg) => {
   const c = $('#consoleLog');
@@ -283,6 +323,34 @@ function updateStatus(txt, isError = false) {
   log(txt);
 }
 
+function updateImagePreviews() {
+  const container = $('#imagePreviews');
+  container.innerHTML = '';
+  
+  state.uploadFiles.forEach((file, index) => {
+    const item = document.createElement('div');
+    item.className = 'image-preview-item';
+    
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    img.alt = file.name;
+    
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.innerHTML = '×';
+    removeBtn.title = 'Remove';
+    removeBtn.onclick = () => {
+      state.uploadFiles.splice(index, 1);
+      updateImagePreviews();
+      updateStatus(`${state.uploadFiles.length} image(s) ready`);
+    };
+    
+    item.appendChild(img);
+    item.appendChild(removeBtn);
+    container.appendChild(item);
+  });
+}
+
 function initThree() {
   const container = $('#threeViewport');
   container.innerHTML = '';
@@ -302,17 +370,14 @@ function initThree() {
   state.renderer.outputColorSpace = THREE.SRGBColorSpace;
   container.appendChild(state.renderer.domElement);
 
-  // Lighting
   const dirLight = new THREE.DirectionalLight(0xffffff, 1);
   dirLight.position.set(5, 10, 7.5);
   state.scene.add(dirLight);
   state.scene.add(new THREE.AmbientLight(0xffffff, 0.6));
 
-  // Grid
   const grid = new THREE.GridHelper(10, 20, 0xbfc9df, 0xe9eef6);
   state.scene.add(grid);
 
-  // Controls
   state.controls = new OrbitControls(state.camera, state.renderer.domElement);
   state.controls.enableDamping = true;
   state.controls.dampingFactor = 0.05;
@@ -379,7 +444,6 @@ async function loadModel(url) {
         (gltf) => {
           state.loadedModel = gltf.scene;
           
-          // Center model
           const box = new THREE.Box3().setFromObject(state.loadedModel);
           const center = box.getCenter(new THREE.Vector3());
           state.loadedModel.position.sub(center);
@@ -436,7 +500,7 @@ function exportModel() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'model.gltf';
+      link.download = 'model_' + Date.now() + '.gltf';
       link.click();
       URL.revokeObjectURL(url);
       
@@ -483,6 +547,7 @@ function handleFiles(files) {
   }
   
   state.uploadFiles = state.uploadFiles.concat(images);
+  updateImagePreviews();
   updateStatus(`${state.uploadFiles.length} image(s) ready`);
   log(`Added ${images.length} image(s). Total: ${state.uploadFiles.length}`);
 }
@@ -491,7 +556,6 @@ function setupUI() {
   const uploadZone = $('#uploadZone');
   const fileInput = $('#fileInput');
   
-  // Drag & Drop
   uploadZone.addEventListener('dragover', (e) => {
     e.preventDefault();
     uploadZone.classList.add('dragover');
@@ -514,7 +578,6 @@ function setupUI() {
     handleFiles(Array.from(e.target.files));
   });
   
-  // Import GLB/GLTF
   $('#importGLBBtn').addEventListener('click', () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -529,7 +592,6 @@ function setupUI() {
     input.click();
   });
   
-  // Generate 3D Model
   $('#generateBtn').addEventListener('click', async () => {
     if (state.uploadFiles.length === 0) {
       Swal.fire('No Images', 'Please add at least one image', 'warning');
@@ -556,30 +618,42 @@ function setupUI() {
         body: formData
       });
       
-      if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response:', text);
+        throw new Error('Server returned invalid response. Check PHP errors.');
+      }
 
-      const text = await response.text();
-      log('Server response: ' + text.substring(0, 500));
-      const json = JSON.parse(text);
+      const json = await response.json();
 
-      if (json.status === 'success' && json.model_url) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Model Ready!',
-          text: 'Loading 3D model...',
-          timer: 2000,
-          showConfirmButton: false
-        });
+      if (json.status === 'success') {
+        if (json.existing) {
+          Swal.fire({
+            icon: 'info',
+            title: 'Already Converted',
+            text: 'This image was already converted to 3D!',
+            timer: 2000
+          });
+        } else {
+          Swal.fire({
+            icon: 'success',
+            title: 'Model Ready!',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
 
         await loadModel(json.model_url);
         state.uploadFiles = [];
+        updateImagePreviews();
         updateStatus('Model loaded successfully');
 
-      } else if (json.status === 'pending' && json.task_id) {
+      } else if (json.status === 'pending') {
         Swal.fire({
           icon: 'info',
-          title: 'Processing...',
-          html: `Task ID: ${json.task_id}<br><br>Your model is being generated.<br>Checking status every 10 seconds...`,
+          title: json.existing ? 'Already Processing' : 'Processing...',
+          html: `Task ID: ${json.task_id}<br><br>Checking status every 10 seconds...`,
           showConfirmButton: false,
           allowOutsideClick: false
         });
@@ -600,11 +674,10 @@ function setupUI() {
       });
 
       updateStatus('Upload failed: ' + err.message, true);
-      log('ERROR: ' + err.message);
+      console.error('ERROR:', err);
     }
   });
 
-  // Polling function
   async function pollTaskStatus(taskId) {
     const maxAttempts = 60;
     let attempts = 0;
@@ -615,7 +688,7 @@ function setupUI() {
         const response = await fetch(`meshy/meshy_check_status.php?task_id=${taskId}`);
         const json = await response.json();
 
-        if (json.status === 'success' && json.model_url) {
+        if (json.status === 'success') {
           Swal.fire({
             icon: 'success',
             title: 'Model Generated!',
@@ -625,6 +698,8 @@ function setupUI() {
           });
 
           await loadModel(json.model_url);
+          state.uploadFiles = [];
+          updateImagePreviews();
           updateStatus('Model loaded successfully');
 
         } else if (json.status === 'pending') {
@@ -655,10 +730,8 @@ function setupUI() {
     checkStatus();
   }
   
-  // Export
   $('#downloadBtn').addEventListener('click', exportModel);
   
-  // Transform controls
   $('#scaleRange').addEventListener('input', (e) => {
     const val = parseFloat(e.target.value);
     $('#scaleVal').textContent = val.toFixed(2);
@@ -676,7 +749,6 @@ function setupUI() {
     });
   });
   
-  // Material controls
   $('#colorPicker').addEventListener('input', applyMaterial);
   $('#metalness').addEventListener('input', (e) => {
     $('#metalVal').textContent = parseFloat(e.target.value).toFixed(2);
@@ -687,7 +759,6 @@ function setupUI() {
     applyMaterial();
   });
   
-  // Texture
   $('#textureUpload').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file || !state.loadedModel) return;
@@ -705,7 +776,6 @@ function setupUI() {
     });
   });
   
-  // Wireframe
   $('#wireframeBtn').addEventListener('click', () => {
     if (!state.loadedModel) return;
     
@@ -725,7 +795,6 @@ function setupUI() {
     log('Wireframe: ' + (isWireframe ? 'OFF' : 'ON'));
   });
   
-  // Reset camera
   $('#resetCameraBtn').addEventListener('click', () => {
     state.camera.position.set(2.5, 2.0, 3.5);
     state.controls.target.set(0, 0, 0);
@@ -734,10 +803,20 @@ function setupUI() {
   });
 }
 
-// Initialize everything
+// Initialize
 initThree();
 setupUI();
 updateStatus('Ready');
+
+// Auto-load model if ?load parameter is present
+<?php if ($loadModelPath): ?>
+const autoLoadPath = <?= json_encode($loadModelPath) ?>;
+if (autoLoadPath) {
+  setTimeout(() => {
+    loadModel(autoLoadPath);
+  }, 500);
+}
+<?php endif; ?>
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

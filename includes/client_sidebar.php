@@ -7,12 +7,10 @@
     </div>
     
     <ul class="sidebar-menu">
-        <!-- <li><a href="dashboard.php"><i class="fas fa-home"></i> <span>Dashboard</span></a></li> -->
         <li><a href="#" onclick="showSection('dashboard')"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
-        <li><a href="#" onclick="showSection('materials')"><i class="fas fa-home"></i> <span>Materials</span></a></li>
-        <!-- <li><a href="#" onclick="showSection('inquiry')"><i class="fas fa-home"></i> <span>Inquiry</span></a></li> -->
-        <!-- <li><a href="inquiry.php"><i class="fas fa-users"></i> <span>Inquiry</span></a></li> -->
-        
+        <li><a href="#" onclick="showSection('materials')"><i class="fas fa-home"></i> <span>Products</span></a></li>
+        <li><a href="#" onclick="showSection('chats')"><i class="fas fa-home"></i> <span>Chats</span></a></li>
+
         
         <!-- Settings with Dropdown -->
         <li class="has-dropdown">
@@ -42,6 +40,9 @@
         } 
         else if (section === 'inquiry') {
             document.getElementById('inquiry-section').classList.remove('hidden');
+        }
+        else if (section === 'chats') {
+            document.getElementById('chats-section').classList.remove('hidden');
         }
 
         // Highlight the active sidebar link
