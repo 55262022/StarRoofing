@@ -1,10 +1,3 @@
-<?php
-include '../authentication/auth.php';
-require_once '../database/starroofing_db.php';
-
-// Check if we should load a specific model
-$loadModelPath = isset($_GET['load']) ? $_GET['load'] : null;
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -67,7 +60,7 @@ $loadModelPath = isset($_GET['load']) ? $_GET['load'] : null;
     .card-panel {
       background: var(--panel);
       border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(15,23,42,0.06);
+      box-shadow: 0 6px 18px rgba(255, 255, 255, 0.06);
       padding: 1rem;
     }
 
@@ -75,8 +68,8 @@ $loadModelPath = isset($_GET['load']) ? $_GET['load'] : null;
       height: 72vh;
       border-radius: 10px;
       overflow: hidden;
-      background: linear-gradient(180deg,#e9eef6 0,#cfdaf0 100%);
-      border: 1px solid rgba(15,23,42,0.04);
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     .upload-drop {
@@ -257,7 +250,7 @@ $loadModelPath = isset($_GET['load']) ? $_GET['load'] : null;
       <div class="card-panel">
         <h6>Material</h6>
         <label class="small">Color</label>
-        <input id="colorPicker" type="color" value="#ffffff" class="form-control form-control-color p-1 mb-2">
+        <input id="colorPicker" type="color" value="#808080" class="form-control form-control-color p-1 mb-2">
 
         <label class="small">Metalness <span id="metalVal" class="ms-2 small muted">0.50</span></label>
         <input id="metalness" type="range" min="0" max="1" step="0.01" value="0.5" class="form-range">
@@ -356,7 +349,8 @@ function initThree() {
   container.innerHTML = '';
 
   state.scene = new THREE.Scene();
-  state.scene.background = new THREE.Color(0xeaeef6);
+  // WHITE BACKGROUND
+  state.scene.background = new THREE.Color(0xffffff);
 
   const w = container.clientWidth;
   const h = container.clientHeight;
@@ -370,13 +364,19 @@ function initThree() {
   state.renderer.outputColorSpace = THREE.SRGBColorSpace;
   container.appendChild(state.renderer.domElement);
 
-  const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  // Lighting
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
   dirLight.position.set(5, 10, 7.5);
   state.scene.add(dirLight);
-  state.scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+  state.scene.add(new THREE.AmbientLight(0xffffff, 0.8));
 
-  const grid = new THREE.GridHelper(10, 20, 0xbfc9df, 0xe9eef6);
+  // GRID - Dark grid on white background
+  const grid = new THREE.GridHelper(20, 40, 0x999999, 0xcccccc);
   state.scene.add(grid);
+
+  // Optional: Add axes helper
+  const axesHelper = new THREE.AxesHelper(5);
+  state.scene.add(axesHelper);
 
   state.controls = new OrbitControls(state.camera, state.renderer.domElement);
   state.controls.enableDamping = true;
@@ -387,7 +387,7 @@ function initThree() {
   window.addEventListener('resize', onResize);
   animate();
   
-  log('3D Editor initialized');
+  log('3D Editor initialized with white theme');
 }
 
 function onResize() {
@@ -443,6 +443,17 @@ async function loadModel(url) {
         url,
         (gltf) => {
           state.loadedModel = gltf.scene;
+          
+          // Apply default gray material to all meshes
+          state.loadedModel.traverse(child => {
+            if (child.isMesh) {
+              child.material = new THREE.MeshStandardMaterial({
+                color: 0x808080, // Gray color
+                metalness: 0.5,
+                roughness: 0.5
+              });
+            }
+          });
           
           const box = new THREE.Box3().setFromObject(state.loadedModel);
           const center = box.getCenter(new THREE.Vector3());
@@ -550,6 +561,30 @@ function handleFiles(files) {
   updateImagePreviews();
   updateStatus(`${state.uploadFiles.length} image(s) ready`);
   log(`Added ${images.length} image(s). Total: ${state.uploadFiles.length}`);
+}
+
+function checkURLForModel() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const modelPath = urlParams.get('load');
+  
+  if (modelPath) {
+    log('Loading model from URL: ' + modelPath);
+    
+    // Decode and ensure correct path format
+    let decodedPath = decodeURIComponent(modelPath);
+    
+    // If path doesn't start with uploads/, add it
+    if (!decodedPath.startsWith('uploads/')) {
+      decodedPath = 'uploads/3dmodels/' + decodedPath;
+    }
+    
+    log('Resolved path: ' + decodedPath);
+    
+    // Load the model after a short delay to ensure Three.js is ready
+    setTimeout(() => {
+      loadModel(decodedPath);
+    }, 500);
+  }
 }
 
 function setupUI() {
@@ -688,7 +723,7 @@ function setupUI() {
         const response = await fetch(`meshy/meshy_check_status.php?task_id=${taskId}`);
         const json = await response.json();
 
-        if (json.status === 'success') {
+        if (json.status === 'success' || json.status === 'succeeded') {
           Swal.fire({
             icon: 'success',
             title: 'Model Generated!',
@@ -808,15 +843,8 @@ initThree();
 setupUI();
 updateStatus('Ready');
 
-// Auto-load model if ?load parameter is present
-<?php if ($loadModelPath): ?>
-const autoLoadPath = <?= json_encode($loadModelPath) ?>;
-if (autoLoadPath) {
-  setTimeout(() => {
-    loadModel(autoLoadPath);
-  }, 500);
-}
-<?php endif; ?>
+// Check if we need to load a model from URL
+checkURLForModel();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
