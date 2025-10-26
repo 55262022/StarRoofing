@@ -54,3 +54,58 @@
 2025-10-24 22:22:07 - Task created successfully: 019a17e2-bde6-7b37-a231-e243255c5e71
 2025-10-24 22:22:07 - Database record created for task: 019a17e2-bde6-7b37-a231-e243255c5e71
 2025-10-24 22:22:07 - Script completed successfully
+2025-10-25 07:59:04 - Script started
+2025-10-25 07:59:04 - Database connected
+2025-10-25 07:59:04 - FILES: Array
+(
+    [images] => Array
+        (
+            [name] => Array
+                (
+                    [0] => images.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\xampp\tmp\php976.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 5631
+                )
+
+        )
+
+)
+
+2025-10-25 07:59:04 - API Key loaded: YES
+2025-10-25 07:59:04 - Images field exists
+2025-10-25 07:59:04 - Image file detected: images.jpg
+2025-10-25 07:59:04 - File validation passed
+2025-10-25 07:59:04 - Image hash: 7f1a41bb0027657cd3692a6e9191d1da
+2025-10-25 07:59:04 - No duplicate found, proceeding with upload
+2025-10-25 07:59:04 - File read successfully. Size: 5631 bytes
+2025-10-25 07:59:04 - Data URI created. Length: 7531
+2025-10-25 07:59:04 - JSON payload size: 7689 bytes
+2025-10-25 07:59:04 - Calling Meshy API: https://api.meshy.ai/openapi/v1/image-to-3d
+2025-10-25 07:59:05 - API Response Code: 202
+2025-10-25 07:59:05 - API Response: {"result":"019a19f2-f895-786a-ad90-d85151ecf360"}
+2025-10-25 07:59:05 - Parsed result: Array
+(
+    [result] => 019a19f2-f895-786a-ad90-d85151ecf360
+)
+
+2025-10-25 07:59:05 - Task created successfully: 019a19f2-f895-786a-ad90-d85151ecf360
+2025-10-25 07:59:05 - Database record created for task: 019a19f2-f895-786a-ad90-d85151ecf360
+2025-10-25 07:59:05 - Script completed successfully

@@ -127,10 +127,9 @@ try {
     $filename = "model_{$uniqueId}.glb";
     $savePath = $saveDir . $filename;
     
-    // CRITICAL: Path relative to where 3dmodel.php is located (admin/)
-    // 3dmodel.php is in: starroofing/admin/3dmodel.php
-    // So we need: ../uploads/3dmodels/file.glb
-    $relativePath = '../uploads/3dmodels/' . $filename;
+    // FIXED: Path relative to project root (no ../)
+    // Store as: uploads/3dmodels/file.glb
+    $relativePath = 'uploads/3dmodels/' . $filename;
     
     // Download .glb file using cURL (better for large files and CORS bypass)
     $ch = curl_init($modelUrl);
@@ -174,6 +173,7 @@ try {
     
     logDebug("Model downloaded successfully", [
         'path' => $savePath,
+        'relative_path' => $relativePath,
         'size' => $fileSize,
         'exists' => file_exists($savePath),
         'readable' => is_readable($savePath)
@@ -210,7 +210,7 @@ try {
             throw new Exception('Database update error: ' . $stmt->error);
         }
         
-        logDebug("Database updated", ['id' => $generatedModelId]);
+        logDebug("Database updated", ['id' => $generatedModelId, 'path' => $relativePath]);
         
     } else {
         // Insert new record
@@ -226,7 +226,7 @@ try {
         }
         
         $generatedModelId = $conn->insert_id;
-        logDebug("Database inserted", ['id' => $generatedModelId]);
+        logDebug("Database inserted", ['id' => $generatedModelId, 'path' => $relativePath]);
     }
     
     // Update products table if this model is linked to a product
@@ -240,7 +240,7 @@ try {
         ");
         $productStmt->bind_param("ssii", $relativePath, $relativePath, $generatedModelId, $productId);
         $productStmt->execute();
-        logDebug("Product table updated", ['product_id' => $productId]);
+        logDebug("Product table updated", ['product_id' => $productId, 'path' => $relativePath]);
     } else {
         // Also check if any product has this task_id
         $productStmt = $conn->prepare("
@@ -252,13 +252,17 @@ try {
         ");
         $productStmt->bind_param("ssis", $relativePath, $relativePath, $generatedModelId, $taskId);
         $productStmt->execute();
+        
+        if ($conn->affected_rows > 0) {
+            logDebug("Product table updated via task_id", ['task_id' => $taskId, 'path' => $relativePath]);
+        }
     }
     
     // IMPORTANT: Return the LOCAL path, not the Meshy URL
     echo json_encode([
         'status' => 'succeeded',
         'message' => 'Model generated and saved successfully.',
-        'model_url' => $relativePath,  // Changed: Use local path
+        'model_url' => $relativePath,  // Use local path without ../
         'model_path' => $relativePath,
         'file_size' => $fileSize,
         'task_id' => $taskId,

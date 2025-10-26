@@ -1,0 +1,162 @@
+/* Sidebar General Layout */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    background-color: #1a1a2e; /* Match the dark theme */
+    color: #fff;
+    transition: all 0.3s ease;
+    overflow-y: auto;
+    z-index: 998; /* Below navbar */
+    padding-top: 80px; /* Space for navbar */
+}
+
+.sidebar.hide {
+    width: 80px;
+}
+
+.sidebar-header {
+    text-align: center;
+    padding: 20px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.sidebar-title {
+    font-weight: 600;
+    margin-top: 10px;
+    font-size: 16px;
+    transition: opacity 0.3s ease;
+}
+
+/* Sidebar Menu */
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.sidebar-menu li {
+    margin: 10px 0;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+    background: rgba(233, 185, 73, 0.1);
+    color: #e9b949;
+}
+
+.sidebar-menu a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background: #e9b949;
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.sidebar-menu a:hover::before,
+.sidebar-menu a.active::before {
+    transform: scaleY(1);
+}
+
+.sidebar-menu i {
+    width: 25px;
+    text-align: center;
+    font-size: 18px;
+}
+
+.sidebar-menu span {
+    margin-left: 15px;
+    transition: opacity 0.3s ease;
+}
+
+/* When sidebar is collapsed */
+.sidebar.hide .sidebar-menu a span {
+    opacity: 0;
+    display: none;
+}
+
+.sidebar.hide .sidebar-title {
+    opacity: 0;
+    display: none;
+}
+
+/* Burger Toggle Button */
+.sidebar-toggle {
+    margin-left: 0;
+    margin-top: 7px;
+    position: fixed;
+    top: 15px;
+    background: rgba(233, 185, 73, 0.1);
+    color: #e9b949;
+    border: 1px solid rgba(233, 185, 73, 0.3);
+    font-size: 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1001;
+    backdrop-filter: blur(10px);
+}
+
+.sidebar-toggle:hover {
+    background: rgba(233, 185, 73, 0.2);
+    border-color: rgba(233, 185, 73, 0.5);
+}
+
+.sidebar.hide ~ .sidebar-toggle {
+    left: 90px; /* Position next to collapsed sidebar */
+}
+
+/* Responsive (mobile view) */
+@media screen and (max-width: 768px) {
+    .sidebar {
+        left: -250px;
+        padding-top: 70px; /* Adjust for mobile navbar */
+    }
+
+    .sidebar.show {
+        left: 0;
+    }
+
+    .sidebar-toggle {
+        left: 15px;
+        top: 15px;
+    }
+
+    .sidebar.show ~ .sidebar-toggle {
+        left: 260px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .sidebar {
+        width: 220px;
+    }
+    
+    .sidebar-toggle {
+        padding: 8px 10px;
+        font-size: 18px;
+    }
+}

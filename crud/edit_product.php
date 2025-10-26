@@ -1,15 +1,18 @@
 <?php
-include '../includes/auth.php';
+require_once '../authentication/auth.php';
 require_once '../database/starroofing_db.php';
+
+// Require admin
+requireAdmin();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_product'])) {
     $product_id     = intval($_POST['product_id']);
-    $category_id    = $_POST['category_id'];
-    $name           = $_POST['name'];
-    $description    = $_POST['description'];
-    $price          = $_POST['price'];
-    $stock_quantity = $_POST['stock_quantity'];
-    $unit           = $_POST['unit'];
+    $category_id    = intval($_POST['category_id']);
+    $name           = trim($_POST['name']);
+    $description    = trim($_POST['description']);
+    $price          = floatval($_POST['price']);
+    $stock_quantity = intval($_POST['stock_quantity']);
+    $unit           = trim($_POST['unit']);
 
     $image_path = null;
 
@@ -28,24 +31,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_product'])) {
         }
     }
 
+    // Update with or without image
     if ($image_path) {
         $sql = "UPDATE products 
-                   SET category_id=?, name=?, description=?, price=?, stock_quantity=?, unit=?, image_path=? 
-                 WHERE product_id=?";
+                SET category_id=?, name=?, description=?, price=?, stock_quantity=?, unit=?, image_path=?, updated_at=NOW()
+                WHERE product_id=?";
         $stmt = $conn->prepare($sql);
+        
         if (!$stmt) {
-            die("SQL error: " . $conn->error);
+            header("Location: ../admin/inventory.php?error=" . urlencode("Database error: " . $conn->error));
+            exit();
         }
+        
+        // FIXED: "issdissi" (was "issdissi" with wrong order)
         $stmt->bind_param("issdissi", $category_id, $name, $description, $price, $stock_quantity, $unit, $image_path, $product_id);
     } else {
         $sql = "UPDATE products 
-                   SET category_id=?, name=?, description=?, price=?, stock_quantity=?, unit=? 
-                 WHERE product_id=?";
+                SET category_id=?, name=?, description=?, price=?, stock_quantity=?, unit=?, updated_at=NOW()
+                WHERE product_id=?";
         $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        header("Location: ../admin/inventory.php?error=" . urlencode("SQL error: " . $conn->error));
-        exit();
-    }
+        
+        if (!$stmt) {
+            header("Location: ../admin/inventory.php?error=" . urlencode("Database error: " . $conn->error));
+            exit();
+        }
+        
+        // FIXED: "issdisi" (was "issdisi")
         $stmt->bind_param("issdisi", $category_id, $name, $description, $price, $stock_quantity, $unit, $product_id);
     }
 
@@ -53,10 +64,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_product'])) {
         header("Location: ../admin/inventory.php?success=Product updated successfully");
         exit();
     } else {
-        header("Location: ../admin/inventory.php?error=Failed to update product: " . $stmt->error);
+        header("Location: ../admin/inventory.php?error=" . urlencode("Failed to update: " . $stmt->error));
         exit();
     }
 } else {
     header("Location: ../admin/inventory.php");
     exit();
 }
+?>

@@ -1,3 +1,38 @@
+<?php
+require_once '../database/starroofing_db.php';
+require_once '../authentication/auth.php';
+
+// Get product ID from URL if provided
+$productId = isset($_GET['product_id']) ? intval($_GET['product_id']) : null;
+$productData = null;
+
+// Fetch product details if product_id is provided
+if ($productId) {
+    $stmt = $conn->prepare("
+        SELECT p.product_id, p.name, p.image_path, p.model_path, p.model_url, 
+               g.model_path as generated_model_path, g.model_filename, g.generation_status
+        FROM products p
+        LEFT JOIN generated_3d_models g ON p.generated_model_id = g.id
+        WHERE p.product_id = ?
+    ");
+    $stmt->bind_param("i", $productId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        $productData = $result->fetch_assoc();
+        
+        // Determine which model path to use
+        if (!empty($productData['generated_model_path'])) {
+            $productData['final_model_path'] = $productData['generated_model_path'];
+        } elseif (!empty($productData['model_path'])) {
+            $productData['final_model_path'] = $productData['model_path'];
+        } else {
+            $productData['final_model_path'] = null;
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -91,51 +126,59 @@
 
     .muted { color: var(--muted); font-size: .95rem; }
     .small { font-size:.88rem; }
-    .prop-row { display:flex; gap:.5rem; align-items:center; }
 
     .status-bar {
       display:flex; gap:1rem; align-items:center; justify-content:space-between;
       padding:.5rem 1rem; background: #fff; border-radius:8px; box-shadow: 0 4px 10px rgba(2,6,23,0.04);
     }
 
-    .image-preview {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      margin-top: 0.75rem;
+    /* Product image display */
+    .product-image-display {
+      border: 2px solid rgba(13,110,253,0.3);
+      border-radius: 8px;
+      padding: 14px;
+      background: #f8f9fa;
+      text-align: center;
     }
 
-    .image-preview-item {
-      position: relative;
-      width: 60px;
-      height: 60px;
+    .product-image-display img {
+      max-width: 100%;
+      max-height: 200px;
       border-radius: 6px;
-      overflow: hidden;
-      border: 2px solid #e5e7eb;
+      margin-bottom: 10px;
     }
 
-    .image-preview-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .product-image-display .product-name {
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 5px;
     }
 
-    .image-preview-item .remove-btn {
-      position: absolute;
-      top: 2px;
-      right: 2px;
-      background: rgba(220, 53, 69, 0.9);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      font-size: 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
+    .product-image-display .product-note {
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+
+    /* Tool button active state */
+    .btn-tool-active {
+      background-color: #0d6efd !important;
+      color: white !important;
+      border-color: #0d6efd !important;
+      box-shadow: 0 0 10px rgba(13, 110, 253, 0.5) !important;
+    }
+
+    /* Tool buttons styling */
+    .btn.btn-outline-secondary {
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      border: 2px solid #6c757d;
+    }
+
+    .btn.btn-outline-secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      background-color: rgba(255, 255, 255, 1);
     }
 
     @media (max-width: 1100px) {
@@ -151,8 +194,17 @@
   <div class="d-flex align-items-center justify-content-between py-3">
     <h3 class="mb-0">3D Model Editor</h3>
     <div class="d-flex gap-2">
-      <a href="3dmodel_gallery.php" class="btn btn-sm btn-outline-primary"><i class="fa fa-images"></i> Gallery</a>
-      <a href="inventory.php" class="btn btn-sm btn-outline-secondary"><i class="fa fa-arrow-left"></i> Back</a>
+      <?php if ($productId): ?>
+        <!-- Coming from inventory - show Back to Inventory button only -->
+        <a href="inventory.php" class="btn btn-sm btn-outline-secondary">
+          <i class="fa fa-arrow-left"></i> Back to Inventory
+        </a>
+      <?php else: ?>
+        <!-- Accessed directly - show 3D Gallery button only -->
+        <a href="3dmodel_gallery.php" class="btn btn-sm btn-outline-primary">
+          <i class="fa fa-images"></i> 3D Gallery
+        </a>
+      <?php endif; ?>
     </div>
   </div>
 
@@ -162,24 +214,46 @@
       <div class="card-panel">
         <h6 class="mb-2">Import</h6>
 
-        <div id="uploadZone" class="upload-drop" tabindex="0">
-          <div>
-            <i class="fa fa-cloud-upload fa-2x text-primary"></i>
+        <?php if ($productData): ?>
+          <!-- Show product image if coming from inventory -->
+          <div class="product-image-display">
+            <div class="product-name"><?= htmlspecialchars($productData['name']) ?></div>
+            <img src="../<?= htmlspecialchars($productData['image_path']) ?>" alt="Product Image">
+            <?php if (isset($productData['final_model_path']) && $productData['final_model_path']): ?>
+              <div class="product-note" style="color: #28a745; font-weight: 600;">
+                <i class="fa fa-check-circle"></i> 3D Model Available
+              </div>
+              <div class="product-note" style="font-size: 0.8rem;">
+                Model will load automatically
+              </div>
+            <?php else: ?>
+              <div class="product-note">This image will be used to generate the 3D model</div>
+            <?php endif; ?>
           </div>
-          <div>
-            <div class="small fw-semibold">Drag & drop images</div>
-            <div class="muted small">Or click to select (jpg/png) — 3+ images recommended</div>
+        <?php else: ?>
+          <!-- Show upload zone if no product selected -->
+          <div id="uploadZone" class="upload-drop" tabindex="0">
+            <div>
+              <i class="fa fa-cloud-upload fa-2x text-primary"></i>
+            </div>
+            <div>
+              <div class="small fw-semibold">Drag & drop images</div>
+              <div class="muted small">Or click to select (jpg/png)</div>
+            </div>
           </div>
-        </div>
-
-        <input type="file" id="fileInput" accept="image/*" multiple class="d-none">
-
-        <div id="imagePreviews" class="image-preview"></div>
+          <input type="file" id="fileInput" accept="image/*" multiple class="d-none">
+        <?php endif; ?>
 
         <div class="d-grid gap-2 mt-3">
-          <button id="generateBtn" class="btn btn-primary btn-lg"><i class="fa fa-gear me-2"></i>Generate 3D Model</button>
-          <button id="importGLBBtn" class="btn btn-outline-secondary"><i class="fa fa-file-import me-2"></i>Import .glb / .gltf</button>
-          <button id="downloadBtn" class="btn btn-success"><i class="fa fa-download me-2"></i>Export .gltf</button>
+          <button id="generateBtn" class="btn btn-primary btn-lg">
+            <i class="fa fa-gear me-2"></i>Generate 3D Model
+          </button>
+          <button id="importGLBBtn" class="btn btn-outline-secondary">
+            <i class="fa fa-file-import me-2"></i>Import .glb / .gltf
+          </button>
+          <button id="downloadBtn" class="btn btn-success">
+            <i class="fa fa-download me-2"></i>Export .gltf
+          </button>
         </div>
 
         <hr class="my-3">
@@ -189,26 +263,33 @@
           <ul class="small mb-0">
             <li>Use clear photos from different angles.</li>
             <li>Prefer high-res images (avoid heavy compression).</li>
-            <li>Already processed images will be detected automatically.</li>
           </ul>
-        </div>
-      </div>
-
-      <div class="card-panel mt-2">
-        <h6 class="mb-2">Tools</h6>
-        <div class="d-flex gap-2 flex-wrap">
-          <button id="selectTool" class="btn btn-outline-secondary btn-sm"><i class="fa fa-mouse-pointer"></i> Select</button>
-          <button id="moveTool" class="btn btn-outline-secondary btn-sm"><i class="fa fa-arrows"></i> Move</button>
-          <button id="rotateTool" class="btn btn-outline-secondary btn-sm"><i class="fa fa-rotate"></i> Rotate</button>
-          <button id="scaleTool" class="btn btn-outline-secondary btn-sm"><i class="fa fa-expand"></i> Scale</button>
-          <button id="wireframeBtn" class="btn btn-outline-secondary btn-sm"><i class="fa fa-border-all"></i> Wire</button>
         </div>
       </div>
     </aside>
 
     <!-- CENTER -->
     <main class="canvas-col">
-      <div class="card-panel">
+      <div class="card-panel" style="position: relative;">
+        <!-- Tools Panel - Vertical Layout (Upper Left) -->
+        <div style="position: absolute; top: 15px; left: 15px; z-index: 10; display: flex; flex-direction: column; gap: 8px;">
+          <button id="selectTool" class="btn btn-outline-secondary btn-sm" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" title="Select Tool - Navigate Camera">
+            <i class="fa fa-mouse-pointer fa-lg"></i>
+          </button>
+          <button id="moveTool" class="btn btn-outline-secondary btn-sm" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" title="Move Tool - Translate Model">
+            <i class="fa fa-arrows fa-lg"></i>
+          </button>
+          <button id="rotateTool" class="btn btn-outline-secondary btn-sm" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" title="Rotate Tool - Rotate Model">
+            <i class="fa fa-rotate fa-lg"></i>
+          </button>
+          <button id="scaleTool" class="btn btn-outline-secondary btn-sm" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" title="Scale Tool - Resize Model">
+            <i class="fa fa-expand fa-lg"></i>
+          </button>
+          <button id="wireframeBtn" class="btn btn-outline-secondary btn-sm" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" title="Toggle Wireframe">
+            <i class="fa fa-border-all fa-lg"></i>
+          </button>
+        </div>
+        
         <div id="threeViewport"></div>
       </div>
 
@@ -272,6 +353,15 @@
   </div>
 </div>
 
+<script>
+// Pass PHP data to JavaScript
+const PRODUCT_ID = <?= $productId ? $productId : 'null' ?>;
+const PRODUCT_IMAGE_PATH = <?= $productData ? json_encode($productData['image_path']) : 'null' ?>;
+const PRODUCT_NAME = <?= $productData ? json_encode($productData['name']) : 'null' ?>;
+const EXISTING_MODEL_PATH = <?= ($productData && isset($productData['final_model_path']) && $productData['final_model_path']) ? json_encode($productData['final_model_path']) : 'null' ?>;
+const HAS_MODEL = <?= ($productData && isset($productData['final_model_path']) && $productData['final_model_path']) ? 'true' : 'false' ?>;
+</script>
+
 <script type="importmap">
 {
   "imports": {
@@ -281,571 +371,7 @@
 }
 </script>
 
-<script type="module">
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
-
-const $ = (sel) => document.querySelector(sel);
-const log = (msg) => {
-  const c = $('#consoleLog');
-  const empty = $('#consoleEmpty');
-  if (empty) empty.remove();
-  
-  const div = document.createElement('div');
-  div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-  c.insertBefore(div, c.firstChild);
-};
-
-// Global state
-const state = {
-  scene: null,
-  camera: null,
-  renderer: null,
-  controls: null,
-  loadedModel: null,
-  textureLoader: null,
-  uploadFiles: []
-};
-
-function updateStatus(txt, isError = false) {
-  const statusEl = $('#statusText');
-  statusEl.textContent = txt;
-  statusEl.style.color = isError ? '#dc3545' : '';
-  log(txt);
-}
-
-function updateImagePreviews() {
-  const container = $('#imagePreviews');
-  container.innerHTML = '';
-  
-  state.uploadFiles.forEach((file, index) => {
-    const item = document.createElement('div');
-    item.className = 'image-preview-item';
-    
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(file);
-    img.alt = file.name;
-    
-    const removeBtn = document.createElement('button');
-    removeBtn.className = 'remove-btn';
-    removeBtn.innerHTML = '×';
-    removeBtn.title = 'Remove';
-    removeBtn.onclick = () => {
-      state.uploadFiles.splice(index, 1);
-      updateImagePreviews();
-      updateStatus(`${state.uploadFiles.length} image(s) ready`);
-    };
-    
-    item.appendChild(img);
-    item.appendChild(removeBtn);
-    container.appendChild(item);
-  });
-}
-
-function initThree() {
-  const container = $('#threeViewport');
-  container.innerHTML = '';
-
-  state.scene = new THREE.Scene();
-  // WHITE BACKGROUND
-  state.scene.background = new THREE.Color(0xffffff);
-
-  const w = container.clientWidth;
-  const h = container.clientHeight;
-  
-  state.camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 1000);
-  state.camera.position.set(2.5, 2.0, 3.5);
-
-  state.renderer = new THREE.WebGLRenderer({ antialias: true });
-  state.renderer.setPixelRatio(window.devicePixelRatio);
-  state.renderer.setSize(w, h);
-  state.renderer.outputColorSpace = THREE.SRGBColorSpace;
-  container.appendChild(state.renderer.domElement);
-
-  // Lighting
-  const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-  dirLight.position.set(5, 10, 7.5);
-  state.scene.add(dirLight);
-  state.scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-
-  // GRID - Dark grid on white background
-  const grid = new THREE.GridHelper(20, 40, 0x999999, 0xcccccc);
-  state.scene.add(grid);
-
-  // Optional: Add axes helper
-  const axesHelper = new THREE.AxesHelper(5);
-  state.scene.add(axesHelper);
-
-  state.controls = new OrbitControls(state.camera, state.renderer.domElement);
-  state.controls.enableDamping = true;
-  state.controls.dampingFactor = 0.05;
-
-  state.textureLoader = new THREE.TextureLoader();
-
-  window.addEventListener('resize', onResize);
-  animate();
-  
-  log('3D Editor initialized with white theme');
-}
-
-function onResize() {
-  const container = $('#threeViewport');
-  if (!container) return;
-  
-  const w = container.clientWidth;
-  const h = container.clientHeight;
-  
-  state.camera.aspect = w / h;
-  state.camera.updateProjectionMatrix();
-  state.renderer.setSize(w, h);
-}
-
-function animate() {
-  requestAnimationFrame(animate);
-  if (state.controls) state.controls.update();
-  if (state.renderer && state.scene && state.camera) {
-    state.renderer.render(state.scene, state.camera);
-  }
-}
-
-function clearModel() {
-  if (!state.loadedModel) return;
-  
-  state.scene.remove(state.loadedModel);
-  
-  state.loadedModel.traverse(child => {
-    if (child.geometry) child.geometry.dispose();
-    if (child.material) {
-      if (Array.isArray(child.material)) {
-        child.material.forEach(m => m.dispose());
-      } else {
-        child.material.dispose();
-      }
-    }
-  });
-  
-  state.loadedModel = null;
-  $('#modelInfo').textContent = '';
-}
-
-async function loadModel(url) {
-  updateStatus('Loading model...');
-  
-  try {
-    clearModel();
-    
-    const loader = new GLTFLoader();
-    
-    await new Promise((resolve, reject) => {
-      loader.load(
-        url,
-        (gltf) => {
-          state.loadedModel = gltf.scene;
-          
-          // Apply default gray material to all meshes
-          state.loadedModel.traverse(child => {
-            if (child.isMesh) {
-              child.material = new THREE.MeshStandardMaterial({
-                color: 0x808080, // Gray color
-                metalness: 0.5,
-                roughness: 0.5
-              });
-            }
-          });
-          
-          const box = new THREE.Box3().setFromObject(state.loadedModel);
-          const center = box.getCenter(new THREE.Vector3());
-          state.loadedModel.position.sub(center);
-          
-          state.scene.add(state.loadedModel);
-          
-          const size = box.getSize(new THREE.Vector3());
-          $('#modelInfo').textContent = 
-            `Model: ${size.x.toFixed(2)} × ${size.y.toFixed(2)} × ${size.z.toFixed(2)} units`;
-          
-          updateStatus('Model loaded successfully');
-          resolve();
-        },
-        (xhr) => {
-          if (xhr.lengthComputable) {
-            const percent = Math.round((xhr.loaded / xhr.total) * 100);
-            updateStatus(`Loading: ${percent}%`);
-          }
-        },
-        (error) => {
-          reject(error);
-        }
-      );
-    });
-  } catch (err) {
-    console.error('Load error:', err);
-    updateStatus('Failed to load model', true);
-    Swal.fire('Error', 'Unable to load model: ' + err.message, 'error');
-  }
-}
-
-function exportModel() {
-  if (!state.loadedModel) {
-    Swal.fire('No Model', 'Please load or generate a model first', 'info');
-    return;
-  }
-  
-  updateStatus('Exporting model...');
-  
-  const exporter = new GLTFExporter();
-  exporter.parse(
-    state.loadedModel,
-    (result) => {
-      const output = result instanceof ArrayBuffer 
-        ? result 
-        : JSON.stringify(result, null, 2);
-      
-      const blob = new Blob([output], {
-        type: result instanceof ArrayBuffer 
-          ? 'model/gltf-binary' 
-          : 'model/gltf+json'
-      });
-      
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'model_' + Date.now() + '.gltf';
-      link.click();
-      URL.revokeObjectURL(url);
-      
-      updateStatus('Export complete');
-    },
-    (error) => {
-      console.error('Export error:', error);
-      updateStatus('Export failed', true);
-    },
-    { binary: false }
-  );
-}
-
-function applyMaterial() {
-  if (!state.loadedModel) return;
-  
-  const color = $('#colorPicker').value;
-  const metalness = parseFloat($('#metalness').value);
-  const roughness = parseFloat($('#roughness').value);
-  
-  state.loadedModel.traverse(child => {
-    if (child.isMesh && child.material) {
-      if (!child.material.isMeshStandardMaterial) {
-        child.material = new THREE.MeshStandardMaterial({
-          map: child.material.map,
-          color: child.material.color || color
-        });
-      }
-      
-      child.material.color.set(color);
-      child.material.metalness = metalness;
-      child.material.roughness = roughness;
-      child.material.needsUpdate = true;
-    }
-  });
-}
-
-function handleFiles(files) {
-  const images = files.filter(f => f.type.startsWith('image/'));
-  
-  if (images.length === 0) {
-    Swal.fire('Invalid Files', 'Please select image files only', 'warning');
-    return;
-  }
-  
-  state.uploadFiles = state.uploadFiles.concat(images);
-  updateImagePreviews();
-  updateStatus(`${state.uploadFiles.length} image(s) ready`);
-  log(`Added ${images.length} image(s). Total: ${state.uploadFiles.length}`);
-}
-
-function checkURLForModel() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const modelPath = urlParams.get('load');
-  
-  if (modelPath) {
-    log('Loading model from URL: ' + modelPath);
-    
-    // Decode and ensure correct path format
-    let decodedPath = decodeURIComponent(modelPath);
-    
-    // If path doesn't start with uploads/, add it
-    if (!decodedPath.startsWith('uploads/')) {
-      decodedPath = 'uploads/3dmodels/' + decodedPath;
-    }
-    
-    log('Resolved path: ' + decodedPath);
-    
-    // Load the model after a short delay to ensure Three.js is ready
-    setTimeout(() => {
-      loadModel(decodedPath);
-    }, 500);
-  }
-}
-
-function setupUI() {
-  const uploadZone = $('#uploadZone');
-  const fileInput = $('#fileInput');
-  
-  uploadZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadZone.classList.add('dragover');
-  });
-  
-  ['dragleave', 'dragend'].forEach(evt => {
-    uploadZone.addEventListener(evt, () => {
-      uploadZone.classList.remove('dragover');
-    });
-  });
-  
-  uploadZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadZone.classList.remove('dragover');
-    handleFiles(Array.from(e.dataTransfer.files));
-  });
-  
-  uploadZone.addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', (e) => {
-    handleFiles(Array.from(e.target.files));
-  });
-  
-  $('#importGLBBtn').addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.gltf,.glb';
-    input.onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const url = URL.createObjectURL(file);
-        loadModel(url);
-      }
-    };
-    input.click();
-  });
-  
-  $('#generateBtn').addEventListener('click', async () => {
-    if (state.uploadFiles.length === 0) {
-      Swal.fire('No Images', 'Please add at least one image', 'warning');
-      return;
-    }
-
-    Swal.fire({
-      title: 'Generating 3D Model',
-      html: 'Uploading image to Meshy AI...<br><small>This may take a few minutes</small>',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
-
-    updateStatus('Uploading to Meshy API...');
-
-    const formData = new FormData();
-    formData.append('images[]', state.uploadFiles[0]);
-
-    try {
-      const response = await fetch('meshy/meshy_upload.php', {
-        method: 'POST',
-        body: formData
-      });
-      
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('Non-JSON response:', text);
-        throw new Error('Server returned invalid response. Check PHP errors.');
-      }
-
-      const json = await response.json();
-
-      if (json.status === 'success') {
-        if (json.existing) {
-          Swal.fire({
-            icon: 'info',
-            title: 'Already Converted',
-            text: 'This image was already converted to 3D!',
-            timer: 2000
-          });
-        } else {
-          Swal.fire({
-            icon: 'success',
-            title: 'Model Ready!',
-            timer: 2000,
-            showConfirmButton: false
-          });
-        }
-
-        await loadModel(json.model_url);
-        state.uploadFiles = [];
-        updateImagePreviews();
-        updateStatus('Model loaded successfully');
-
-      } else if (json.status === 'pending') {
-        Swal.fire({
-          icon: 'info',
-          title: json.existing ? 'Already Processing' : 'Processing...',
-          html: `Task ID: ${json.task_id}<br><br>Checking status every 10 seconds...`,
-          showConfirmButton: false,
-          allowOutsideClick: false
-        });
-
-        updateStatus('Checking task status...');
-        pollTaskStatus(json.task_id);
-
-      } else {
-        throw new Error(json.message || 'Unknown error from API');
-      }
-
-    } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Upload Failed',
-        html: `<strong>Error:</strong> ${err.message}<br><br><small>Check console for details</small>`,
-        confirmButtonText: 'OK'
-      });
-
-      updateStatus('Upload failed: ' + err.message, true);
-      console.error('ERROR:', err);
-    }
-  });
-
-  async function pollTaskStatus(taskId) {
-    const maxAttempts = 60;
-    let attempts = 0;
-
-    const checkStatus = async () => {
-      attempts++;
-      try {
-        const response = await fetch(`meshy/meshy_check_status.php?task_id=${taskId}`);
-        const json = await response.json();
-
-        if (json.status === 'success' || json.status === 'succeeded') {
-          Swal.fire({
-            icon: 'success',
-            title: 'Model Generated!',
-            text: 'Loading 3D model...',
-            timer: 2000,
-            showConfirmButton: false
-          });
-
-          await loadModel(json.model_url);
-          state.uploadFiles = [];
-          updateImagePreviews();
-          updateStatus('Model loaded successfully');
-
-        } else if (json.status === 'pending') {
-          const progress = json.progress || 0;
-          updateStatus(`Processing: ${progress}% (${attempts}/${maxAttempts})`);
-
-          if (attempts < maxAttempts) {
-            setTimeout(checkStatus, 10000);
-          } else {
-            throw new Error('Timeout: Model generation took too long');
-          }
-
-        } else {
-          throw new Error(json.message || 'Model generation failed');
-        }
-
-      } catch (err) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: err.message
-        });
-
-        updateStatus('Error: ' + err.message, true);
-      }
-    };
-
-    checkStatus();
-  }
-  
-  $('#downloadBtn').addEventListener('click', exportModel);
-  
-  $('#scaleRange').addEventListener('input', (e) => {
-    const val = parseFloat(e.target.value);
-    $('#scaleVal').textContent = val.toFixed(2);
-    if (state.loadedModel) {
-      state.loadedModel.scale.setScalar(val);
-    }
-  });
-  
-  ['rotateX', 'rotateY', 'rotateZ'].forEach(id => {
-    $('#' + id).addEventListener('input', (e) => {
-      if (!state.loadedModel) return;
-      const rad = THREE.MathUtils.degToRad(parseFloat(e.target.value));
-      const axis = id.replace('rotate', '').toLowerCase();
-      state.loadedModel.rotation[axis] = rad;
-    });
-  });
-  
-  $('#colorPicker').addEventListener('input', applyMaterial);
-  $('#metalness').addEventListener('input', (e) => {
-    $('#metalVal').textContent = parseFloat(e.target.value).toFixed(2);
-    applyMaterial();
-  });
-  $('#roughness').addEventListener('input', (e) => {
-    $('#roughVal').textContent = parseFloat(e.target.value).toFixed(2);
-    applyMaterial();
-  });
-  
-  $('#textureUpload').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file || !state.loadedModel) return;
-    
-    const url = URL.createObjectURL(file);
-    state.textureLoader.load(url, (texture) => {
-      state.loadedModel.traverse(child => {
-        if (child.isMesh && child.material) {
-          child.material.map = texture;
-          child.material.needsUpdate = true;
-        }
-      });
-      log('Texture applied');
-      URL.revokeObjectURL(url);
-    });
-  });
-  
-  $('#wireframeBtn').addEventListener('click', () => {
-    if (!state.loadedModel) return;
-    
-    let isWireframe = false;
-    state.loadedModel.traverse(child => {
-      if (child.isMesh && child.material) {
-        isWireframe = child.material.wireframe;
-      }
-    });
-    
-    state.loadedModel.traverse(child => {
-      if (child.isMesh && child.material) {
-        child.material.wireframe = !isWireframe;
-      }
-    });
-    
-    log('Wireframe: ' + (isWireframe ? 'OFF' : 'ON'));
-  });
-  
-  $('#resetCameraBtn').addEventListener('click', () => {
-    state.camera.position.set(2.5, 2.0, 3.5);
-    state.controls.target.set(0, 0, 0);
-    state.controls.update();
-    log('Camera reset');
-  });
-}
-
-// Initialize
-initThree();
-setupUI();
-updateStatus('Ready');
-
-// Check if we need to load a model from URL
-checkURLForModel();
-</script>
+<script type="module" src="../javascript/3dmodel_editor.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

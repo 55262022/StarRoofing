@@ -1,5 +1,6 @@
 <?php
 include '../authentication/auth.php';
+requireAdmin(); // Automatic redirect kung hindi admin
 require_once '../database/starroofing_db.php';
 
 $welcome_message = '';

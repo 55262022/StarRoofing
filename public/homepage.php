@@ -8,137 +8,263 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star Roofing & Construction</title>
     <link rel="stylesheet" href="../css/home.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css"/>
-    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        .get-started-btn {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 12px 28px;
-    background-color: #1a365d;
-    color: #fff;
-    font-weight: 600;
-    border-radius: 30px;
-    text-decoration: none;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.get-started-btn:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-}
-
-    </style>
 </head>
+<style>
+    .hidden{
+    display: none;
+    }
+
+    #products-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    }
+
+    #products-section iframe {
+        width: 100%;
+        height: 100vh;
+        border: none;
+        display: block;
+    }
+
+</style>
 <body id="home">
+
     <?php include '../includes/navbar.php'?>
+    <!-- Hero Section - Modern Roofing Banner -->
+    <section class="hero-modern" id="hero-section">
+    
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">We build with passion</h1>
+            <p class="hero-subtitle">
+                Expert Roofing and Construction Services for Homes and Businesses
+            </p>
 
-    <section class="hero">
-        <div class="container">
-            <p>"We Build With Passion"</p>
-            <p>Star Roofing and Construction is located at San Juan Accfa District, Cabanatuan City (In-front of Hall of Justice)</p>
-            <a href="register.php" class="get-started-btn">Get Started</a>
-        </div>
-    </section>
+            <div class="hero-cta-buttons">
+                <a href="register.php" class="cta-primary">GET STARTED</a>
+                <a href="#about" class="cta-secondary">LEARN MORE</a>
+            </div>
 
-    <section class="mission-vision">
-        <div class="container">
-            <h2 class="section-title">Our Mission & Vision</h2>
-            <p>Our Mission
-            Dj Star Roofing and Construction is a company that committed to build a strong relationships based on integrity, honesty, performance and client satisfaction.
-            Continue to meet the changing needs of every customer to provide quality services and delivered by most qualified people.</p>
-
-            <p>Our Vision
-            To be the best Roofing and Construction company not only in Nueva Ecija but around the Philippines, by delivering safety and successful projects and services. We STAR ROOFING AND CONSTRUCTION "BUILD WITH PASSION"</p>
-        </div>
-    </section>
-
-    <section class="about" id="about">
-        <div class="container">
-            <h2 class="section-title">About Us</h2>
-            <div class="about-content">
-                <div class="about-text">
-                    <p>Star Roofing and Construction established last February 10, 2013 and owned by Mr. Don Jerome F. Empania. This construction company is located at San Juan Accfa District, Cabanatuan City and offers Design and Construction, All kinds of Roofing, Steel truss, Glass and other services. And we assure our clients that our work is "Build With Passion".</p>
-                </div>
+            <div class="hero-tagline">
+                "Quality That Stands Above the Rest"
             </div>
         </div>
-    </section>
-
-    <section class="services" id="services">
-        <div class="container">
-            <h2 class="section-title">Services/Products Offered</h2>
-            <div class="services-grid">
-                <div class="service-item">
-                    <h3>All Kinds of Roofing</h3>
-                </div>
-                <div class="service-item">
-                    <h3>Steel Truss</h3>
-                </div>
-                <div class="service-item">
-                    <h3>Glass and Aluminum</h3>
-                </div>
-                <div class="service-item">
-                    <h3>Stainless</h3>
-                </div>
-                <div class="service-item">
-                    <h3>Bender</h3>
-                </div>
-                <div class="service-item">
-                    <h3>Insulator</h3>
-                </div>
-            </div>
+         
+        <div class="scroll-indicator">
+            <div class="scroll-arrow"></div>
         </div>
     </section>
 
-    <section class="contact" id="contact">
+
+    <!-- Mission & Vision - Modern Card Layout -->
+    <section class="mission-vision-modern-section">
         <div class="container">
-            <h2 class="section-title">Contact Us</h2>
-            <p>For more information contact the following:
-            Ms. Janice M. Francisco - Account Supervisor
-            (Smart) 0908-620-23-813/ (Sun) 0933-628-3312 / Tel. No.: (044) 329-0881
-            or kindly write your concerns below. Thank You!</p>
+            <div class="section-header">
+                <span class="section-label">OUR FOUNDATION</span>
+                <h2 class="section-title-modern">Mission & Vision</h2>
+            </div>
             
-            <form id="contactForm">
-            <div class="contact-form">
-                <div class="form-group">
-                <input type="text" name="firstname" placeholder="Your Name" required>
+            <div class="mv-grid">
+                <div class="mv-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="mv-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3>Our Mission</h3>
+                    <p>To deliver exceptional roofing and construction services through innovation, quality craftsmanship, and unwavering commitment to customer satisfaction, while maintaining the highest standards of professionalism and integrity.</p>
                 </div>
-                <div class="form-group">
-                <input type="text" name="lastname" placeholder="Lastname" required>
-                </div>
-                <div class="form-group">
-                <input type="email" name="email" placeholder="Email" required>
-                </div>
-                <div class="form-group">
-                <textarea name="message" placeholder="Your Message" required></textarea>
-                </div>
-                <div class="form-group button-container">
-                <button type="submit">SUBMIT</button>
+                
+                <div class="mv-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="mv-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3>Our Vision</h3>
+                    <p>To be the leading provider of roofing and construction solutions in the region, recognized for excellence, reliability, and innovative approaches to sustainable building practices.</p>
                 </div>
             </div>
-            </form>
         </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-modern" id="about">
+        <div class="container">
+            <div class="about-split">
+                                <div class="about-image" data-aos="fade-right">
+                    <div class="image-placeholder">
+                        <img src="../assets/images/about-us.jpg" alt="About Star Roofing">
+                        <div class="about-badge">
+                            <span class="badge-year">15+</span>
+                            <span class="badge-number">Years of Excellence</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="about-content" data-aos="fade-left">
+                    <div class="section-header">
+                        <span class="section-label">ABOUT US</span>
+                        <h2 class="section-title-modern">Excellence in Roofing & Construction Since 2008</h2>
+                    </div>
+                    <p class="about-description">
+                        Star Roofing & Construction has been a trusted name in the industry for over 15 years. We take pride in delivering top-quality roofing solutions and construction services that stand the test of time.
+                    </p>
+                    <div class="about-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">500+</span>
+                            <span class="stat-label">Projects Completed</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">98%</span>
+                            <span class="stat-label">Client Satisfaction</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">50+</span>
+                            <span class="stat-label">Expert Team Members</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services-modern" id="services">
+        <div class="container">
+            <div class="section-header centered">
+                <span class="section-label">WHAT WE OFFER</span>
+                <h2 class="section-title-modern">Our Services</h2>
+            </div>
+            
+            <div class="services-grid-modern">
+                <div class="service-card" data-aos="fade-up" data-aos-delay="100">
+                    <span class="service-number">01</span>
+                    <h3>Roofing Installation</h3>
+                    <p>Professional installation of various roofing systems, including metal, shingle, and flat roofs.</p>
+                </div>
+                <div class="service-card" data-aos="fade-up" data-aos-delay="200">
+                    <span class="service-number">02</span>
+                    <h3>Roof Repair & Maintenance</h3>
+                    <p>Expert repair services and regular maintenance to extend your roof's lifespan.</p>
+                </div>
+                <div class="service-card" data-aos="fade-up" data-aos-delay="300">
+                    <span class="service-number">03</span>
+                    <h3>Construction Services</h3>
+                    <p>Complete construction solutions from residential to commercial projects.</p>
+                </div>
+                <div class="service-card" data-aos="fade-up" data-aos-delay="400">
+                    <span class="service-number">04</span>
+                    <h3>Renovation & Remodeling</h3>
+                    <p>Transform your space with our professional renovation and remodeling services.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact-modern" id="contact">
+        <div class="container">
+                        <div class="contact-split">
+                <div class="contact-info-side" data-aos="fade-right">
+                    <div class="section-header">
+                        <span class="section-label">GET IN TOUCH</span>
+                        <h2 class="section-title-modern">Let's Start Your Project Together</h2>
+                    </div>
+                    <p class="contact-description">
+                        Ready to start your roofing or construction project? Contact us today for a free consultation and estimate. Our team of experts is here to help bring your vision to life.
+                    </p>
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <h4>Visit Us</h4>
+                                <p>San Juan Accfa District, Cabanatuan City (In-front of Hall of Justice)</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div>
+                                <h4>Call Us</h4>
+                                <p>(044) 329-0881<br>0908-620-2381<br>0933-628-3312</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>
+                                <h4>Email Us</h4>
+                                <p>info@starroofing.com<br>contact@starroofing.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-form-side" data-aos="fade-left">
+                    <form id="contactForm" class="modern-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" name="name" placeholder="Your Name" required>
+                            </div>
+                            <div class="form-group">
+                                <input type="email" name="email" placeholder="Your Email" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="subject" placeholder="Subject" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea name="message" placeholder="Your Message" rows="6" required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="products-section" class="section hidden">
+        <iframe src="../client/category-page.php"></iframe>
     </section>
 
     <?php include '../includes/footer.php'?>
+    <?php include '../includes/chat-bot.php'?>
 
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+
+        // Contact Form
         $(document).ready(function(){
             $("#contactForm").on("submit", function(e){
-            e.preventDefault();
-
-            $.ajax({
-                url: "save_contact.php",
-                type: "POST",
-                data: $(this).serialize(),
-                success: function(response){
-                $("body").append(response);
-                }
-            });
+                e.preventDefault();
+                $.ajax({
+                    url: "save_contact.php",
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function(response){
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Message Sent!',
+                            text: 'Thank you for contacting us. We will get back to you soon.',
+                            confirmButtonColor: '#1a365d'
+                        });
+                        $("#contactForm")[0].reset();
+                    }
+                });
             });
         });
     </script>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 24, 2025 at 01:30 PM
+-- Generation Time: Oct 26, 2025 at 07:49 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -43,8 +43,8 @@ CREATE TABLE `accounts` (
 --
 
 INSERT INTO `accounts` (`id`, `email`, `password`, `role_id`, `account_status`, `last_login`, `created_at`, `updated_at`) VALUES
-(7, 'ajmacaraig19@gmail.com', '$2y$10$vpvhTBLnHY84MDjuEUlAQ.XWjiJ2MW8iUUxsJB0kzF97DtmQU3H/G', 2, 'active', '2025-10-24 02:09:45', '2025-09-12 11:34:43', '2025-10-24 02:09:45'),
-(8, 'ajmacaraig20@gmail.com', '$2y$10$0xiOQg8aTUFKO9g/vajF.u5fM.nD9vMHXLqLPLoCia/HEzwR8XqAe', 1, 'active', '2025-10-24 10:07:17', '2025-09-12 11:45:37', '2025-10-24 10:07:17'),
+(7, 'ajmacaraig19@gmail.com', '$2y$10$vpvhTBLnHY84MDjuEUlAQ.XWjiJ2MW8iUUxsJB0kzF97DtmQU3H/G', 2, 'active', '2025-10-25 13:43:51', '2025-09-12 11:34:43', '2025-10-25 13:43:51'),
+(8, 'ajmacaraig20@gmail.com', '$2y$10$0xiOQg8aTUFKO9g/vajF.u5fM.nD9vMHXLqLPLoCia/HEzwR8XqAe', 1, 'active', '2025-10-26 14:27:19', '2025-09-12 11:45:37', '2025-10-26 14:27:19'),
 (9, 'ajmacaraig18@gmail.com', '$2y$10$TRYyLzGYJgBEC7JTpo5qD.8IOknPQ/Nhpa04gkhQmrHFe02.P4mLu', 2, 'active', '2025-10-08 06:52:34', '2025-09-15 09:34:45', '2025-10-12 07:29:51'),
 (10, '57842022@holycross.edu.ph', '$2y$10$VbwIwOWnPmhDvFsPwccoaOBzujWxl9waRxoJJbhXxMZpWPIR/Mmlu', 2, 'active', NULL, '2025-09-16 11:56:11', '2025-09-16 11:59:57'),
 (13, 'admin@gmail.com', '$2y$10$d7Cg4ccEJ1OLypxRhgg3rutDJYaVZwUrCcpzEv0vkIwH0Ddl.wp3a', 1, 'active', '2025-10-19 04:26:59', '2025-10-09 04:09:49', '2025-10-19 04:26:59'),
@@ -154,6 +154,16 @@ CREATE TABLE `generated_3d_models` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `generated_3d_models`
+--
+
+INSERT INTO `generated_3d_models` (`id`, `product_id`, `meshy_task_id`, `image_hash`, `original_image_name`, `original_image_hash`, `model_filename`, `model_path`, `model_url`, `file_size`, `generation_status`, `error_message`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, NULL, '019a174c-c43f-78ea-9fd2-2b8579746ac2', 'c9560bbf6796ed9b0d0fa6fa0ed46602', 'image-18.png', NULL, 'model_019a174c-c43f-78ea-9fd2-2b8579746ac2_1761328644_68fbbe0492632.glb', 'uploads/3dmodels/model_019a174c-c43f-78ea-9fd2-2b8579746ac2_1761328644_68fbbe0492632.glb', 'https://assets.meshy.ai/3b7a3bf4-2114-49b6-b91c-d1ee797186b9/tasks/019a174c-c43f-78ea-9fd2-2b8579746ac2/output/model.glb?Expires=1761586840&Signature=MALVhCg8Zkej7enmGuABqmPqGYRtxuRexrhQ5FK48zme~T0t7JxaMlt0CyaXC2o92WhLp7xivcB0f3wxvzJ653e2LFnYU24UZIoIiR02at7njZ7BPtE-CYEIKaZBa6xIfXPITJfzR9DMk6Sv-efi~ECu41anCbReYT46yBPqH9VsViZtK7TlTVCYAAdPBU0MGZMeuScHXpXtTAkGw-yADtvHu8RdlbxrG3vJT36BjoMrunV2Prxi1GLW9dRtDZdgXIftaVqgeYdL33WMGjhnkFpJ~ngFqP8HmftOZj4bH3aZT0ZjzZOZwkOVTu8H47jQhG1Mb4-mjm2eIhyztccqeQ__&Key-P', 6442324, 'succeeded', NULL, NULL, '2025-10-24 17:38:19', '2025-10-24 17:57:25'),
+(2, NULL, '019a17e2-bde6-7b37-a231-e243255c5e71', '0a76f5b593e77358329f3a2d6d51e8fd', 'a48fcbacc4b04ca1a099e6ebc3df1b40.jpg', NULL, 'model_68fbe07c37346.glb', 'uploads/3dmodels/model_68fbe07c37346.glb', 'https://assets.meshy.ai/3b7a3bf4-2114-49b6-b91c-d1ee797186b9/tasks/019a17e2-bde6-7b37-a231-e243255c5e71/output/model.glb?Expires=1761596659&Signature=CwEg8tTcMt78hUDh9IAeuD2UubHIiqT366ke18I1wtNChNNadYylOEdZn-04~WlqAdJ2B7LZSKrYwkn5ijs7AGCZ9yTTTFM8bwAFL07ftVzoUFGXbpp4YDvDedheeq5wocNjCvrbASAL~iWn9uBYmoeeDeSfYyp2esIvl7SAJ0TiCwgCNb9J7BqYUQprawA8piQuf~02QxQqe4hi5FKT6BeGe5hR3etje0ZKvHaZevn3rUyzjL-GG3QrDpf8v33lmw-qhqs~D78NY98j-88WmnzQMesP4TI-zpdUjryzO21ZeqczDMDCXjRRKYvKJ4qUH8PitN~phjYBUCOhZT4vaw__&Key-P', 7210324, 'succeeded', NULL, NULL, '2025-10-24 20:22:07', '2025-10-26 18:46:52'),
+(3, NULL, '019a19f2-f895-786a-ad90-d85151ecf360', '7f1a41bb0027657cd3692a6e9191d1da', 'images.jpg', NULL, 'model_68fc67be914b7.glb', 'uploads/3dmodels/model_68fc67be914b7.glb', 'https://assets.meshy.ai/3b7a3bf4-2114-49b6-b91c-d1ee797186b9/tasks/019a19f2-f895-786a-ad90-d85151ecf360/output/model.glb?Expires=1761631290&Signature=dyiaG8HggXt5LaRTcMmGSTEDQG6oQ~YQbePsRXTrZygj2A-QWeVCDNbR-9eto1YUaQaxieHTa2lTfpuHBnvqbAAOB8f9laK-Bwc-rWwxt7yhRmNz1rf8wsZax2ql8dqOh1AFSWIS1cD0ZeRHChgDkU69-tePaeavOUVC5ip48tsICnk5lG~7RRnujUsSXj5inu6SFfVTuH9Mfr03qi-dBf1vGcHTUaxsBMI7eccvwmU10wvvrGA7t9Tjk9ojQpoxb7FQVEmEuTQKN0F1v03O7vW2QTgcg837xEQzMhz57COEBR9SBAp6Ra-6m2nIid9K4ddpYDZ3qR9Ff6pOOaggEg__&Key-P', 9090820, 'succeeded', NULL, NULL, '2025-10-25 05:59:05', '2025-10-26 18:46:52'),
+(4, 16, '019a2163-e7c0-7c32-a31c-04c6f82cecfc', '4c2ebc13fbb8e8cb565e3205d1502ccc', '1761490082_foam insulation.jpg', NULL, 'model_68fe5004b2736.glb', 'uploads/3dmodels/model_68fe5004b2736.glb', 'https://assets.meshy.ai/3b7a3bf4-2114-49b6-b91c-d1ee797186b9/tasks/019a2163-e7c0-7c32-a31c-04c6f82cecfc/output/model.glb?Expires=1761756292&Signature=ZyLriYoCuEBsn52mhUdj8KKflVm7InHvJKqMWEP8oIrz~WbcqlCU3EfXjew911T4dyu4YzZGrU1PGnMaWKIObhg15dlfxvcWDfBj~M3o0RARIXmgvXV2cgpTqrCXPu2YVn1fP8wpSzpRylfOvOxnmDIYGoe0aoa1bHVZ0hm-~xIZ8bf0eg--RG7hB9HBfdkcHWvEiwcHWg1iBnpY0ILJGbZNPfRGOpehHq0AtR94KMyj9pGbOtBVImBv34Vd1eiMW77xGSbptAVVXeJtwlLQaCXTrM-1VpubXXNUWe4GORBo-WtnaUpv3XUVCEE~VhehD2fOYSdMkEUb7xjaiWAqWw__&Key-P', 8322188, 'succeeded', NULL, NULL, '2025-10-26 16:39:47', '2025-10-26 18:46:52');
+
 -- --------------------------------------------------------
 
 --
@@ -207,7 +217,7 @@ INSERT INTO `inquiries` (`id`, `firstname`, `lastname`, `email`, `phone`, `regio
 (18, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'hello', 2, NULL, '2025-10-23 07:00:48', 0),
 (19, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'hello', 2, NULL, '2025-10-23 07:00:59', 0),
 (20, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'hello', 2, NULL, '2025-10-23 07:00:59', 1),
-(21, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'ji', 2, NULL, '2025-10-23 07:06:30', 0),
+(21, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'ji', 2, NULL, '2025-10-23 07:06:30', 1),
 (22, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'ji', 2, NULL, '2025-10-23 07:06:33', 1),
 (23, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'ji', 2, NULL, '2025-10-23 07:06:33', 1),
 (24, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'hhhiii', 2, 6, '2025-10-23 07:44:44', 1),
@@ -266,7 +276,7 @@ CREATE TABLE `products` (
   `name` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
   `price` decimal(10,2) NOT NULL,
-  `stock_quantity` int(11) NOT NULL DEFAULT 0,
+  `stock_quantity` int(11) NOT NULL DEFAULT 0 CHECK (`stock_quantity` >= 0),
   `unit` varchar(20) NOT NULL,
   `image_path` varchar(255) DEFAULT NULL,
   `model_path` varchar(255) DEFAULT NULL,
@@ -285,18 +295,20 @@ CREATE TABLE `products` (
 
 INSERT INTO `products` (`product_id`, `category_id`, `name`, `description`, `price`, `stock_quantity`, `unit`, `image_path`, `model_path`, `created_by`, `created_at`, `updated_at`, `is_archived`, `meshy_task_id`, `model_url`, `generated_model_id`) VALUES
 (1, 2, 'Roofing', 'Bubong', 1000.00, 75, 'piece', 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.ugc.ph%2Fproduct%2Fduratile%2F&psig=AOvVaw3X_uMdXyDZnuuECXufnzjQ&ust=1757939065451000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCOCD-L6f2I8DFQAAAAAdAAAAABAL', NULL, 8, '2025-09-14 12:25:05', '2025-09-14 15:43:06', 1, NULL, NULL, NULL),
-(2, 4, 'Aluminum Window', 'Aluminum, Glass, Window', 300.00, 1, 'meter', 'uploads/products/1757905503_wp6786949.jpg', 'uploads/3dmodels/japanese_pagoda_tower.glb', 8, '2025-09-14 13:07:13', '2025-10-19 08:23:03', 0, NULL, NULL, NULL),
-(5, 4, 'Tempered Window', 'Water Proof', 6000.00, 25, 'piece', 'uploads/products/1757904798_images.jpg', NULL, 8, '2025-09-15 02:53:18', '2025-09-15 02:53:18', 0, NULL, NULL, NULL),
-(6, 6, 'Cabinet', 'Water Proof', 600.00, 50, 'set', 'uploads/products/1757905716_1722505054150.jpeg', NULL, 8, '2025-09-15 03:08:36', '2025-09-15 03:08:36', 0, NULL, NULL, NULL),
-(7, 5, 'glass', 'heat proof', 500.00, 3, 'set', 'uploads/products/1757983610_10619874-the-light-trails-on-the-modern-building-background-in-shanghai-china-.jpg', NULL, 8, '2025-09-16 00:46:50', '2025-09-16 00:46:50', 0, NULL, NULL, NULL),
-(8, 1, 'Bungalow', 'good quality', 10000000.00, 67, 'set', 'uploads/products/1757983690_Infrastructure.jpg', NULL, 8, '2025-09-16 00:48:10', '2025-10-07 09:29:22', 0, NULL, NULL, NULL),
+(2, 1, 'Simple Structure', 'Tall structure', 300.00, 1, 'piece', 'uploads/products/1757905503_wp6786949.jpg', 'uploads/3dmodels/japanese_pagoda_tower.glb', 8, '2025-09-14 13:07:13', '2025-10-26 16:52:57', 0, NULL, NULL, NULL),
+(5, 4, 'Tempered Window', 'Water Proof', 2400.00, 25, 'set', 'uploads/products/1757904798_images.jpg', NULL, 8, '2025-09-15 02:53:18', '2025-10-26 17:02:26', 0, NULL, NULL, NULL),
+(6, 6, 'Cabinet', 'Water Proof', 600.00, 50, 'set', 'uploads/products/1757905716_1722505054150.jpeg', NULL, 8, '2025-09-15 03:08:36', '2025-10-26 14:57:26', 1, NULL, NULL, NULL),
+(7, 5, 'glass', 'heat proof', 500.00, 3, 'set', 'uploads/products/1757983610_10619874-the-light-trails-on-the-modern-building-background-in-shanghai-china-.jpg', NULL, 8, '2025-09-16 00:46:50', '2025-10-26 14:57:19', 1, NULL, NULL, NULL),
+(8, 1, 'Bungalow', 'good quality', 10000000.00, 67, 'set', 'uploads/products/1757983690_Infrastructure.jpg', NULL, 8, '2025-09-16 00:48:10', '2025-10-26 14:57:17', 1, NULL, NULL, NULL),
 (9, 3, 'box', 'bakal', 800.00, 25, 'sqm', 'uploads/products/1757983757_images.jpg', NULL, 8, '2025-09-16 00:49:17', '2025-10-07 09:32:42', 1, NULL, NULL, NULL),
 (10, 7, 'Doors', 'high quality', 10000.00, 100, 'piece', 'uploads/products/1757984677_1750499159122.jpeg', NULL, 8, '2025-09-16 01:04:37', '2025-09-18 07:17:02', 1, NULL, NULL, NULL),
 (11, 1, 'Different kinds of construction', 'Limited products, must buy', 5000.00, 64, 'sad', 'uploads/products/1757985178_3124496.jpg', NULL, 8, '2025-09-16 01:12:58', '2025-09-16 07:39:51', 1, NULL, NULL, NULL),
 (12, 5, 'Baso', 'sdsad', 400.00, 60, 'KG', NULL, NULL, 8, '2025-09-18 07:07:58', '2025-09-18 07:09:42', 1, NULL, NULL, NULL),
 (13, 1, 'Ordinary House', 'Just an ordinary house design', 1500000.00, 5, 'set', 'uploads/products/1758984396_hiraganadakuon.gif', NULL, 8, '2025-09-27 14:46:36', '2025-09-27 17:19:58', 1, NULL, NULL, NULL),
-(14, 5, 'Gate', '', 50000.00, 30, 'set', 'uploads/products/1759905769_purok 3.png', NULL, 8, '2025-10-08 06:42:49', '2025-10-17 02:11:11', 0, NULL, NULL, NULL),
-(15, 5, 'Gate', '', 50000.00, 10, 'set', 'uploads/products/1759905994_purok 3.png', NULL, 8, '2025-10-08 06:46:34', '2025-10-08 06:48:49', 1, NULL, NULL, NULL);
+(14, 5, 'Gate', '', 50000.00, 30, 'set', 'uploads/products/1759905769_purok 3.png', NULL, 8, '2025-10-08 06:42:49', '2025-10-26 14:57:13', 1, NULL, NULL, NULL),
+(15, 5, 'Gate', '', 50000.00, 10, 'set', 'uploads/products/1759905994_purok 3.png', NULL, 8, '2025-10-08 06:46:34', '2025-10-08 06:48:49', 1, NULL, NULL, NULL),
+(16, 5, 'Foam Insulation', '', 850.00, 5, 'piece', 'uploads/products/1761490082_foam insulation.jpg', '../uploads/3dmodels/model_68fe5004b2736.glb', 8, '2025-10-26 14:48:02', '2025-10-26 18:48:00', 0, '019a2163-e7c0-7c32-a31c-04c6f82cecfc', '../uploads/3dmodels/model_68fe5004b2736.glb', 4),
+(17, 2, 'Flat Deck', '', 500.00, 19, 'piece', 'uploads/products/1761498892_flat deck.jpg', NULL, 8, '2025-10-26 17:14:52', '2025-10-26 17:19:20', 0, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -528,7 +540,7 @@ ALTER TABLE `employees`
 -- AUTO_INCREMENT for table `generated_3d_models`
 --
 ALTER TABLE `generated_3d_models`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `inquiries`
@@ -552,7 +564,7 @@ ALTER TABLE `password_resets`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `replies`

@@ -1,48 +1,31 @@
 <?php
-// Clear any previous output
 ob_start();
+ob_clean();
 
-// Set content type
 header('Content-Type: application/json');
 
-// Enable error logging (pero hindi i-display sa output)
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 error_reporting(E_ALL);
 
-// Create debug log
-$debugLog = __DIR__ . '/debug.log';
-$errorLog = __DIR__ . '/error.log';
+require_once __DIR__ . '/../../database/starroofing_db.php';
 
-function logDebug($message) {
-    global $debugLog;
-    if (!file_exists($debugLog)) {
-        file_put_contents($debugLog, "=== DEBUG LOG START ===\n");
+function logDebug($message, $data = null) {
+    $logFile = __DIR__ . '/debug_' . date('Y-m-d') . '.log';
+    $entry = date('H:i:s') . " - $message";
+    if ($data) {
+        $entry .= " | " . json_encode($data);
     }
-    file_put_contents($debugLog, date('Y-m-d H:i:s') . " - $message\n", FILE_APPEND);
-}
-
-function logError($message) {
-    global $errorLog;
-    if (!file_exists($errorLog)) {
-        file_put_contents($errorLog, "=== ERROR LOG START ===\n");
-    }
-    file_put_contents($errorLog, date('Y-m-d H:i:s') . " - ERROR: $message\n", FILE_APPEND);
+    file_put_contents($logFile, $entry . "\n", FILE_APPEND);
 }
 
 try {
-    logDebug("Script started");
+    logDebug("=== meshy_upload.php started ===");
     
-    // Import database connection
-    require_once __DIR__ . '/../../database/starroofing_db.php';
-    
-    logDebug("Database connected");
-    logDebug("FILES: " . print_r($_FILES, true));
-    
-    // Load .env manually
+    // Load .env
     $envFile = __DIR__ . '/../../.env';
     if (!file_exists($envFile)) {
-        throw new Exception('.env file not found at: ' . $envFile);
+        throw new Exception('.env file not found');
     }
     
     $envContent = file_get_contents($envFile);
@@ -52,57 +35,114 @@ try {
     foreach ($lines as $line) {
         $line = trim($line);
         if (empty($line) || strpos($line, '#') === 0) continue;
-        
         if (strpos($line, 'MESHY_API_KEY=') === 0) {
             $apiKey = trim(str_replace('MESHY_API_KEY=', '', $line));
             break;
         }
     }
     
-    logDebug("API Key loaded: " . ($apiKey ? "YES" : "NO"));
-    
     if (!$apiKey) {
-        throw new Exception('MESHY_API_KEY not found in .env file');
+        throw new Exception('MESHY_API_KEY not found in .env');
     }
     
-    // Check if files were uploaded
-    if (!isset($_FILES['images'])) {
-        throw new Exception('No images field in upload');
-    }
-
-    logDebug("Images field exists");
-
-    $images = $_FILES['images'];
-
-    // Handle both single and multiple uploads
-    if (is_array($images['name'])) {
-        $firstFile = $images['tmp_name'][0];
-        $fileName = $images['name'][0];
-        $fileType = $images['type'][0];
-        $fileError = $images['error'][0];
-        $fileSize = $images['size'][0];
+    logDebug("POST data", $_POST);
+    logDebug("FILES data", isset($_FILES['images']) ? 'YES' : 'NO');
+    
+    // Check if this is a product image request
+    $isProductImage = isset($_POST['product_id']) && isset($_POST['image_path']);
+    
+    $productId = null;
+    $firstFile = null;
+    $fileName = null;
+    $fileType = null;
+    $fileSize = null;
+    $imageHash = null;
+    
+    if ($isProductImage) {
+        // Using product image
+        logDebug("Using product image mode");
+        
+        $productId = intval($_POST['product_id']);
+        $imagePath = $_POST['image_path'];
+        
+        // Clean the path - remove any leading slashes or '../'
+        $imagePath = ltrim($imagePath, './');
+        
+        // Try different path combinations
+        $possiblePaths = [
+            __DIR__ . '/../../' . $imagePath,  // From meshy folder
+            __DIR__ . '/../' . $imagePath,     // From admin folder
+            __DIR__ . '/../../uploads/' . basename($imagePath)  // Direct to uploads
+        ];
+        
+        $foundPath = null;
+        foreach ($possiblePaths as $testPath) {
+            logDebug("Testing path: " . $testPath);
+            if (file_exists($testPath)) {
+                $foundPath = $testPath;
+                logDebug("Found at: " . $foundPath);
+                break;
+            }
+        }
+        
+        if (!$foundPath) {
+            throw new Exception('Product image not found. Tried paths: ' . implode(', ', $possiblePaths));
+        }
+        
+        $firstFile = $foundPath;
+        $fileName = basename($foundPath);
+        $fileType = mime_content_type($foundPath);
+        $fileSize = filesize($foundPath);
+        $imageHash = md5_file($foundPath);
+        
+        logDebug("Product image loaded", [
+            'path' => $firstFile,
+            'name' => $fileName,
+            'type' => $fileType,
+            'size' => $fileSize,
+            'hash' => $imageHash
+        ]);
+        
     } else {
-        $firstFile = $images['tmp_name'];
-        $fileName = $images['name'];
-        $fileType = $images['type'];
-        $fileError = $images['error'];
-        $fileSize = $images['size'];
-    }
-
-    if (empty($firstFile) || !file_exists($firstFile)) {
-        throw new Exception('No valid image file uploaded');
-    }
-
-    logDebug("Image file detected: $fileName");
-
-    if ($fileError !== UPLOAD_ERR_OK) {
-        throw new Exception('File upload error code: ' . $fileError);
+        // Using uploaded files
+        logDebug("Using uploaded files mode");
+        
+        if (!isset($_FILES['images'])) {
+            throw new Exception('No images provided');
+        }
+        
+        $images = $_FILES['images'];
+        
+        if (is_array($images['name'])) {
+            $firstFile = $images['tmp_name'][0];
+            $fileName = $images['name'][0];
+            $fileType = $images['type'][0];
+            $fileSize = $images['size'][0];
+        } else {
+            $firstFile = $images['tmp_name'];
+            $fileName = $images['name'];
+            $fileType = $images['type'];
+            $fileSize = $images['size'];
+        }
+        
+        if (empty($firstFile) || !file_exists($firstFile)) {
+            throw new Exception('No valid image file uploaded');
+        }
+        
+        $imageHash = md5_file($firstFile);
+        
+        logDebug("Upload file loaded", [
+            'name' => $fileName,
+            'type' => $fileType,
+            'size' => $fileSize,
+            'hash' => $imageHash
+        ]);
     }
     
     // Validate image type
     $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
     if (!in_array(strtolower($fileType), $allowedTypes)) {
-        throw new Exception('Invalid file type: ' . $fileType . '. Only JPG and PNG allowed.');
+        throw new Exception('Invalid file type: ' . $fileType);
     }
     
     // Check file size (max 10MB)
@@ -110,12 +150,6 @@ try {
         throw new Exception('File too large. Max 10MB allowed.');
     }
     
-    logDebug("File validation passed");
-    
-    // Generate unique hash for duplicate detection
-    $imageHash = md5_file($firstFile);
-    logDebug("Image hash: $imageHash");
-
     // Check for duplicates
     $checkStmt = $conn->prepare("
         SELECT id, model_path, generation_status, meshy_task_id 
@@ -125,11 +159,10 @@ try {
     $checkStmt->bind_param("s", $imageHash);
     $checkStmt->execute();
     $existingResult = $checkStmt->get_result();
-
+    
     if ($existingResult->num_rows > 0) {
         $existing = $existingResult->fetch_assoc();
-        
-        logDebug("Duplicate found: " . print_r($existing, true));
+        logDebug("Duplicate found", $existing);
         
         if ($existing['generation_status'] === 'succeeded') {
             ob_end_clean();
@@ -152,26 +185,22 @@ try {
             exit;
         }
     }
-
-    logDebug("No duplicate found, proceeding with upload");
+    
+    logDebug("No duplicate found, proceeding with API call");
     
     // Read file contents
     $imageData = file_get_contents($firstFile);
     if ($imageData === false) {
-        throw new Exception('Failed to read uploaded file');
+        throw new Exception('Failed to read image file');
     }
-    
-    logDebug("File read successfully. Size: " . strlen($imageData) . " bytes");
     
     $base64Image = base64_encode($imageData);
     $mimeType = $fileType;
-    
-    // Create data URI
     $imageDataUri = "data:$mimeType;base64,$base64Image";
     
-    logDebug("Data URI created. Length: " . strlen($imageDataUri));
+    logDebug("Data URI created", ['length' => strlen($imageDataUri)]);
     
-    // Prepare API request to Meshy
+    // Prepare API request
     $data = [
         'image_url' => $imageDataUri,
         'enable_pbr' => true,
@@ -182,7 +211,6 @@ try {
     logDebug("JSON payload size: " . strlen($jsonData) . " bytes");
     
     $apiUrl = 'https://api.meshy.ai/openapi/v1/image-to-3d';
-    logDebug("Calling Meshy API: $apiUrl");
     
     $ch = curl_init($apiUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -193,7 +221,7 @@ try {
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
     curl_setopt($ch, CURLOPT_TIMEOUT, 120);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     
     $response = curl_exec($ch);
     
@@ -206,8 +234,7 @@ try {
     $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
     
-    logDebug("API Response Code: $statusCode");
-    logDebug("API Response: " . substr($response, 0, 500));
+    logDebug("API Response", ['code' => $statusCode, 'response' => substr($response, 0, 500)]);
     
     if ($statusCode !== 202 && $statusCode !== 200) {
         throw new Exception("Meshy API Error (HTTP $statusCode): $response");
@@ -216,29 +243,37 @@ try {
     $result = json_decode($response, true);
     
     if (!$result) {
-        throw new Exception('Invalid JSON response from Meshy API: ' . $response);
+        throw new Exception('Invalid JSON response from Meshy API');
     }
     
-    logDebug("Parsed result: " . print_r($result, true));
-    
-    // Check if task was created successfully
     if (isset($result['result'])) {
         $taskId = $result['result'];
-        
         logDebug("Task created successfully: $taskId");
         
-        // NOW insert into database with valid $taskId
+        // Insert into database
         $insertStmt = $conn->prepare("
             INSERT INTO generated_3d_models 
-            (meshy_task_id, image_hash, original_image_name, generation_status) 
-            VALUES (?, ?, ?, 'pending')
+            (product_id, meshy_task_id, image_hash, original_image_name, generation_status) 
+            VALUES (?, ?, ?, ?, 'pending')
         ");
-        $insertStmt->bind_param("sss", $taskId, $imageHash, $fileName);
+        $insertStmt->bind_param("isss", $productId, $taskId, $imageHash, $fileName);
         
         if (!$insertStmt->execute()) {
-            logError("Database insert failed: " . $insertStmt->error);
+            logDebug("Database insert failed: " . $insertStmt->error);
         } else {
             logDebug("Database record created for task: $taskId");
+            
+            // Update products table with task_id if product_id is provided
+            if ($productId) {
+                $updateProductStmt = $conn->prepare("
+                    UPDATE products 
+                    SET meshy_task_id = ? 
+                    WHERE product_id = ?
+                ");
+                $updateProductStmt->bind_param("si", $taskId, $productId);
+                $updateProductStmt->execute();
+                logDebug("Product table updated with task_id", ['product_id' => $productId]);
+            }
         }
         
         ob_end_clean();
@@ -248,36 +283,23 @@ try {
             'message' => 'Task created successfully. Processing...'
         ]);
         
-    } elseif (isset($result['model_urls'])) {
-        // Model is already ready (rare case)
-        $modelUrl = $result['model_urls']['glb'] ?? $result['model_urls']['gltf'] ?? null;
-        
-        logDebug("Model ready immediately: $modelUrl");
-        
-        ob_end_clean();
-        echo json_encode([
-            'status' => 'success',
-            'model_url' => $modelUrl,
-            'message' => 'Model generated successfully'
-        ]);
-        
     } else {
-        throw new Exception('Unexpected API response format: ' . json_encode($result));
+        throw new Exception('Unexpected API response format');
     }
     
-    logDebug("Script completed successfully");
+    logDebug("=== meshy_upload.php completed ===");
     
 } catch (Exception $e) {
-    logError($e->getMessage());
-    logError($e->getTraceAsString());
+    logDebug("ERROR: " . $e->getMessage());
+    logDebug("Trace: " . $e->getTraceAsString());
     
     ob_end_clean();
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
-        'message' => $e->getMessage(),
-        'file' => $e->getFile(),
-        'line' => $e->getLine()
+        'message' => $e->getMessage()
     ]);
 }
+
+ob_end_flush();
 ?>

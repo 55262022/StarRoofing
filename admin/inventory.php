@@ -2,12 +2,13 @@
 include '../authentication/auth.php';
 require_once '../database/starroofing_db.php';
 
-// Function to determine status based on stock quantity
+// Require admin access
+requireAdmin();
+
+// stock status logic
 function getStockStatus($quantity) {
-    if ($quantity == 0) {
+    if ($quantity <= 0) {
         return 'out-of-stock';
-    } elseif ($quantity < 50) {
-        return 'low-stock';
     } else {
         return 'in-stock';
     }
@@ -653,7 +654,6 @@ $result = $conn->query($sql);
                                 <thead>
                                     <tr>
                                         <th>Image</th>
-                                        <th>Item Code</th>
                                         <th>Item Name</th>
                                         <th>Category</th>
                                         <th>Quantity</th>
@@ -674,7 +674,6 @@ $result = $conn->query($sql);
                                                         No Image
                                                     <?php endif; ?>
                                                 </td>
-                                                <td><?= htmlspecialchars($row['product_id']) ?></td>
                                                 <td><?= htmlspecialchars($row['name']) ?></td>
                                                 <td><?= htmlspecialchars($row['category_name']) ?></td>
                                                 <td><?= htmlspecialchars($row['stock_quantity']) ?></td>
@@ -686,10 +685,6 @@ $result = $conn->query($sql);
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <button class="btn btn-warning edit-btn" data-id="<?= $row['product_id'] ?>">
-                                                        <i class="fas fa-edit"></i> Edit
-                                                    </button>
-
                                                     <?php if (!empty($row['model_path']) || !empty($row['model_url'])): ?>
                                                         <!-- If product already has a 3D model -->
                                                         <button class="btn btn-success" onclick="window.location.href='3dmodel.php?product_id=<?= $row['product_id'] ?>'">
@@ -701,6 +696,10 @@ $result = $conn->query($sql);
                                                             <i class="fas fa-plus"></i> Add 3D Model
                                                         </button>
                                                     <?php endif; ?>
+
+                                                    <button class="btn btn-warning edit-btn" data-id="<?= $row['product_id'] ?>">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </button>
 
                                                     <button class="btn btn-danger archive-btn" 
                                                             data-id="<?= $row['product_id'] ?>" 

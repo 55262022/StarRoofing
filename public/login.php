@@ -7,7 +7,7 @@ if (isset($_SESSION['account_id'])) {
     if ($_SESSION['role_id'] == 1) {
         header("Location: ../admin/dashboard.php");
     } elseif ($_SESSION['role_id'] == 2) {
-        header("Location: ../client/dashboard.php");
+        header("Location: ../homepage.php");
     } else {
         header("Location: ../index.php");
     }
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if ($user['role_id'] == 1) {
                             header("Location: ../admin/dashboard.php");
                         } elseif ($user['role_id'] == 2) {
-                            header("Location: ../client/dashboard.php");
+                            header("Location: homepage.php");
                         } else {
                             header("Location: ../index.php");
                         }
@@ -115,10 +115,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
-    <?php include '../includes/navbar.php'; ?>
-
+    <!-- Back Button -->
+    <a href="../index.php" class="back-button">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to Home</span>
+    </a>
+    
     <div class="login-container">
+        
         <div class="login-box">
+
             <div class="login-header">
                 <i class="fas fa-lock"></i>
                 <h1>Log In</h1>
