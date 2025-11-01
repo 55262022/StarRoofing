@@ -8,6 +8,111 @@ if (isset($_SESSION['success'])) {
     $welcome_message = $_SESSION['success'];
     unset($_SESSION['success']);
 }
+
+// Initialize default values
+$total_clients = 0;
+$total_inquiries = 0;
+$active_orders = 0;
+$completed_orders = 0;
+$total_revenue = 0;
+$recent_projects = [];
+$recent_clients = [];
+
+// Check if database connection exists
+if (isset($conn) && $conn) {
+    // Total Clients (accounts with role_id = 2, assuming 2 is client role)
+    $result = mysqli_query($conn, "SELECT COUNT(*) as total FROM accounts WHERE role_id = 2 AND account_status = 'active'");
+    if ($result) {
+        $row = mysqli_fetch_assoc($result);
+        $total_clients = $row['total'];
+    }
+
+    // Total Inquiries (both accepted and pending)
+    $result = mysqli_query($conn, "SELECT COUNT(*) as total FROM inquiries");
+    if ($result) {
+        $row = mysqli_fetch_assoc($result);
+        $total_inquiries = $row['total'];
+    }
+
+    // Active Orders (pending, confirmed, processing, shipped)
+    $result = mysqli_query($conn, "SELECT COUNT(*) as total FROM orders WHERE order_status IN ('pending', 'confirmed', 'processing', 'shipped')");
+    if ($result) {
+        $row = mysqli_fetch_assoc($result);
+        $active_orders = $row['total'];
+    }
+
+    // Completed Orders (delivered)
+    $result = mysqli_query($conn, "SELECT COUNT(*) as total FROM orders WHERE order_status = 'delivered'");
+    if ($result) {
+        $row = mysqli_fetch_assoc($result);
+        $completed_orders = $row['total'];
+    }
+
+    // Total Revenue (from delivered orders only)
+    $result = mysqli_query($conn, "SELECT COALESCE(SUM(total_amount), 0) as total FROM orders WHERE order_status = 'delivered' AND payment_status = 'paid'");
+    if ($result) {
+        $row = mysqli_fetch_assoc($result);
+        $total_revenue = $row['total'];
+    }
+
+    // Recent Projects (Latest 5 orders)
+    $query = "
+        SELECT 
+            o.order_number,
+            CONCAT(o.customer_first_name, ' ', o.customer_last_name) as client_name,
+            o.product_name,
+            DATE_FORMAT(o.created_at, '%b %d, %Y') as start_date,
+            o.order_status,
+            o.total_amount
+        FROM orders o
+        ORDER BY o.created_at DESC
+        LIMIT 5
+    ";
+    $result = mysqli_query($conn, $query);
+    if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $recent_projects[] = $row;
+        }
+    }
+
+    // Recent Clients (Latest 5 accounts)
+    $query = "
+        SELECT 
+            up.first_name,
+            up.last_name,
+            a.email,
+            up.contact_number,
+            DATE_FORMAT(a.created_at, '%b %d, %Y') as joined_date,
+            (SELECT COUNT(*) FROM orders WHERE account_id = a.id) as project_count
+        FROM accounts a
+        LEFT JOIN user_profiles up ON a.id = up.account_id
+        WHERE a.role_id = 2
+        ORDER BY a.created_at DESC
+        LIMIT 5
+    ";
+    $result = mysqli_query($conn, $query);
+    if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $recent_clients[] = $row;
+        }
+    }
+}
+
+// Format revenue
+$formatted_revenue = '₱' . number_format($total_revenue, 2);
+
+// Status badges helper function
+function getStatusBadge($status) {
+    $badges = [
+        'pending' => 'pending',
+        'confirmed' => 'progress',
+        'processing' => 'progress',
+        'shipped' => 'progress',
+        'delivered' => 'completed',
+        'cancelled' => 'pending'
+    ];
+    return $badges[$status] ?? 'pending';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,8 +133,8 @@ if (isset($_SESSION['success'])) {
 </head>
 <style>
     .hidden{
-            display: none;
-        }
+        display: none;
+    }
 </style>
 <body>
     <div class="main-container">
@@ -56,7 +161,7 @@ if (isset($_SESSION['success'])) {
                     <article class="stat-card">
                         <div class="stat-icon clients"><i class="fas fa-users"></i></div>
                         <div class="stat-info">
-                            <h3>248</h3>
+                            <h3><?php echo $total_clients; ?></h3>
                             <p>Total Clients</p>
                         </div>
                     </article>
@@ -64,24 +169,24 @@ if (isset($_SESSION['success'])) {
                     <article class="stat-card">
                         <div class="stat-icon projects"><i class="fas fa-hard-hat"></i></div>
                         <div class="stat-info">
-                            <h3>54</h3>
-                            <p>Active Projects</p>
+                            <h3><?php echo $active_orders; ?></h3>
+                            <p>Active Orders</p>
                         </div>
                     </article>
 
                     <article class="stat-card">
                         <div class="stat-icon revenue"><i class="fas fa-dollar-sign"></i></div>
                         <div class="stat-info">
-                            <h3>₱1.2M</h3>
+                            <h3><?php echo $formatted_revenue; ?></h3>
                             <p>Total Revenue</p>
                         </div>
                     </article>
 
                     <article class="stat-card">
-                        <div class="stat-icon tasks"><i class="fas fa-tasks"></i></div>
+                        <div class="stat-icon tasks"><i class="fas fa-envelope"></i></div>
                         <div class="stat-info">
-                            <h3>18</h3>
-                            <p>Pending Tasks</p>
+                            <h3><?php echo $total_inquiries; ?></h3>
+                            <p>Total Inquiries</p>
                         </div>
                     </article>
                 </section>
@@ -89,57 +194,43 @@ if (isset($_SESSION['success'])) {
                 <!-- Recent Projects Section -->
                 <section class="card recent-projects" aria-labelledby="recent-projects-title">
                     <header class="card-header">
-                        <h2 id="recent-projects-title" class="card-title">Recent Projects</h2>
-                        <a href="#" class="card-action" aria-label="View all projects">View All</a>
+                        <h2 id="recent-projects-title" class="card-title">Recent Orders</h2>
+                        <a href="#order-section" class="card-action" aria-label="View all orders">View All</a>
                     </header>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>Project Name</th>
+                                        <th>Order Number</th>
                                         <th>Client</th>
-                                        <th>Start Date</th>
-                                        <th>Deadline</th>
+                                        <th>Product</th>
+                                        <th>Order Date</th>
+                                        <th>Amount</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>Garcia Residence Roofing</td>
-                                        <td>Rodrigo Garcia</td>
-                                        <td>Oct 10, 2023</td>
-                                        <td>Nov 15, 2023</td>
-                                        <td><span class="status progress">In Progress</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>San Juan Commercial Complex</td>
-                                        <td>San Juan Development Corp</td>
-                                        <td>Sep 28, 2023</td>
-                                        <td>Dec 20, 2023</td>
-                                        <td><span class="status progress">In Progress</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Santos Steel Truss Installation</td>
-                                        <td>Maria Santos</td>
-                                        <td>Oct 5, 2023</td>
-                                        <td>Oct 30, 2023</td>
-                                        <td><span class="status pending">Pending</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Rivera Roof Repair</td>
-                                        <td>Carlos Rivera</td>
-                                        <td>Sep 15, 2023</td>
-                                        <td>Oct 5, 2023</td>
-                                        <td><span class="status completed">Completed</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Nueva Ecija Government Building</td>
-                                        <td>Nueva Ecija LGU</td>
-                                        <td>Aug 20, 2023</td>
-                                        <td>Nov 30, 2023</td>
-                                        <td><span class="status progress">In Progress</span></td>
-                                    </tr>
+                                    <?php if (empty($recent_projects)): ?>
+                                        <tr>
+                                            <td colspan="6" style="text-align: center;">No recent orders found</td>
+                                        </tr>
+                                    <?php else: ?>
+                                        <?php foreach ($recent_projects as $project): ?>
+                                            <tr>
+                                                <td><?php echo htmlspecialchars($project['order_number']); ?></td>
+                                                <td><?php echo htmlspecialchars($project['client_name']); ?></td>
+                                                <td><?php echo htmlspecialchars($project['product_name']); ?></td>
+                                                <td><?php echo htmlspecialchars($project['start_date']); ?></td>
+                                                <td>₱<?php echo number_format($project['total_amount'], 2); ?></td>
+                                                <td>
+                                                    <span class="status <?php echo getStatusBadge($project['order_status']); ?>">
+                                                        <?php echo ucfirst($project['order_status']); ?>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -150,7 +241,7 @@ if (isset($_SESSION['success'])) {
                 <section class="card recent-clients" aria-labelledby="recent-clients-title">
                     <header class="card-header">
                         <h2 id="recent-clients-title" class="card-title">Recent Clients</h2>
-                        <a href="#" class="card-action" aria-label="View all clients">View All</a>
+                        <a href="#clients-section" class="card-action" aria-label="View all clients">View All</a>
                     </header>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -160,52 +251,33 @@ if (isset($_SESSION['success'])) {
                                         <th>Client Name</th>
                                         <th>Email</th>
                                         <th>Phone</th>
-                                        <th>Projects</th>
+                                        <th>Orders</th>
                                         <th>Joined</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>Antonio Dela Cruz</td>
-                                        <td>antonio.dc@example.com</td>
-                                        <td>0917-123-4567</td>
-                                        <td>2</td>
-                                        <td>Oct 15, 2023</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Elena Rodriguez</td>
-                                        <td>elena.r@example.com</td>
-                                        <td>0918-987-6543</td>
-                                        <td>1</td>
-                                        <td>Oct 12, 2023</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Roberto Santiago</td>
-                                        <td>roberto.s@example.com</td>
-                                        <td>0919-555-1234</td>
-                                        <td>3</td>
-                                        <td>Oct 10, 2023</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Marisol Hernandez</td>
-                                        <td>marisol.h@example.com</td>
-                                        <td>0916-777-8888</td>
-                                        <td>1</td>
-                                        <td>Oct 8, 2023</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Francisco Lim</td>
-                                        <td>francisco.l@example.com</td>
-                                        <td>0915-222-3333</td>
-                                        <td>2</td>
-                                        <td>Oct 5, 2023</td>
-                                    </tr>
+                                    <?php if (empty($recent_clients)): ?>
+                                        <tr>
+                                            <td colspan="5" style="text-align: center;">No clients found</td>
+                                        </tr>
+                                    <?php else: ?>
+                                        <?php foreach ($recent_clients as $client): ?>
+                                            <tr>
+                                                <td><?php echo htmlspecialchars($client['first_name'] . ' ' . $client['last_name']); ?></td>
+                                                <td><?php echo htmlspecialchars($client['email']); ?></td>
+                                                <td><?php echo htmlspecialchars($client['contact_number'] ?? 'N/A'); ?></td>
+                                                <td><?php echo $client['project_count']; ?></td>
+                                                <td><?php echo htmlspecialchars($client['joined_date']); ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </section>
             </section>
+
             <!-- 3d model page -->
             <section id="3dmodel-section" class="section hidden">
                 <iframe src="3dmodel.php" width="100%" height="100%" style="border:none; min-height:90vh;"></iframe>
@@ -215,8 +287,8 @@ if (isset($_SESSION['success'])) {
                 <iframe src="inventory.php" width="100%" height="100%" style="border:none; min-height:90vh;"></iframe>
             </section>
             <!-- estimation page -->
-            <section id="estimation-section" class="section hidden">
-                <iframe src="estimation.php" width="100%" height="100%" style="border:none; min-height:90vh;"></iframe>
+            <section id="order-section" class="section hidden">
+                <iframe src="order.php" width="100%" height="100%" style="border:none; min-height:90vh;"></iframe>
             </section>
             <!-- employees page -->
             <section id="employees-section" class="section hidden">

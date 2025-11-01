@@ -1,5 +1,5 @@
 <?php
-require_once '../database/starroofing_db.php';
+require_once '../../database/starroofing_db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $firstname = trim($_POST['firstname']);

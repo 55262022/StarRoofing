@@ -24,7 +24,8 @@ $category_icons = [
     'Electrical' => 'fa-bolt',
     'Plumbing' => 'fa-pipe',
     'Hardware' => 'fa-screwdriver-wrench',
-    'Insulation' => 'fa-layer-group'
+    'Insulation' => 'fa-layer-group',
+    'Accessories' => 'fa-box'
 ];
 ?>
 <!DOCTYPE html>

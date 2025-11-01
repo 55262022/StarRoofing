@@ -3,26 +3,24 @@ session_start();
 require_once '../../database/starroofing_db.php';
 header('Content-Type: application/json');
 
-// Check if user is logged in
 if (!isset($_SESSION['account_id'])) {
     echo json_encode(['success' => false, 'message' => 'Not authenticated']);
     exit;
 }
 
+$account_id = intval($_SESSION['account_id']);
 $conversation_id = isset($_GET['conversation_id']) ? intval($_GET['conversation_id']) : 0;
+
 if (!$conversation_id) {
-    echo json_encode(['success' => false, 'message' => 'Missing conversation ID']);
+    echo json_encode(['success' => false, 'message' => 'Invalid conversation ID']);
     exit;
 }
-
-$account_id = intval($_SESSION['account_id']);
 
 // Get user email
 $stmt = $conn->prepare("SELECT email FROM accounts WHERE id = ?");
 $stmt->bind_param('i', $account_id);
 $stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
+$user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 if (!$user) {
@@ -30,12 +28,11 @@ if (!$user) {
     exit;
 }
 
-// Fetch conversation (verify it belongs to this user)
-$stmt = $conn->prepare("SELECT * FROM conversations WHERE id = ? AND email = ?");
+// Verify conversation belongs to user
+$stmt = $conn->prepare("SELECT is_accepted FROM conversations WHERE id = ? AND email = ?");
 $stmt->bind_param('is', $conversation_id, $user['email']);
 $stmt->execute();
-$result = $stmt->get_result();
-$conversation = $result->fetch_assoc();
+$conversation = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 if (!$conversation) {
@@ -43,14 +40,37 @@ if (!$conversation) {
     exit;
 }
 
-// Fetch all messages in the conversation with product context
+// Fetch all messages (initial inquiries + replies)
+$messages = [];
+
+// Get all inquiries for this conversation
+$stmt = $conn->prepare("
+    SELECT 
+        i.id,
+        i.message,
+        i.submitted_at as sent_at,
+        'client' as sender,
+        p.name as product_name
+    FROM inquiries i
+    LEFT JOIN products p ON i.product_id = p.product_id
+    WHERE i.conversation_id = ?
+    ORDER BY i.submitted_at ASC
+");
+$stmt->bind_param('i', $conversation_id);
+$stmt->execute();
+$result = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
+    $messages[] = $row;
+}
+$stmt->close();
+
+// Get all replies for this conversation
 $stmt = $conn->prepare("
     SELECT 
         r.id,
-        r.sender,
         r.message,
         r.sent_at,
-        r.is_read,
+        r.sender,
         r.related_product_id,
         p.name as product_name
     FROM replies r
@@ -61,10 +81,17 @@ $stmt = $conn->prepare("
 $stmt->bind_param('i', $conversation_id);
 $stmt->execute();
 $result = $stmt->get_result();
-$messages = $result->fetch_all(MYSQLI_ASSOC);
+while ($row = $result->fetch_assoc()) {
+    $messages[] = $row;
+}
 $stmt->close();
 
-// Mark admin messages as read
+// Sort all messages by timestamp
+usort($messages, function($a, $b) {
+    return strtotime($a['sent_at']) - strtotime($b['sent_at']);
+});
+
+// Mark admin replies as read
 $stmt = $conn->prepare("
     UPDATE replies 
     SET is_read = 1 
@@ -76,7 +103,7 @@ $stmt->close();
 
 echo json_encode([
     'success' => true,
-    'conversation' => $conversation,
-    'messages' => $messages
+    'messages' => $messages,
+    'is_accepted' => (bool)$conversation['is_accepted']
 ]);
 ?>

@@ -29,7 +29,8 @@ const state = {
   productImagePath: typeof PRODUCT_IMAGE_PATH !== 'undefined' ? PRODUCT_IMAGE_PATH : null,
   productName: typeof PRODUCT_NAME !== 'undefined' ? PRODUCT_NAME : null,
   existingModelPath: typeof EXISTING_MODEL_PATH !== 'undefined' ? EXISTING_MODEL_PATH : null,
-  hasModel: typeof HAS_MODEL !== 'undefined' ? HAS_MODEL : false
+  hasModel: typeof HAS_MODEL !== 'undefined' ? HAS_MODEL : false,
+  modelLoaded: false // Track if a model is currently loaded
 };
 
 function updateStatus(txt, isError = false) {
@@ -144,6 +145,7 @@ function clearModel() {
   });
   
   state.loadedModel = null;
+  state.modelLoaded = false;
   $('#modelInfo').textContent = '';
 }
 
@@ -160,6 +162,7 @@ async function loadModel(url) {
         url,
         (gltf) => {
           state.loadedModel = gltf.scene;
+          state.modelLoaded = true; // Set model loaded state
           
           state.loadedModel.traverse(child => {
             if (child.isMesh) {

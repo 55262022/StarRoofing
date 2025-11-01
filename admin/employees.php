@@ -11,25 +11,28 @@ $offset = ($page - 1) * $limit;
 $department_filter = isset($_GET['department']) ? trim($_GET['department']) : '';
 $search_term = isset($_GET['search']) ? trim($_GET['search']) : '';
 
-// --- Base Query ---
-$sql = "SELECT * FROM employees WHERE 1=1";
+// --- Base Query with JOIN to get email from accounts ---
+$sql = "SELECT e.*, a.email 
+        FROM employees e 
+        LEFT JOIN accounts a ON e.account_id = a.id 
+        WHERE e.is_archived = 0";
 
 // --- Apply Department Filter ---
 if (!empty($department_filter)) {
-    $sql .= " AND department = '" . $conn->real_escape_string($department_filter) . "'";
+    $sql .= " AND e.department = '" . $conn->real_escape_string($department_filter) . "'";
 }
 
 // --- Apply Search Filter (by name, email, phone) ---
 if (!empty($search_term)) {
     $search_safe = $conn->real_escape_string($search_term);
-    $sql .= " AND (first_name LIKE '%$search_safe%' 
-                OR last_name LIKE '%$search_safe%' 
-                OR email LIKE '%$search_safe%' 
-                OR phone LIKE '%$search_safe%')";
+    $sql .= " AND (e.first_name LIKE '%$search_safe%' 
+                OR e.last_name LIKE '%$search_safe%' 
+                OR a.email LIKE '%$search_safe%' 
+                OR e.phone LIKE '%$search_safe%')";
 }
 
 // --- Count total for pagination ---
-$count_sql = str_replace("SELECT *", "SELECT COUNT(*) AS total", $sql);
+$count_sql = str_replace("SELECT e.*, a.email", "SELECT COUNT(*) AS total", $sql);
 $count_result = $conn->query($count_sql);
 $total_records = ($count_result && $count_result->num_rows > 0) 
     ? $count_result->fetch_assoc()['total'] 
@@ -38,7 +41,7 @@ $total_records = ($count_result && $count_result->num_rows > 0)
 $total_pages = ceil($total_records / $limit);
 
 // --- Apply LIMIT for pagination ---
-$sql .= " ORDER BY created_at DESC LIMIT $limit OFFSET $offset";
+$sql .= " ORDER BY e.created_at DESC LIMIT $limit OFFSET $offset";
 $result = $conn->query($sql);
 
 $employees = [];
@@ -55,79 +58,11 @@ if ($result && $result->num_rows > 0) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Management - Star Roofing & Construction</title>
-    <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- CSS style -->
     <link rel="stylesheet" href="../css/admin_main.css">
     <style>  
-        .user-profile {
-            position: relative;
-            cursor: pointer;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        
-        .user-name {
-            font-weight: 500;
-        }
-        
-        .user-dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            right: 0;
-            width: 200px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            z-index: 100;
-            margin-top: 10px;
-        }
-        
-        .user-dropdown.active {
-            display: block;
-        }
-        
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            color: #2c3e50;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-        
-        .dropdown-item:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .dropdown-item i {
-            margin-right: 10px;
-            width: 16px;
-            text-align: center;
-        }
-        
-        .dropdown-divider {
-            height: 1px;
-            background-color: #eee;
-            margin: 5px 0;
-        }
-        
         .employee-content {
             flex: 1;
             padding: 30px;
@@ -202,7 +137,6 @@ if ($result && $result->num_rows > 0) {
             background-color: #c0392b;
         }
 
-        /* Search Form */
         .search-form {
             margin-bottom: 20px;
             display: flex;
@@ -210,7 +144,6 @@ if ($result && $result->num_rows > 0) {
             align-items: center;
         }
 
-        /* Search Input */
         .search-input {
             flex: 1;
             padding: 10px 15px;
@@ -267,7 +200,6 @@ if ($result && $result->num_rows > 0) {
             border-color: #3498db;
         }
         
-        /* Table styles */
         .employee-table table {
             width: 100%;
             border-collapse: collapse;
@@ -300,7 +232,6 @@ if ($result && $result->num_rows > 0) {
             border-radius: 50%;
         }
 
-        /* Pagination */
         .pagination {
             margin-top: 20px;
             text-align: center;
@@ -329,69 +260,6 @@ if ($result && $result->num_rows > 0) {
             font-weight: bold;
         }
         
-        .placeholder {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f8f9fa;
-            color: #bdc3c7;
-            font-size: 40px;
-        }        
-        
-        .employee-department {
-            font-size: 12px;
-            color: #7f8c8d;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-        
-        .employee-name {
-            font-size: 18px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin: 0 0 10px 0;
-        }
-        
-        .employee-position {
-            color: #7f8c8d;
-            font-size: 14px;
-            line-height: 1.5;
-            margin: 0 0 15px 0;
-        }
-
-        .employee-detail {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .detail-label {
-            font-size: 12px;
-            color: #7f8c8d;
-        }
-        
-        .detail-value {
-            font-weight: 500;
-            color: #2c3e50;
-        }
-        
-        .status {
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        
-        .status.active {
-            background-color: #e8f6f3;
-            color: #1abc9c;
-        }
-        
-        .status.inactive {
-            background-color: #fdedec;
-            color: #e74c3c;
-        }
-        
         .avatar-placeholder {
             width: 50px;
             height: 50px;
@@ -401,6 +269,17 @@ if ($result && $result->num_rows > 0) {
             align-items: center;
             justify-content: center;
             color: #6c757d;
+        }
+        
+        .employee-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #7f8c8d;
         }
         
         .modal {
@@ -494,11 +373,6 @@ if ($result && $result->num_rows > 0) {
             outline: none;
         }
         
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
         .modal-footer {
             padding: 20px 25px;
             border-top: 1px solid #eee;
@@ -516,15 +390,6 @@ if ($result && $result->num_rows > 0) {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 15px;
-            }
-            
-            .department-filter {
-                overflow-x: auto;
-                padding-bottom: 10px;
-            }
-            
-            .employee-table {
-                overflow-x: auto;
             }
         }
         
@@ -580,11 +445,7 @@ if ($result && $result->num_rows > 0) {
 </head>
 <body>
     <div class="main-container">
-   
-        <!-- Main Content -->
         <div class="main-content">
-     
-            <!-- Employee Content -->
             <div class="employee-content">
                 <div class="page-header">
                     <div>
@@ -596,7 +457,6 @@ if ($result && $result->num_rows > 0) {
                     </button>
                 </div>
 
-                <!-- Display Messages -->
                 <?php if (isset($_SESSION['message'])): ?>
                     <div class="alert alert-<?= $_SESSION['message_type'] ?>">
                         <?= $_SESSION['message'] ?>
@@ -604,25 +464,18 @@ if ($result && $result->num_rows > 0) {
                     <?php unset($_SESSION['message']); ?>
                 <?php endif; ?>
 
-                <!-- Search Bar -->
                 <form method="GET" action="" class="search-form">
                     <input type="hidden" name="department" value="<?= htmlspecialchars($department_filter) ?>">
-
                     <input type="text" name="search" placeholder="Search employees..." 
                         value="<?= htmlspecialchars($search_term) ?>" class="search-input">
-                    
-                    <!-- Search Button -->
                     <button type="submit" class="search-btn">
                         <i class="fas fa-search"></i> Search
                     </button>
-
-                    <!-- Reset Button -->
                     <button type="button" class="search-btn" onclick="window.location='employees.php?department=<?= htmlspecialchars($department_filter) ?>'">
                         <i class="fas fa-times"></i> Reset
                     </button>
                 </form>
 
-                <!-- Department Filter -->
                 <div class="department-filter">
                     <button class="department-btn <?= $department_filter === '' ? 'active' : '' ?>" data-department="">All Departments</button>
                     <button class="department-btn <?= $department_filter === 'Construction' ? 'active' : '' ?>" data-department="Construction">Construction</button>
@@ -632,7 +485,6 @@ if ($result && $result->num_rows > 0) {
                     <button class="department-btn <?= $department_filter === 'Management' ? 'active' : '' ?>" data-department="Management">Management</button>
                 </div>
                 
-                <!-- Employee Table -->
                 <div class="employee-container">
                     <div class="employee-table">
                         <?php if (count($employees) > 0): ?>
@@ -640,14 +492,10 @@ if ($result && $result->num_rows > 0) {
                                 <thead>
                                     <tr>
                                         <th>Image</th>
-                                        <th>Employee ID</th>
                                         <th>Name</th>
-                                        <th>Position</th>
                                         <th>Department</th>
                                         <th>Contact</th>
                                         <th>Hire Date</th>
-                                        <th>Salary</th>
-                                        <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -663,24 +511,15 @@ if ($result && $result->num_rows > 0) {
                                                     </div>
                                                 <?php endif; ?>
                                             </td>
-                                            <td><?= htmlspecialchars($employee['employee_id']) ?></td>
                                             <td>
                                                 <div class="employee-name"><?= htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']) ?></div>
-                                                <div class="employee-position"><?= htmlspecialchars($employee['position']) ?></div>
                                             </td>
-                                            <td><?= htmlspecialchars($employee['position']) ?></td>
                                             <td><?= htmlspecialchars($employee['department']) ?></td>
                                             <td>
                                                 <div><?= htmlspecialchars($employee['email']) ?></div>
                                                 <div class="detail-label"><?= htmlspecialchars($employee['phone'] ?? 'N/A') ?></div>
                                             </td>
                                             <td><?= date('M j, Y', strtotime($employee['hire_date'])) ?></td>
-                                            <td>₱<?= number_format($employee['salary'], 2) ?></td>
-                                            <td>
-                                                <span class="status <?= $employee['status'] ?>">
-                                                    <?= ucfirst($employee['status']) ?>
-                                                </span>
-                                            </td>
                                             <td>
                                                 <div style="display: flex; gap: 5px; flex-wrap: wrap;">
                                                     <button class="btn btn-warning edit-btn" data-id="<?= $employee['employee_id'] ?>">
@@ -698,7 +537,6 @@ if ($result && $result->num_rows > 0) {
                                 </tbody>
                             </table>
 
-                            <!-- Pagination -->
                             <div class="pagination">
                                 <?php if ($page > 1): ?>
                                     <a href="?page=<?= $page-1 ?>&department=<?= urlencode($department_filter) ?>&search=<?= urlencode($search_term) ?>" class="page-btn">Prev</a>
@@ -724,7 +562,6 @@ if ($result && $result->num_rows > 0) {
         </div>
     </div>
 
-    <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
     </div>
@@ -764,20 +601,6 @@ if ($result && $result->num_rows > 0) {
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="addPosition">Position *</label>
-                            <select id="addPosition" name="position" required>
-                                <option value="">Select Position</option>
-                                <option value="Engineer">Engineer</option>
-                                <option value="Architect">Architect</option>
-                                <option value="Foreman">Foreman</option>
-                                <option value="Laborer">Laborer</option>
-                                <option value="Sales Representative">Sales Representative</option>
-                                <option value="Manager">Manager</option>
-                                <option value="Admin Staff">Admin Staff</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
                             <label for="addDepartment">Department *</label>
                             <select id="addDepartment" name="department" required>
                                 <option value="">Select Department</option>
@@ -788,36 +611,19 @@ if ($result && $result->num_rows > 0) {
                                 <option value="Management">Management</option>
                             </select>
                         </div>
-                    </div>
-                    
-                    <div class="form-row">
+                        
                         <div class="form-group">
                             <label for="addHireDate">Hire Date *</label>
                             <input type="date" id="addHireDate" name="hire_date" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="addSalary">Salary (₱) *</label>
-                            <input type="number" id="addSalary" name="salary" placeholder="0.00" step="0.01" min="0" required>
                         </div>
                     </div>
                     
                     <div class="form-group">
                         <label for="addEmployeeImage">Upload Employee Photo</label>
                         <input type="file" id="addEmployeeImage" name="image_file" accept="image/*">
-                    
-                        <!-- Preview Box -->
                         <div style="margin-top:10px;">
                             <img id="addPreviewImage" src="#" alt="Image Preview" style="display:none; max-width:150px; border:1px solid #ccc; padding:5px;">
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="addStatus">Status *</label>
-                        <select id="addStatus" name="status" required>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
                     </div>
                 </form>
             </div>
@@ -856,26 +662,12 @@ if ($result && $result->num_rows > 0) {
                             <label for="editEmail">Email Address *</label>
                             <input type="email" id="editEmail" name="email" required>
                         </div>
-                        
+                    </div>
+
+                    <div class="form-row">
                         <div class="form-group">
                             <label for="editPhone">Phone Number</label>
                             <input type="tel" id="editPhone" name="phone">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editPosition">Position *</label>
-                            <select id="editPosition" name="position" required>
-                                <option value="">Select Position</option>
-                                <option value="Engineer">Engineer</option>
-                                <option value="Architect">Architect</option>
-                                <option value="Foreman">Foreman</option>
-                                <option value="Laborer">Laborer</option>
-                                <option value="Sales Representative">Sales Representative</option>
-                                <option value="Manager">Manager</option>
-                                <option value="Admin Staff">Admin Staff</option>
-                            </select>
                         </div>
                         
                         <div class="form-group">
@@ -891,34 +683,17 @@ if ($result && $result->num_rows > 0) {
                         </div>
                     </div>
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editHireDate">Hire Date *</label>
-                            <input type="date" id="editHireDate" name="hire_date" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="editSalary">Salary (₱) *</label>
-                            <input type="number" id="editSalary" name="salary" step="0.01" min="0" required>
-                        </div>
+                    <div class="form-group">
+                        <label for="editHireDate">Hire Date *</label>
+                        <input type="date" id="editHireDate" name="hire_date" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="editEmployeeImage">Upload Employee Photo</label>
                         <input type="file" id="editEmployeeImage" name="image_file" accept="image/*">
-                    
-                        <!-- Preview Box -->
                         <div style="margin-top:10px;">
                             <img id="editPreviewImage" src="#" alt="Image Preview" style="display:none; max-width:150px; border:1px solid #ccc; padding:5px;">
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="editStatus">Status *</label>
-                        <select id="editStatus" name="status" required>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
                     </div>
                 </form>
             </div>
@@ -945,14 +720,13 @@ if ($result && $result->num_rows > 0) {
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline" id="cancelArchiveBtn">Cancel</button>
-                <button type="submit" form="archiveForm" class="btn btn-danger" id="confirmArchiveBtn">Archive Employee</button>
+                <button type="submit" form="archiveForm" class="btn btn-danger">Archive Employee</button>
             </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Department filter buttons
             document.querySelectorAll('.department-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const department = btn.dataset.department;
@@ -960,18 +734,15 @@ if ($result && $result->num_rows > 0) {
                 });
             });
 
-            /* -- ADD EMPLOYEE MODAL -- */
-            const addEmployeeBtn   = document.getElementById("addEmployeeBtn");
+            const addEmployeeBtn = document.getElementById("addEmployeeBtn");
             const addEmployeeModal = document.getElementById("addEmployeeModal");
-            const closeAddModal   = document.getElementById("closeAddModal");
-            const cancelAddBtn    = document.getElementById("cancelAddBtn");
+            const closeAddModal = document.getElementById("closeAddModal");
+            const cancelAddBtn = document.getElementById("cancelAddBtn");
 
             if (addEmployeeBtn) {
                 addEmployeeBtn.addEventListener("click", () => {
                     document.getElementById("addEmployeeForm").reset();
-                    // Set today's date as default hire date
                     document.getElementById("addHireDate").valueAsDate = new Date();
-                    document.getElementById("addStatus").value = "active";
                     document.getElementById("addPreviewImage").style.display = "none";
                     addEmployeeModal.classList.add("active");
                 });
@@ -990,41 +761,29 @@ if ($result && $result->num_rows > 0) {
                 });
             }
 
-            /* -------------------------------
-               EDIT EMPLOYEE MODAL
-            ------------------------------- */
             const editEmployeeModal = document.getElementById("editEmployeeModal");
-            const closeEditModal   = document.getElementById("closeEditModal");
-            const cancelEditBtn    = document.getElementById("cancelEditBtn");
+            const closeEditModal = document.getElementById("closeEditModal");
+            const cancelEditBtn = document.getElementById("cancelEditBtn");
 
-            // Attach click event to all Edit buttons
             document.querySelectorAll(".edit-btn").forEach(button => {
                 button.addEventListener("click", function () {
                     const employeeId = this.getAttribute("data-id");
-
-                    // Show loading
                     document.getElementById('loadingOverlay').classList.add('active');
 
-                    // Fetch employee data via AJAX
                     fetch(`../crud/get_employee.php?id=${employeeId}`)
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById('loadingOverlay').classList.remove('active');
                         
                         if (data.success) {
-                            // Fill in the edit form fields
                             document.getElementById("editEmployeeId").value = data.employee.employee_id;
                             document.getElementById("editFirstName").value = data.employee.first_name;
                             document.getElementById("editLastName").value = data.employee.last_name;
                             document.getElementById("editEmail").value = data.employee.email;
                             document.getElementById("editPhone").value = data.employee.phone || '';
-                            document.getElementById("editPosition").value = data.employee.position;
                             document.getElementById("editDepartment").value = data.employee.department;
                             document.getElementById("editHireDate").value = data.employee.hire_date;
-                            document.getElementById("editSalary").value = data.employee.salary;
-                            document.getElementById("editStatus").value = data.employee.status;
 
-                            // Show existing employee image
                             const previewImg = document.getElementById("editPreviewImage");
                             if (data.employee.image_path && data.employee.image_path !== "") {
                                 previewImg.src = `../${data.employee.image_path}`;
@@ -1033,7 +792,6 @@ if ($result && $result->num_rows > 0) {
                                 previewImg.style.display = "none";
                             }
 
-                            // Show modal
                             editEmployeeModal.classList.add("active");
                         } else {
                             Swal.fire({
@@ -1068,9 +826,6 @@ if ($result && $result->num_rows > 0) {
                 });
             }
 
-            /* -------------------------------
-               ARCHIVE MODAL
-            ------------------------------- */
             document.addEventListener('click', (e) => {
                 if (e.target.classList.contains('archive-btn') || e.target.closest('.archive-btn')) {
                     const btn = e.target.classList.contains('archive-btn') ? e.target : e.target.closest('.archive-btn');
@@ -1087,11 +842,8 @@ if ($result && $result->num_rows > 0) {
                 document.getElementById('archiveModal').classList.remove('active');
             });
 
-            /* -------------------------------
-               IMAGE PREVIEWS
-            ------------------------------- */
-            const addImageInput  = document.getElementById("addEmployeeImage");
-            const addPreview     = document.getElementById("addPreviewImage");
+            const addImageInput = document.getElementById("addEmployeeImage");
+            const addPreview = document.getElementById("addPreviewImage");
             if (addImageInput) {
                 addImageInput.addEventListener("change", function () {
                     const file = this.files[0];
@@ -1107,7 +859,7 @@ if ($result && $result->num_rows > 0) {
             }
 
             const editImageInput = document.getElementById("editEmployeeImage");
-            const editPreview    = document.getElementById("editPreviewImage");
+            const editPreview = document.getElementById("editPreviewImage");
             if (editImageInput) {
                 editImageInput.addEventListener("change", function () {
                     const file = this.files[0];
@@ -1122,17 +874,15 @@ if ($result && $result->num_rows > 0) {
                 });
             }
 
-            // Image validation function
             function validateImage(input, previewId) {
                 const file = input.files[0];
                 const preview = document.getElementById(previewId);
 
                 if (!file) {
                     preview.style.display = "none";
-                    return true; // no file selected, skip validation
+                    return true;
                 }
 
-                // Allowed file types
                 const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
                 if (!allowedTypes.includes(file.type)) {
                     Swal.fire({
@@ -1145,7 +895,6 @@ if ($result && $result->num_rows > 0) {
                     return false;
                 }
 
-                // Max size 2MB
                 const maxSize = 2 * 1024 * 1024; 
                 if (file.size > maxSize) {
                     Swal.fire({
@@ -1158,7 +907,6 @@ if ($result && $result->num_rows > 0) {
                     return false;
                 }
 
-                // Preview image
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     preview.src = e.target.result;
@@ -1169,23 +917,19 @@ if ($result && $result->num_rows > 0) {
                 return true;
             }
 
-            // Attach validation to Add Employee image input
             document.getElementById("addEmployeeImage").addEventListener("change", function() {
                 validateImage(this, "addPreviewImage");
             });
 
-            // Attach validation to Edit Employee image input
             document.getElementById("editEmployeeImage").addEventListener("change", function() {
                 validateImage(this, "editPreviewImage");
             });
 
-            // Form validation for email
             function validateEmail(email) {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 return emailRegex.test(email);
             }
 
-            // Add Employee form validation
             document.getElementById("addEmployeeForm").addEventListener("submit", function(e) {
                 const email = document.getElementById("addEmail").value;
                 if (!validateEmail(email)) {
@@ -1198,7 +942,6 @@ if ($result && $result->num_rows > 0) {
                     return false;
                 }
                 
-                // Show confirmation
                 e.preventDefault();
                 Swal.fire({
                     title: 'Are you sure?',
@@ -1215,7 +958,6 @@ if ($result && $result->num_rows > 0) {
                 });
             });
 
-            // Edit Employee form validation
             document.getElementById("editEmployeeForm").addEventListener("submit", function(e) {
                 const email = document.getElementById("editEmail").value;
                 if (!validateEmail(email)) {
@@ -1228,7 +970,6 @@ if ($result && $result->num_rows > 0) {
                     return false;
                 }
                 
-                // Show confirmation
                 e.preventDefault();
                 Swal.fire({
                     title: 'Are you sure?',
@@ -1246,7 +987,6 @@ if ($result && $result->num_rows > 0) {
             });
         });
 
-        // Archive form confirmation
         document.getElementById("archiveForm").addEventListener("submit", function(e) {
             e.preventDefault();
             Swal.fire({

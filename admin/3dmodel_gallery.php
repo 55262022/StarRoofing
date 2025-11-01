@@ -1,5 +1,5 @@
 <?php
-// include '../authentication/auth.php';
+include '../authentication/auth.php';
 require_once '../database/starroofing_db.php';
 
 // Fetch all generated 3D models
@@ -81,7 +81,15 @@ $result = $conn->query($query);
                 <div class="col-md-4 col-lg-3">
                     <div class="model-card">
                         <?php if ($row['generation_status'] === 'succeeded' && $row['model_path']): ?>
-                            <canvas id="canvas-<?= $row['id'] ?>" class="model-preview" data-model="<?= htmlspecialchars($row['model_path']) ?>"></canvas>
+                            <?php
+                            // FIX: Remove 'uploads/' prefix to construct correct path
+                            $cleanPath = $row['model_path'];
+                            if (strpos($cleanPath, 'uploads/') === 0) {
+                                $cleanPath = substr($cleanPath, 8); // Remove "uploads/"
+                            }
+                            $modelPath = '../uploads/' . $cleanPath;
+                            ?>
+                            <canvas id="canvas-<?= $row['id'] ?>" class="model-preview" data-model="<?= htmlspecialchars($modelPath) ?>"></canvas>
                         <?php else: ?>
                             <div class="model-preview">
                                 <i class="fa fa-cube fa-3x text-white"></i>
@@ -121,7 +129,14 @@ $result = $conn->query($query);
                                        class="btn btn-sm btn-primary">
                                         <i class="fa fa-eye me-1"></i>View in Editor
                                     </a>
-                                    <a href="<?= htmlspecialchars($row['model_path']) ?>" 
+                                    <?php
+                                    // FIX: Correct download path
+                                    $downloadPath = $row['model_path'];
+                                    if (strpos($downloadPath, 'uploads/') === 0) {
+                                        $downloadPath = '../' . $downloadPath;
+                                    }
+                                    ?>
+                                    <a href="<?= htmlspecialchars($downloadPath) ?>" 
                                        download 
                                        class="btn btn-sm btn-outline-secondary">
                                         <i class="fa fa-download me-1"></i>Download
@@ -144,7 +159,7 @@ $result = $conn->query($query);
     </div>
 </div>
 
-<!-- Three.js Script - FIXED VERSION -->
+<!-- Three.js Script -->
 <script type="importmap">
 {
   "imports": {
@@ -158,13 +173,14 @@ $result = $conn->query($query);
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-// Make function globally accessible
 window.initModelViewer = (canvasId, modelPath) => {
     const canvas = document.getElementById(canvasId);
     if (!canvas) {
         console.error('Canvas not found:', canvasId);
         return;
     }
+
+    console.log('Loading model from:', modelPath); // Debug log
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
@@ -187,7 +203,6 @@ window.initModelViewer = (canvasId, modelPath) => {
         (gltf) => {
             const model = gltf.scene;
             
-            // Calculate bounding box
             const box = new THREE.Box3().setFromObject(model);
             const size = new THREE.Vector3();
             const center = new THREE.Vector3();
@@ -195,18 +210,15 @@ window.initModelViewer = (canvasId, modelPath) => {
             box.getSize(size);
             box.getCenter(center);
 
-            // Scale model to fit in view
             const maxDim = Math.max(size.x, size.y, size.z);
-            const scale = 2 / maxDim; // Adjust scale factor (2 means model takes ~50% of view)
+            const scale = 2 / maxDim;
             model.scale.setScalar(scale);
 
-            // Center model at origin
             model.position.x = -center.x * scale;
             model.position.y = -center.y * scale;
             model.position.z = -center.z * scale;
 
-            // Position camera to view centered model
-            const distance = maxDim * 1.5; // Distance from model
+            const distance = maxDim * 1.5;
             camera.position.set(distance, distance * 0.5, distance);
             camera.lookAt(0, 0, 0);
 
@@ -222,14 +234,13 @@ window.initModelViewer = (canvasId, modelPath) => {
         undefined, 
         (error) => {
             console.error('Error loading GLB model:', error);
+            console.error('Failed path:', modelPath);
             canvas.style.background = 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)';
         }
     );
 };
 
-// Initialize all model viewers after DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Init all dynamic models
     document.querySelectorAll('canvas[data-model]').forEach(canvas => {
         const modelPath = canvas.getAttribute('data-model');
         initModelViewer(canvas.id, modelPath);

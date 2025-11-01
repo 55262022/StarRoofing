@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 27, 2025 at 01:44 PM
+-- Generation Time: Nov 01, 2025 at 03:36 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -43,12 +43,40 @@ CREATE TABLE `accounts` (
 --
 
 INSERT INTO `accounts` (`id`, `email`, `password`, `role_id`, `account_status`, `last_login`, `created_at`, `updated_at`) VALUES
-(7, 'ajmacaraig19@gmail.com', '$2y$10$vpvhTBLnHY84MDjuEUlAQ.XWjiJ2MW8iUUxsJB0kzF97DtmQU3H/G', 2, 'active', '2025-10-25 13:43:51', '2025-09-12 11:34:43', '2025-10-25 13:43:51'),
-(8, 'ajmacaraig20@gmail.com', '$2y$10$0xiOQg8aTUFKO9g/vajF.u5fM.nD9vMHXLqLPLoCia/HEzwR8XqAe', 1, 'active', '2025-10-27 02:02:44', '2025-09-12 11:45:37', '2025-10-27 02:02:44'),
+(7, 'ajmacaraig19@gmail.com', '$2y$10$vpvhTBLnHY84MDjuEUlAQ.XWjiJ2MW8iUUxsJB0kzF97DtmQU3H/G', 2, 'active', '2025-11-01 11:20:18', '2025-09-12 11:34:43', '2025-11-01 11:20:18'),
+(8, 'ajmacaraig20@gmail.com', '$2y$10$0xiOQg8aTUFKO9g/vajF.u5fM.nD9vMHXLqLPLoCia/HEzwR8XqAe', 1, 'active', '2025-11-01 12:31:54', '2025-09-12 11:45:37', '2025-11-01 12:31:54'),
 (9, 'ajmacaraig18@gmail.com', '$2y$10$TRYyLzGYJgBEC7JTpo5qD.8IOknPQ/Nhpa04gkhQmrHFe02.P4mLu', 2, 'active', '2025-10-08 06:52:34', '2025-09-15 09:34:45', '2025-10-12 07:29:51'),
 (10, '57842022@holycross.edu.ph', '$2y$10$VbwIwOWnPmhDvFsPwccoaOBzujWxl9waRxoJJbhXxMZpWPIR/Mmlu', 2, 'active', NULL, '2025-09-16 11:56:11', '2025-09-16 11:59:57'),
-(13, 'admin@gmail.com', '$2y$10$d7Cg4ccEJ1OLypxRhgg3rutDJYaVZwUrCcpzEv0vkIwH0Ddl.wp3a', 1, 'active', '2025-10-19 04:26:59', '2025-10-09 04:09:49', '2025-10-19 04:26:59'),
-(15, 'client@example.com', '186474c1f2c2f735a54c2cf82ee8e87f2a5cd30940e280029363fecedfc5328c', 5, 'active', NULL, '2025-10-20 07:26:25', '2025-10-20 07:26:25');
+(13, 'admin@gmail.com', '$2y$10$d7Cg4ccEJ1OLypxRhgg3rutDJYaVZwUrCcpzEv0vkIwH0Ddl.wp3a', 1, 'active', '2025-10-30 18:57:59', '2025-10-09 04:09:49', '2025-10-30 18:57:59'),
+(15, 'client@example.com', '186474c1f2c2f735a54c2cf82ee8e87f2a5cd30940e280029363fecedfc5328c', NULL, 'active', NULL, '2025-10-20 07:26:25', '2025-10-20 07:26:25'),
+(17, 'chiechie@gmail.com', '$2y$10$Xk81bIAEzFiiBUsddcv3Ne3wtU.lP5tvqDVP53OaZVYxhkuOIZnlO', 3, 'active', '2025-11-01 10:52:09', '2025-11-01 06:25:05', '2025-11-01 10:52:09'),
+(18, 'docenajoshua28@gmaill.com', '$2y$10$Xk81bIAEzFiiBUsddcv3Ne3wtU.lP5tvqDVP53OaZVYxhkuOIZnlO', 3, 'active', NULL, '2025-11-01 06:25:05', '2025-11-01 06:25:05'),
+(19, 'ajmacaraig1827@gmail.com', '$2y$10$PpXJxHYxsJy0I5HxqTg1Ze5YYZLPhVnxsITXw22J16LBPIqY/Qq8C', 3, 'active', NULL, '2025-11-01 10:13:20', '2025-11-01 10:13:20');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cart`
+--
+
+CREATE TABLE `cart` (
+  `cart_id` int(11) NOT NULL,
+  `account_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `color` varchar(50) DEFAULT NULL,
+  `size` varchar(50) DEFAULT NULL,
+  `quantity` int(11) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `cart`
+--
+
+INSERT INTO `cart` (`cart_id`, `account_id`, `product_id`, `color`, `size`, `quantity`, `created_at`, `updated_at`) VALUES
+(6, 7, 16, 'White', 'Small', 1, '2025-10-30 16:23:11', NULL),
+(7, 7, 17, 'White', 'Small', 1, '2025-10-30 16:23:33', NULL);
 
 -- --------------------------------------------------------
 
@@ -76,7 +104,48 @@ INSERT INTO `categories` (`category_id`, `category_code`, `category_name`, `desc
 (4, 'upvc', 'uPVC Windows', 'uPVC window products', '2025-09-14 11:46:09', '2025-09-14 11:46:09'),
 (5, 'glass', 'Glass & Aluminum', 'Glass and aluminum products', '2025-09-14 11:46:09', '2025-09-14 11:46:09'),
 (6, 'cabinet', 'Modular Cabinet', 'Modular cabinet solutions', '2025-09-14 11:46:09', '2025-09-14 11:46:09'),
-(7, 'doors', 'Combi/Blind & Roll Up Doors', 'Various door types', '2025-09-14 11:46:09', '2025-09-14 11:46:09');
+(7, 'doors', 'Combi/Blind & Roll Up Doors', 'Various door types', '2025-09-14 11:46:09', '2025-09-14 11:46:09'),
+(8, 'accessories', 'Accessories', 'Various accessories and miscellaneous items for construction and roofing', '2025-11-01 11:38:48', '2025-11-01 11:38:48');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `chatbot_inquiries`
+--
+
+CREATE TABLE `chatbot_inquiries` (
+  `id` int(11) NOT NULL,
+  `firstname` varchar(100) NOT NULL,
+  `lastname` varchar(100) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `message` text NOT NULL,
+  `conversation_id` int(11) DEFAULT NULL,
+  `is_converted` tinyint(1) DEFAULT 0,
+  `submitted_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `chatbot_inquiries`
+--
+
+INSERT INTO `chatbot_inquiries` (`id`, `firstname`, `lastname`, `email`, `message`, `conversation_id`, `is_converted`, `submitted_at`) VALUES
+(1, 'Joshua', 'Santos', 'docenajoshua28@gmail.com', 'hello', 7, 1, '2025-10-28 11:16:03'),
+(2, 'Joshua', 'Santos', 'docenajoshua28@gmail.com', 'HELLO', 7, 1, '2025-10-28 12:03:57'),
+(3, 'Dion', 'Diego', 'markdiego073@gmail.com', 'i want to avail', 8, 1, '2025-10-28 12:09:37'),
+(4, 'Dion', 'Diego', 'markdiego073@gmail.com', 'hi', 8, 1, '2025-10-28 12:09:45'),
+(5, 'Dion', 'Diego', 'markdiego073@gmail.com', 'hello', 8, 1, '2025-10-28 12:10:08'),
+(6, 'AJ', 'Linsangan', 'ajmacaraig1827@gmail.com', 'request', 9, 1, '2025-10-28 12:36:59'),
+(7, 'AJ', 'Linsangan', 'ajmacaraig1827@gmail.com', 'hi', 9, 1, '2025-10-28 12:37:19'),
+(8, 'ariel', 'macaraig', 'ajeylinsangan@gmail.com', 'shopping]', 10, 1, '2025-10-28 12:44:19'),
+(9, 'ariel', 'macaraig', 'ajeylinsangan@gmail.com', 'hello', 10, 1, '2025-10-28 12:45:35'),
+(10, 'ariel', 'macaraig', 'ajeylinsangan@gmail.com', 'hi', 10, 1, '2025-10-28 12:52:20'),
+(11, 'AJ', 'Macaraig', 'ajeylinsangan@gmail.com', 'hello', 10, 1, '2025-10-28 12:54:36'),
+(12, 'Josh', 'Santos', 'ajmacaraig1827@gmail.com', 'testing', 9, 1, '2025-10-28 13:03:45'),
+(13, 'Josh', 'Santos', 'ajmacaraig1827@gmail.com', 'hi', 9, 1, '2025-10-28 13:04:25'),
+(14, 'aj', 'lin', 'ajmacaraig19@gmail.com', 'hi', 6, 1, '2025-10-28 13:18:40'),
+(15, 'aj', 'lin', 'ajmacaraig19@gmail.com', 'hello', 6, 1, '2025-10-29 02:23:08'),
+(16, 'aj', 'lin', 'ajmacaraig19@gmail.com', 'hi', 6, 1, '2025-10-29 14:20:29'),
+(17, 'aj', 'lin', 'ajmacaraig19@gmail.com', 'okkokokokokokkokoko', 6, 1, '2025-10-30 09:38:30');
 
 -- --------------------------------------------------------
 
@@ -89,15 +158,22 @@ CREATE TABLE `conversations` (
   `email` varchar(150) NOT NULL,
   `is_accepted` tinyint(1) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `unread_count` int(11) DEFAULT 0,
+  `last_message_at` timestamp NULL DEFAULT NULL,
+  `last_message_sender` enum('admin','client') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `conversations`
 --
 
-INSERT INTO `conversations` (`id`, `email`, `is_accepted`, `created_at`, `updated_at`) VALUES
-(6, 'ajmacaraig19@gmail.com', 1, '2025-10-23 07:44:44', '2025-10-24 02:10:08');
+INSERT INTO `conversations` (`id`, `email`, `is_accepted`, `created_at`, `updated_at`, `unread_count`, `last_message_at`, `last_message_sender`) VALUES
+(6, 'ajmacaraig19@gmail.com', 1, '2025-10-23 07:44:44', '2025-10-31 06:02:40', 0, NULL, NULL),
+(7, 'docenajoshua28@gmail.com', 1, '2025-10-28 11:16:03', '2025-10-28 11:16:25', 0, NULL, NULL),
+(8, 'markdiego073@gmail.com', 1, '2025-10-28 12:09:37', '2025-10-28 12:36:02', 0, NULL, NULL),
+(9, 'ajmacaraig1827@gmail.com', 1, '2025-10-28 12:36:59', '2025-10-28 13:04:53', 0, NULL, NULL),
+(10, 'ajeylinsangan@gmail.com', 1, '2025-10-28 12:44:19', '2025-10-28 13:02:52', 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -107,15 +183,14 @@ INSERT INTO `conversations` (`id`, `email`, `is_accepted`, `created_at`, `update
 
 CREATE TABLE `employees` (
   `employee_id` int(11) NOT NULL,
+  `account_id` int(11) DEFAULT NULL,
   `first_name` varchar(50) NOT NULL,
   `last_name` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
-  `position` varchar(50) NOT NULL,
   `department` varchar(50) NOT NULL,
   `hire_date` date NOT NULL,
-  `salary` decimal(10,2) DEFAULT NULL,
-  `status` enum('active','inactive') DEFAULT 'active',
   `image_path` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -126,9 +201,10 @@ CREATE TABLE `employees` (
 -- Dumping data for table `employees`
 --
 
-INSERT INTO `employees` (`employee_id`, `first_name`, `last_name`, `email`, `phone`, `position`, `department`, `hire_date`, `salary`, `status`, `image_path`, `created_at`, `updated_at`, `is_archived`) VALUES
-(1, 'archie', 'ramirez', 'chiechie@gmail.com', '09627646372', '69', 'Sales', '2025-09-17', 45345.00, 'active', 'uploads/employees/68cff607c1937.jpg', '2025-09-21 12:56:39', '2025-09-21 13:04:05', 0),
-(2, 'Joshua', 'Docena', 'pogiako@gmaill.com', '09728374893', 'Architect', 'Roofing', '2025-09-27', 213123.00, 'active', 'uploads/employees/68d8299b2fef9.png', '2025-09-27 18:14:51', '2025-10-01 09:34:53', 0);
+INSERT INTO `employees` (`employee_id`, `account_id`, `first_name`, `last_name`, `email`, `password`, `phone`, `department`, `hire_date`, `image_path`, `created_at`, `updated_at`, `is_archived`) VALUES
+(1, 17, 'archie', 'ramirez', 'chiechie@gmail.com', NULL, '09627646372', 'Sales', '2025-09-17', 'uploads/employees/68cff607c1937.jpg', '2025-09-21 12:56:39', '2025-11-01 06:25:05', 0),
+(2, 18, 'Joshua', 'Docena', 'docenajoshua28@gmaill.com', NULL, '09728374893', 'Roofing', '2025-09-27', 'uploads/employees/68d8299b2fef9.png', '2025-09-27 18:14:51', '2025-11-01 06:25:05', 0),
+(3, 19, 'Arieljon', 'Linsangan', '', NULL, '09152076679', 'Sales', '2025-11-01', NULL, '2025-11-01 10:13:20', '2025-11-01 10:13:20', 0);
 
 -- --------------------------------------------------------
 
@@ -159,10 +235,12 @@ CREATE TABLE `generated_3d_models` (
 --
 
 INSERT INTO `generated_3d_models` (`id`, `product_id`, `meshy_task_id`, `image_hash`, `original_image_name`, `original_image_hash`, `model_filename`, `model_path`, `model_url`, `file_size`, `generation_status`, `error_message`, `created_by`, `created_at`, `updated_at`) VALUES
-(1, NULL, '019a174c-c43f-78ea-9fd2-2b8579746ac2', 'c9560bbf6796ed9b0d0fa6fa0ed46602', 'image-18.png', NULL, 'model_019a174c-c43f-78ea-9fd2-2b8579746ac2_1761328644_68fbbe0492632.glb', 'uploads/3dmodels/model_019a174c-c43f-78ea-9fd2-2b8579746ac2_1761328644_68fbbe0492632.glb', 'https://assets.meshy.ai/3b7a3bf4-2114-49b6-b91c-d1ee797186b9/tasks/019a174c-c43f-78ea-9fd2-2b8579746ac2/output/model.glb?Expires=1761586840&Signature=MALVhCg8Zkej7enmGuABqmPqGYRtxuRexrhQ5FK48zme~T0t7JxaMlt0CyaXC2o92WhLp7xivcB0f3wxvzJ653e2LFnYU24UZIoIiR02at7njZ7BPtE-CYEIKaZBa6xIfXPITJfzR9DMk6Sv-efi~ECu41anCbReYT46yBPqH9VsViZtK7TlTVCYAAdPBU0MGZMeuScHXpXtTAkGw-yADtvHu8RdlbxrG3vJT36BjoMrunV2Prxi1GLW9dRtDZdgXIftaVqgeYdL33WMGjhnkFpJ~ngFqP8HmftOZj4bH3aZT0ZjzZOZwkOVTu8H47jQhG1Mb4-mjm2eIhyztccqeQ__&Key-P', 6442324, 'succeeded', NULL, NULL, '2025-10-24 17:38:19', '2025-10-24 17:57:25'),
-(2, NULL, '019a17e2-bde6-7b37-a231-e243255c5e71', '0a76f5b593e77358329f3a2d6d51e8fd', 'a48fcbacc4b04ca1a099e6ebc3df1b40.jpg', NULL, 'model_68fbe07c37346.glb', 'uploads/3dmodels/model_68fbe07c37346.glb', 'https://assets.meshy.ai/3b7a3bf4-2114-49b6-b91c-d1ee797186b9/tasks/019a17e2-bde6-7b37-a231-e243255c5e71/output/model.glb?Expires=1761596659&Signature=CwEg8tTcMt78hUDh9IAeuD2UubHIiqT366ke18I1wtNChNNadYylOEdZn-04~WlqAdJ2B7LZSKrYwkn5ijs7AGCZ9yTTTFM8bwAFL07ftVzoUFGXbpp4YDvDedheeq5wocNjCvrbASAL~iWn9uBYmoeeDeSfYyp2esIvl7SAJ0TiCwgCNb9J7BqYUQprawA8piQuf~02QxQqe4hi5FKT6BeGe5hR3etje0ZKvHaZevn3rUyzjL-GG3QrDpf8v33lmw-qhqs~D78NY98j-88WmnzQMesP4TI-zpdUjryzO21ZeqczDMDCXjRRKYvKJ4qUH8PitN~phjYBUCOhZT4vaw__&Key-P', 7210324, 'succeeded', NULL, NULL, '2025-10-24 20:22:07', '2025-10-26 18:46:52'),
-(3, NULL, '019a19f2-f895-786a-ad90-d85151ecf360', '7f1a41bb0027657cd3692a6e9191d1da', 'images.jpg', NULL, 'model_68fc67be914b7.glb', 'uploads/3dmodels/model_68fc67be914b7.glb', 'https://assets.meshy.ai/3b7a3bf4-2114-49b6-b91c-d1ee797186b9/tasks/019a19f2-f895-786a-ad90-d85151ecf360/output/model.glb?Expires=1761631290&Signature=dyiaG8HggXt5LaRTcMmGSTEDQG6oQ~YQbePsRXTrZygj2A-QWeVCDNbR-9eto1YUaQaxieHTa2lTfpuHBnvqbAAOB8f9laK-Bwc-rWwxt7yhRmNz1rf8wsZax2ql8dqOh1AFSWIS1cD0ZeRHChgDkU69-tePaeavOUVC5ip48tsICnk5lG~7RRnujUsSXj5inu6SFfVTuH9Mfr03qi-dBf1vGcHTUaxsBMI7eccvwmU10wvvrGA7t9Tjk9ojQpoxb7FQVEmEuTQKN0F1v03O7vW2QTgcg837xEQzMhz57COEBR9SBAp6Ra-6m2nIid9K4ddpYDZ3qR9Ff6pOOaggEg__&Key-P', 9090820, 'succeeded', NULL, NULL, '2025-10-25 05:59:05', '2025-10-26 18:46:52'),
-(4, 16, '019a2163-e7c0-7c32-a31c-04c6f82cecfc', '4c2ebc13fbb8e8cb565e3205d1502ccc', '1761490082_foam insulation.jpg', NULL, 'model_68fe5004b2736.glb', 'uploads/3dmodels/model_68fe5004b2736.glb', 'https://assets.meshy.ai/3b7a3bf4-2114-49b6-b91c-d1ee797186b9/tasks/019a2163-e7c0-7c32-a31c-04c6f82cecfc/output/model.glb?Expires=1761756292&Signature=ZyLriYoCuEBsn52mhUdj8KKflVm7InHvJKqMWEP8oIrz~WbcqlCU3EfXjew911T4dyu4YzZGrU1PGnMaWKIObhg15dlfxvcWDfBj~M3o0RARIXmgvXV2cgpTqrCXPu2YVn1fP8wpSzpRylfOvOxnmDIYGoe0aoa1bHVZ0hm-~xIZ8bf0eg--RG7hB9HBfdkcHWvEiwcHWg1iBnpY0ILJGbZNPfRGOpehHq0AtR94KMyj9pGbOtBVImBv34Vd1eiMW77xGSbptAVVXeJtwlLQaCXTrM-1VpubXXNUWe4GORBo-WtnaUpv3XUVCEE~VhehD2fOYSdMkEUb7xjaiWAqWw__&Key-P', 8322188, 'succeeded', NULL, NULL, '2025-10-26 16:39:47', '2025-10-26 18:46:52');
+(1, NULL, '019a174c-c43f-78ea-9fd2-2b8579746ac2', 'c9560bbf6796ed9b0d0fa6fa0ed46602', 'image-18.png', NULL, 'model_019a174c-c43f-78ea-9fd2-2b8579746ac2_1761328644_68fbbe0492632.glb', 'uploads/3dmodels/model_019a174c-c43f-78ea-9fd2-2b8579746ac2_1761328644_68fbbe0492632.glb', 'uploads/3dmodels/model_019a174c-c43f-78ea-9fd2-2b8579746ac2_1761328644_68fbbe0492632.glb', 6442324, 'succeeded', NULL, NULL, '2025-10-24 17:38:19', '2025-10-28 08:06:54'),
+(2, NULL, '019a17e2-bde6-7b37-a231-e243255c5e71', '0a76f5b593e77358329f3a2d6d51e8fd', 'a48fcbacc4b04ca1a099e6ebc3df1b40.jpg', NULL, 'model_68fbe07c37346.glb', 'uploads/3dmodels/model_68fbe07c37346.glb', 'uploads/3dmodels/model_68fbe07c37346.glb', 7210324, 'succeeded', NULL, NULL, '2025-10-24 20:22:07', '2025-10-28 08:06:54'),
+(3, NULL, '019a19f2-f895-786a-ad90-d85151ecf360', '7f1a41bb0027657cd3692a6e9191d1da', 'images.jpg', NULL, 'model_68fc67be914b7.glb', 'uploads/3dmodels/model_68fc67be914b7.glb', 'uploads/3dmodels/model_68fc67be914b7.glb', 9090820, 'succeeded', NULL, NULL, '2025-10-25 05:59:05', '2025-10-28 08:06:54'),
+(4, 16, '019a2163-e7c0-7c32-a31c-04c6f82cecfc', '4c2ebc13fbb8e8cb565e3205d1502ccc', '1761490082_foam insulation.jpg', NULL, 'model_68fe5004b2736.glb', 'uploads/3dmodels/model_68fe5004b2736.glb', 'uploads/3dmodels/model_68fe5004b2736.glb', 8322188, 'succeeded', NULL, NULL, '2025-10-26 16:39:47', '2025-10-28 08:06:54'),
+(5, 17, '019a29b0-b260-7760-a51b-06c4295186f4', 'b8e115f9a41e16af556e41954bd2e4da', '1761498892_flat deck.jpg', NULL, 'model_69006f6fc7373.glb', 'uploads/3dmodels/model_69006f6fc7373.glb', 'uploads/3dmodels/model_69006f6fc7373.glb', 7671728, 'succeeded', NULL, NULL, '2025-10-28 07:20:35', '2025-10-28 08:06:54'),
+(6, 18, '019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f', 'c515044d24461e15cdb225089b68df81', '1761997659_J bolt.jpg', NULL, 'model_690601e2c1f1a.glb', 'uploads/3dmodels/model_690601e2c1f1a.glb', 'https://assets.meshy.ai/3b7a3bf4-2114-49b6-b91c-d1ee797186b9/tasks/019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f/output/model.glb?Expires=1762260572&Signature=aLlyeRW6n2VQ8ZnrLThoNLKean8JVx0dJniakkksgsq1zRYmit8gMy8mez3mQVZ0yH3UpmH8H4M1XINsGyH0ODd0sanpcTGggz6mH5ipodcIX-Bp5W0pLZtIaN0oVYzJo3fbZmc0z6ea4vvLX8Fm7iBxJCfu~J-ZTSrCPcRHiUKMmyqHYwyvhdVSHABVMejGxErTtC0R4xYoXqtlVkcvt~0RNsNhMavpJWmbf0BBlaK1T~HXIAgBmZzU-cJWV1UvsTDACFfs3E3~K89RxVaSzlpiQUGcSVDyj0eEi5NNWsj-t2n5Md3E8c30kXyd8FfYp0dZG~tv3oTuGJ6Mi9N1Ug__&Key-P', 8273536, 'succeeded', NULL, NULL, '2025-11-01 12:47:41', '2025-11-01 12:49:40');
 
 -- --------------------------------------------------------
 
@@ -175,7 +253,7 @@ CREATE TABLE `inquiries` (
   `firstname` varchar(100) NOT NULL,
   `lastname` varchar(100) NOT NULL,
   `email` varchar(150) NOT NULL,
-  `phone` varchar(50) NOT NULL,
+  `phone` varchar(50) DEFAULT NULL,
   `region_code` varchar(20) NOT NULL,
   `region_name` varchar(100) NOT NULL,
   `province_code` varchar(20) NOT NULL,
@@ -189,42 +267,36 @@ CREATE TABLE `inquiries` (
   `product_id` int(11) DEFAULT NULL,
   `conversation_id` int(11) DEFAULT NULL,
   `submitted_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `is_accepted` tinyint(1) DEFAULT 0
+  `is_accepted` tinyint(1) DEFAULT 0,
+  `source` enum('form','chatbot','phone','email','product') DEFAULT 'form'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `inquiries`
 --
 
-INSERT INTO `inquiries` (`id`, `firstname`, `lastname`, `email`, `phone`, `region_code`, `region_name`, `province_code`, `province_name`, `city_code`, `city_name`, `barangay_code`, `barangay_name`, `street`, `message`, `product_id`, `conversation_id`, `submitted_at`, `is_accepted`) VALUES
-(1, 'John', 'Doe', 'client@example.com', '09171234567', '', '', '', '', '', '', '', '', NULL, 'Hi, I’d like to inquire about a new roofing installation.', NULL, NULL, '2025-10-20 07:29:16', 1),
-(2, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'ff', NULL, NULL, '2025-10-21 09:09:58', 1),
-(3, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'gg', NULL, NULL, '2025-10-21 09:15:19', 1),
-(4, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'gg', NULL, NULL, '2025-10-21 09:17:33', 1),
-(5, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'gg', 2, NULL, '2025-10-21 09:23:36', 1),
-(6, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'jael lumbay', 2, NULL, '2025-10-22 03:14:07', 1),
-(7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'hello po', 2, NULL, '2025-10-22 08:21:21', 1),
-(8, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'jpjppjpp', 2, NULL, '2025-10-22 08:22:52', 1),
-(9, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'uyuy', 2, NULL, '2025-10-22 09:11:49', 0),
-(10, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'uyuy', 2, NULL, '2025-10-22 09:11:50', 0),
-(11, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'uyuy', 2, NULL, '2025-10-22 09:11:50', 1),
-(12, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'ioiouo', 2, NULL, '2025-10-22 09:12:55', 0),
-(13, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'ioiouo', 2, NULL, '2025-10-22 09:12:58', 0),
-(14, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'ioiouo', 2, NULL, '2025-10-22 09:12:58', 0),
-(15, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', '....', 2, NULL, '2025-10-22 09:13:39', 0),
-(16, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', '....', 2, NULL, '2025-10-22 09:13:45', 0),
-(17, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', '....', 2, NULL, '2025-10-22 09:13:45', 0),
-(18, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'hello', 2, NULL, '2025-10-23 07:00:48', 0),
-(19, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'hello', 2, NULL, '2025-10-23 07:00:59', 0),
-(20, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'hello', 2, NULL, '2025-10-23 07:00:59', 1),
-(21, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'ji', 2, NULL, '2025-10-23 07:06:30', 1),
-(22, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'ji', 2, NULL, '2025-10-23 07:06:33', 1),
-(23, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'ji', 2, NULL, '2025-10-23 07:06:33', 1),
-(24, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'hhhiii', 2, 6, '2025-10-23 07:44:44', 1),
-(25, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'xxxxx', 2, 6, '2025-10-23 07:46:24', 1),
-(26, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'nnnnn', 8, 6, '2025-10-23 07:58:10', 1),
-(27, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'hilo', 2, 6, '2025-10-23 13:16:40', 1),
-(28, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', '....hi', 2, 6, '2025-10-24 02:10:08', 0);
+INSERT INTO `inquiries` (`id`, `firstname`, `lastname`, `email`, `phone`, `region_code`, `region_name`, `province_code`, `province_name`, `city_code`, `city_name`, `barangay_code`, `barangay_name`, `street`, `message`, `product_id`, `conversation_id`, `submitted_at`, `is_accepted`, `source`) VALUES
+(26, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'nnnnn', 8, 6, '2025-10-23 07:58:10', 1, 'product'),
+(27, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', 'hilo', 2, 6, '2025-10-23 13:16:40', 1, 'product'),
+(28, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', '....hi', 2, 6, '2025-10-24 02:10:08', 1, 'product'),
+(29, 'Joshua', 'Santos', 'docenajoshua28@gmail.com', NULL, '', '', '', '', '', '', '', '', '', 'hello', NULL, 7, '2025-10-28 11:16:03', 1, 'chatbot'),
+(30, 'Joshua', 'Santos', 'docenajoshua28@gmail.com', NULL, '', '', '', '', '', '', '', '', '', 'HELLO', NULL, 7, '2025-10-28 12:03:57', 1, 'chatbot'),
+(31, 'Dion', 'Diego', 'markdiego073@gmail.com', NULL, '', '', '', '', '', '', '', '', '', 'i want to avail', NULL, 8, '2025-10-28 12:09:37', 1, 'chatbot'),
+(32, 'Dion', 'Diego', 'markdiego073@gmail.com', NULL, '', '', '', '', '', '', '', '', '', 'hi', NULL, 8, '2025-10-28 12:09:45', 1, 'chatbot'),
+(33, 'Dion', 'Diego', 'markdiego073@gmail.com', NULL, '', '', '', '', '', '', '', '', '', 'hello', NULL, 8, '2025-10-28 12:10:08', 1, 'chatbot'),
+(34, 'AJ', 'Linsangan', 'ajmacaraig1827@gmail.com', NULL, '', '', '', '', '', '', '', '', '', 'request', NULL, 9, '2025-10-28 12:36:59', 1, 'chatbot'),
+(35, 'AJ', 'Linsangan', 'ajmacaraig1827@gmail.com', NULL, '', '', '', '', '', '', '', '', '', 'hi', NULL, 9, '2025-10-28 12:37:19', 1, 'chatbot'),
+(36, 'ariel', 'macaraig', 'ajeylinsangan@gmail.com', NULL, '', '', '', '', '', '', '', '', '', 'shopping]', NULL, 10, '2025-10-28 12:44:19', 1, 'chatbot'),
+(37, 'ariel', 'macaraig', 'ajeylinsangan@gmail.com', NULL, '', '', '', '', '', '', '', '', '', 'hello', NULL, 10, '2025-10-28 12:45:35', 1, 'chatbot'),
+(38, 'ariel', 'macaraig', 'ajeylinsangan@gmail.com', NULL, '', '', '', '', '', '', '', '', '', 'hi', NULL, 10, '2025-10-28 12:52:20', 1, 'chatbot'),
+(39, 'AJ', 'Macaraig', 'ajeylinsangan@gmail.com', NULL, '', '', '', '', '', '', '', '', '', 'hello', NULL, 10, '2025-10-28 12:54:36', 1, 'chatbot'),
+(40, 'Josh', 'Santos', 'ajmacaraig1827@gmail.com', NULL, '', '', '', '', '', '', '', '', '', 'testing', NULL, 9, '2025-10-28 13:03:45', 1, 'chatbot'),
+(41, 'Josh', 'Santos', 'ajmacaraig1827@gmail.com', NULL, '', '', '', '', '', '', '', '', '', 'hi', NULL, 9, '2025-10-28 13:04:25', 1, 'chatbot'),
+(42, 'aj', 'lin', 'ajmacaraig19@gmail.com', NULL, '', '', '', '', '', '', '', '', '', 'hi', NULL, 6, '2025-10-28 13:18:40', 1, 'chatbot'),
+(43, 'aj', 'lin', 'ajmacaraig19@gmail.com', 'N/A', '', '', '', '', '', '', '', '', '', 'hello', NULL, 6, '2025-10-29 02:23:08', 1, 'chatbot'),
+(44, 'aj', 'lin', 'ajmacaraig19@gmail.com', 'N/A', '', '', '', '', '', '', '', '', '', 'hi', NULL, 6, '2025-10-29 14:20:29', 1, 'chatbot'),
+(45, 'aj', 'lin', 'ajmacaraig19@gmail.com', 'N/A', '', '', '', '', '', '', '', '', '', 'okkokokokokokkokoko', NULL, 6, '2025-10-30 09:38:30', 1, 'chatbot'),
+(46, 'aj', 'lin', 'ajmacaraig19@gmail.com', 'N/A', '', '', '', '', '', '', '', '', '', 'hi', NULL, 6, '2025-10-31 06:02:40', 0, 'chatbot');
 
 -- --------------------------------------------------------
 
@@ -239,6 +311,102 @@ CREATE TABLE `login_attempts` (
   `attempt_time` timestamp NOT NULL DEFAULT current_timestamp(),
   `success` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `orders`
+--
+
+CREATE TABLE `orders` (
+  `order_id` int(11) NOT NULL,
+  `order_number` varchar(20) NOT NULL,
+  `account_id` int(11) NOT NULL,
+  `customer_first_name` varchar(100) NOT NULL,
+  `customer_last_name` varchar(100) NOT NULL,
+  `customer_email` varchar(150) NOT NULL,
+  `customer_phone` varchar(20) NOT NULL,
+  `address_id` int(11) NOT NULL,
+  `delivery_street` text DEFAULT NULL,
+  `delivery_barangay` varchar(100) DEFAULT NULL,
+  `delivery_city` varchar(100) DEFAULT NULL,
+  `delivery_province` varchar(100) DEFAULT NULL,
+  `delivery_region` varchar(100) DEFAULT NULL,
+  `delivery_notes` text DEFAULT NULL,
+  `product_id` int(11) NOT NULL,
+  `product_name` varchar(255) NOT NULL,
+  `product_price` decimal(10,2) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `subtotal` decimal(10,2) NOT NULL,
+  `delivery_fee` decimal(10,2) NOT NULL DEFAULT 150.00,
+  `total_amount` decimal(10,2) NOT NULL,
+  `payment_method` enum('cod','gcash','bank') NOT NULL,
+  `payment_status` enum('pending','paid','failed','refunded') DEFAULT 'pending',
+  `payment_proof` varchar(255) DEFAULT NULL,
+  `delivery_proof` varchar(255) DEFAULT NULL,
+  `order_status` enum('pending','confirmed','processing','shipped','delivered','cancelled') DEFAULT 'pending',
+  `assigned_employee_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `confirmed_at` timestamp NULL DEFAULT NULL,
+  `shipped_at` timestamp NULL DEFAULT NULL,
+  `delivered_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`order_id`, `order_number`, `account_id`, `customer_first_name`, `customer_last_name`, `customer_email`, `customer_phone`, `address_id`, `delivery_street`, `delivery_barangay`, `delivery_city`, `delivery_province`, `delivery_region`, `delivery_notes`, `product_id`, `product_name`, `product_price`, `quantity`, `subtotal`, `delivery_fee`, `total_amount`, `payment_method`, `payment_status`, `payment_proof`, `delivery_proof`, `order_status`, `assigned_employee_id`, `created_at`, `updated_at`, `confirmed_at`, `shipped_at`, `delivered_at`) VALUES
+(1, 'ORD202510300001', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 6, '', 'La Fuente', 'Santa Rosa', 'Nueva Ecija', 'Central Luzon', '', 17, 'Flat Deck', 500.00, 1, 500.00, 150.00, 650.00, 'cod', 'pending', NULL, NULL, 'cancelled', NULL, '2025-10-30 08:02:04', '2025-10-30 18:48:16', NULL, NULL, NULL),
+(2, 'ORD202510300002', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 6, '', 'La Fuente', 'Santa Rosa', 'Nueva Ecija', 'Central Luzon', '', 17, 'Flat Deck', 500.00, 1, 500.00, 150.00, 650.00, 'cod', 'pending', NULL, NULL, 'cancelled', NULL, '2025-10-30 08:02:19', '2025-10-30 18:48:30', NULL, NULL, NULL),
+(3, 'ORD202510300003', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 6, '', 'La Fuente', 'Santa Rosa', 'Nueva Ecija', 'Central Luzon', 'Assigned to: archie ramirez', 17, 'Flat Deck', 500.00, 1, 500.00, 150.00, 650.00, 'cod', 'pending', NULL, NULL, 'shipped', 1, '2025-10-30 08:04:07', '2025-11-01 07:11:44', '2025-10-30 18:47:28', '2025-11-01 07:11:44', NULL),
+(4, 'ORD202510300004', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 6, '', 'La Fuente', 'Santa Rosa', 'Nueva Ecija', 'Central Luzon', '', 17, 'Flat Deck', 500.00, 1, 500.00, 150.00, 650.00, 'cod', 'pending', NULL, NULL, 'pending', NULL, '2025-10-30 08:06:39', '2025-10-30 08:06:39', NULL, NULL, NULL),
+(5, 'ORD202510300005', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 6, '', 'La Fuente', 'Santa Rosa', 'Nueva Ecija', 'Central Luzon', '', 17, 'Flat Deck', 500.00, 1, 500.00, 150.00, 650.00, 'cod', 'pending', NULL, NULL, 'confirmed', NULL, '2025-10-30 09:52:35', '2025-11-01 07:37:06', '2025-11-01 07:37:06', NULL, NULL),
+(6, 'ORD202510300006', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 6, '', 'La Fuente', 'Santa Rosa', 'Nueva Ecija', 'Central Luzon', '', 17, 'Flat Deck', 500.00, 1, 500.00, 150.00, 650.00, 'bank', 'pending', NULL, NULL, 'shipped', NULL, '2025-10-30 16:49:44', '2025-10-31 06:48:31', '2025-10-30 18:37:38', '2025-10-31 06:48:31', NULL),
+(7, 'ORD202510310001', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 6, '', 'La Fuente', 'Santa Rosa', 'Nueva Ecija', 'Central Luzon', '', 17, 'Flat Deck', 500.00, 1, 500.00, 150.00, 650.00, 'cod', 'pending', NULL, NULL, 'processing', NULL, '2025-10-31 06:34:19', '2025-11-01 07:37:11', '2025-11-01 07:37:01', NULL, NULL),
+(8, 'ORD202511010001', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 6, '', 'La Fuente', 'Santa Rosa', 'Nueva Ecija', 'Central Luzon', '', 17, 'Flat Deck', 500.00, 3, 1500.00, 150.00, 1650.00, 'cod', 'pending', NULL, NULL, 'processing', NULL, '2025-11-01 11:24:57', '2025-11-01 11:32:55', '2025-11-01 11:32:13', NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_status_history`
+--
+
+CREATE TABLE `order_status_history` (
+  `id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL,
+  `status` enum('pending','confirmed','processing','shipped','delivered','cancelled') NOT NULL,
+  `notes` text DEFAULT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `order_status_history`
+--
+
+INSERT INTO `order_status_history` (`id`, `order_id`, `status`, `notes`, `created_by`, `created_at`) VALUES
+(1, 1, 'pending', 'Order placed', NULL, '2025-10-30 08:02:04'),
+(2, 2, 'pending', 'Order placed', NULL, '2025-10-30 08:02:19'),
+(3, 3, 'pending', 'Order placed', NULL, '2025-10-30 08:04:07'),
+(4, 4, 'pending', 'Order placed', NULL, '2025-10-30 08:06:39'),
+(5, 5, 'pending', 'Order placed', NULL, '2025-10-30 09:52:35'),
+(6, 6, 'pending', 'Order placed', NULL, '2025-10-30 16:49:44'),
+(7, 6, 'confirmed', 'Status updated to Confirmed', 8, '2025-10-30 18:37:38'),
+(8, 3, 'confirmed', 'Status updated from Pending to Confirmed', 8, '2025-10-30 18:47:28'),
+(9, 1, 'cancelled', 'Status updated from Pending to Cancelled', 8, '2025-10-30 18:48:16'),
+(10, 2, 'cancelled', 'Status updated from Pending to Cancelled', 8, '2025-10-30 18:48:30'),
+(11, 7, 'pending', 'Order placed', NULL, '2025-10-31 06:34:19'),
+(12, 6, 'processing', 'Status updated from Confirmed to Processing', 8, '2025-10-31 06:48:12'),
+(13, 6, 'shipped', 'Status updated from Processing to Shipped', 8, '2025-10-31 06:48:31'),
+(14, 3, 'shipped', 'Order assigned to employee: archie ramirez', 8, '2025-11-01 07:11:44'),
+(15, 7, 'confirmed', 'Status updated from Pending to Confirmed', 8, '2025-11-01 07:37:01'),
+(16, 5, 'confirmed', 'Status updated from Pending to Confirmed', 8, '2025-11-01 07:37:06'),
+(17, 7, 'processing', 'Status updated from Confirmed to Processing', 8, '2025-11-01 07:37:11'),
+(18, 8, 'pending', 'Order placed', NULL, '2025-11-01 11:24:57'),
+(19, 8, 'confirmed', 'Status updated from Pending to Confirmed', 8, '2025-11-01 11:32:13'),
+(20, 8, 'processing', 'Status updated from Confirmed to Processing', 8, '2025-11-01 11:32:55');
 
 -- --------------------------------------------------------
 
@@ -307,8 +475,9 @@ INSERT INTO `products` (`product_id`, `category_id`, `name`, `description`, `pri
 (13, 1, 'Ordinary House', 'Just an ordinary house design', 1500000.00, 5, 'set', 'uploads/products/1758984396_hiraganadakuon.gif', NULL, 8, '2025-09-27 14:46:36', '2025-09-27 17:19:58', 1, NULL, NULL, NULL),
 (14, 5, 'Gate', '', 50000.00, 30, 'set', 'uploads/products/1759905769_purok 3.png', NULL, 8, '2025-10-08 06:42:49', '2025-10-26 14:57:13', 1, NULL, NULL, NULL),
 (15, 5, 'Gate', '', 50000.00, 10, 'set', 'uploads/products/1759905994_purok 3.png', NULL, 8, '2025-10-08 06:46:34', '2025-10-08 06:48:49', 1, NULL, NULL, NULL),
-(16, 5, 'Foam Insulation', '', 850.00, 5, 'piece', 'uploads/products/1761490082_foam insulation.jpg', '../uploads/3dmodels/model_68fe5004b2736.glb', 8, '2025-10-26 14:48:02', '2025-10-26 18:48:00', 0, '019a2163-e7c0-7c32-a31c-04c6f82cecfc', '../uploads/3dmodels/model_68fe5004b2736.glb', 4),
-(17, 2, 'Flat Deck', '', 500.00, 19, 'piece', 'uploads/products/1761498892_flat deck.jpg', NULL, 8, '2025-10-26 17:14:52', '2025-10-26 17:19:20', 0, NULL, NULL, NULL);
+(16, 5, 'Foam Insulation', '', 850.00, 5, 'piece', 'uploads/products/1761490082_foam insulation.jpg', 'uploads/3dmodels/model_68fe5004b2736.glb', 8, '2025-10-26 14:48:02', '2025-10-28 08:06:54', 0, '019a2163-e7c0-7c32-a31c-04c6f82cecfc', 'uploads/3dmodels/model_68fe5004b2736.glb', 4),
+(17, 2, 'Flat Deck', '', 500.00, 9, 'piece', 'uploads/products/1761498892_flat deck.jpg', 'uploads/3dmodels/model_69006f6fc7373.glb', 8, '2025-10-26 17:14:52', '2025-11-01 11:24:57', 0, '019a29b0-b260-7760-a51b-06c4295186f4', 'uploads/3dmodels/model_69006f6fc7373.glb', 5),
+(18, 8, 'J bolt', '', 50.00, 5, 'piece', 'uploads/products/1761997659_J bolt.jpg', 'uploads/3dmodels/model_690601e2c1f1a.glb', 8, '2025-11-01 11:47:39', '2025-11-01 12:49:40', 0, '019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f', 'uploads/3dmodels/model_690601e2c1f1a.glb', 6);
 
 -- --------------------------------------------------------
 
@@ -325,31 +494,66 @@ CREATE TABLE `replies` (
   `sender` enum('admin','client') NOT NULL,
   `message` text NOT NULL,
   `sent_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `is_read` tinyint(1) DEFAULT 0
+  `is_read` tinyint(1) DEFAULT 0,
+  `status` enum('sent','delivered','read') DEFAULT 'sent'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `replies`
 --
 
-INSERT INTO `replies` (`id`, `inquiry_id`, `conversation_id`, `related_inquiry_id`, `related_product_id`, `sender`, `message`, `sent_at`, `is_read`) VALUES
-(1, 1, NULL, NULL, NULL, 'client', 'Hello, I’d like to know the cost for a metal roof.', '2025-10-20 07:29:32', 0),
-(2, 1, NULL, NULL, NULL, 'admin', 'Hi John! Thanks for reaching out. The price starts at ₱500 per sqm.', '2025-10-20 07:29:32', 1),
-(3, 1, NULL, NULL, NULL, 'client', 'Okay great! Can I send my house measurements?', '2025-10-20 07:29:32', 0),
-(4, 1, NULL, NULL, NULL, 'admin', 'Sure, please send them over so we can provide a full quotation.', '2025-10-20 07:29:32', 1),
-(5, 7, NULL, NULL, NULL, 'admin', 'ok', '2025-10-22 08:34:28', 0),
-(6, 11, NULL, NULL, NULL, 'admin', 'hjhj', '2025-10-22 09:13:59', 1),
-(7, 11, NULL, NULL, NULL, 'admin', '[pppppppppppppp', '2025-10-22 09:14:09', 1),
-(8, 24, 6, 24, 2, 'client', 'hhhiii', '2025-10-23 07:44:44', 0),
-(9, 25, 6, 25, 2, 'client', 'xxxxx', '2025-10-23 07:46:24', 0),
-(10, 25, NULL, NULL, NULL, 'admin', 'hello', '2025-10-23 07:53:19', 0),
-(11, 26, 6, 26, 8, 'client', 'nnnnn', '2025-10-23 07:58:10', 0),
-(12, 26, NULL, NULL, NULL, 'admin', 'hi', '2025-10-23 07:58:58', 0),
-(13, 26, 6, 26, 8, 'admin', 'ok', '2025-10-23 08:00:30', 1),
-(14, 26, 6, 26, 8, 'admin', 'hhh', '2025-10-23 08:00:46', 1),
-(15, 27, 6, 27, 2, 'client', 'hilo', '2025-10-23 13:16:40', 0),
-(16, 27, 6, 27, 2, 'admin', 'ok', '2025-10-24 02:09:10', 1),
-(17, 28, 6, 28, 2, 'client', '....hi', '2025-10-24 02:10:08', 0);
+INSERT INTO `replies` (`id`, `inquiry_id`, `conversation_id`, `related_inquiry_id`, `related_product_id`, `sender`, `message`, `sent_at`, `is_read`, `status`) VALUES
+(1, 1, NULL, NULL, NULL, 'client', 'Hello, I’d like to know the cost for a metal roof.', '2025-10-20 07:29:32', 0, 'sent'),
+(2, 1, NULL, NULL, NULL, 'admin', 'Hi John! Thanks for reaching out. The price starts at ₱500 per sqm.', '2025-10-20 07:29:32', 1, 'sent'),
+(3, 1, NULL, NULL, NULL, 'client', 'Okay great! Can I send my house measurements?', '2025-10-20 07:29:32', 0, 'sent'),
+(4, 1, NULL, NULL, NULL, 'admin', 'Sure, please send them over so we can provide a full quotation.', '2025-10-20 07:29:32', 1, 'sent'),
+(5, 7, NULL, NULL, NULL, 'admin', 'ok', '2025-10-22 08:34:28', 0, 'sent'),
+(6, 11, NULL, NULL, NULL, 'admin', 'hjhj', '2025-10-22 09:13:59', 1, 'sent'),
+(7, 11, NULL, NULL, NULL, 'admin', '[pppppppppppppp', '2025-10-22 09:14:09', 1, 'sent'),
+(8, 24, 6, 24, 2, 'client', 'hhhiii', '2025-10-23 07:44:44', 1, 'sent'),
+(9, 25, 6, 25, 2, 'client', 'xxxxx', '2025-10-23 07:46:24', 1, 'sent'),
+(10, 25, NULL, NULL, NULL, 'admin', 'hello', '2025-10-23 07:53:19', 0, 'sent'),
+(11, 26, 6, 26, 8, 'client', 'nnnnn', '2025-10-23 07:58:10', 1, 'sent'),
+(12, 26, NULL, NULL, NULL, 'admin', 'hi', '2025-10-23 07:58:58', 0, 'sent'),
+(13, 26, 6, 26, 8, 'admin', 'ok', '2025-10-23 08:00:30', 1, 'sent'),
+(14, 26, 6, 26, 8, 'admin', 'hhh', '2025-10-23 08:00:46', 1, 'sent'),
+(15, 27, 6, 27, 2, 'client', 'hilo', '2025-10-23 13:16:40', 1, 'sent'),
+(16, 27, 6, 27, 2, 'admin', 'ok', '2025-10-24 02:09:10', 1, 'sent'),
+(17, 28, 6, 28, 2, 'client', '....hi', '2025-10-24 02:10:08', 1, 'sent'),
+(18, 28, 6, 28, 2, 'admin', 'hello', '2025-10-28 04:13:34', 1, 'sent'),
+(19, 29, 7, 29, 0, 'admin', 'hi', '2025-10-28 11:16:32', 0, 'sent'),
+(20, 29, 7, 29, 0, 'admin', 'who', '2025-10-28 11:17:41', 0, 'sent'),
+(21, 30, 7, 30, 0, 'admin', 'hi', '2025-10-28 12:04:29', 0, 'sent'),
+(22, 31, 8, 31, 0, 'admin', 'sure', '2025-10-28 12:10:29', 0, 'sent'),
+(23, 33, 8, 33, 0, 'admin', 'hi', '2025-10-28 12:36:02', 0, 'sent'),
+(24, 35, 9, 35, 0, 'admin', 'yo', '2025-10-28 12:43:17', 0, 'sent'),
+(25, 36, 10, 36, 0, 'admin', 'hello', '2025-10-28 12:44:51', 0, 'sent'),
+(26, 36, 10, 36, 0, 'admin', 'hii', '2025-10-28 12:52:44', 0, 'sent'),
+(27, 39, 10, 39, 0, 'admin', 'hellooo', '2025-10-28 12:54:58', 0, 'sent'),
+(28, 36, 10, 36, 0, 'admin', 'testing', '2025-10-28 13:02:52', 0, 'sent'),
+(29, 41, 9, 41, 0, 'admin', 'hello', '2025-10-28 13:04:53', 0, 'sent'),
+(30, 26, 6, NULL, NULL, 'client', 'testing', '2025-10-28 13:14:59', 1, 'sent'),
+(31, 26, 6, NULL, NULL, 'client', 'hello', '2025-10-28 13:16:36', 1, 'sent'),
+(32, 42, 6, 42, 0, 'admin', '...j', '2025-10-28 13:19:18', 1, 'sent'),
+(33, 26, 6, NULL, NULL, 'client', 'client reply', '2025-10-28 13:19:52', 1, 'sent'),
+(34, 26, 6, 26, 8, 'admin', 'admin', '2025-10-28 13:20:39', 1, 'sent'),
+(35, 26, 6, NULL, NULL, 'client', '...ok', '2025-10-28 13:21:25', 1, 'sent'),
+(36, 26, 6, NULL, NULL, 'client', 'testing', '2025-10-28 13:30:45', 1, 'sent'),
+(37, 26, 6, NULL, NULL, 'client', 'mochi mochi', '2025-10-28 13:59:29', 1, 'sent'),
+(38, 26, 6, 26, 8, 'admin', 'testing', '2025-10-28 13:59:36', 1, 'sent'),
+(39, 26, 6, NULL, NULL, 'client', 'kumain ka na ba?', '2025-10-28 13:59:58', 1, 'sent'),
+(40, 26, 6, 26, 8, 'admin', 'yes po', '2025-10-28 14:00:07', 1, 'sent'),
+(41, 26, 6, NULL, NULL, 'client', 'eatwell', '2025-10-28 14:05:17', 1, 'sent'),
+(42, 26, 6, 26, 8, 'admin', 'takecare', '2025-10-28 14:05:24', 1, 'sent'),
+(43, 26, 6, NULL, NULL, 'client', 'hi', '2025-10-29 02:21:54', 1, 'sent'),
+(44, 26, 6, 26, 8, 'admin', 'hello', '2025-10-29 02:22:04', 1, 'sent'),
+(45, 26, 6, NULL, NULL, 'client', 'Hello po, how are you', '2025-10-29 03:00:45', 1, 'sent'),
+(46, 43, 6, 43, 0, 'admin', 'okay lang naman', '2025-10-29 03:00:53', 1, 'sent'),
+(47, 26, 6, NULL, NULL, 'client', 'ahh sige sige', '2025-10-29 03:01:02', 1, 'sent'),
+(48, 43, 6, 43, 0, 'admin', 'bili na kayo', '2025-10-29 03:01:08', 1, 'sent'),
+(49, 45, 6, 45, 0, 'admin', 'hi', '2025-10-31 04:21:14', 1, 'sent'),
+(50, 26, 6, NULL, NULL, 'client', 'hello', '2025-10-31 04:21:21', 1, 'sent'),
+(51, 46, 6, 46, NULL, 'client', 'hi', '2025-10-31 06:02:40', 1, 'sent');
 
 -- --------------------------------------------------------
 
@@ -372,7 +576,44 @@ CREATE TABLE `roles` (
 INSERT INTO `roles` (`role_id`, `role_name`, `role_description`, `created_at`, `updated_at`) VALUES
 (1, 'admin', 'Can manage content and users but with some restrictions', '2025-09-10 10:16:40', '2025-09-12 11:32:29'),
 (2, 'user', 'Regular user with limited access', '2025-09-10 10:16:40', '2025-09-12 11:32:34'),
-(5, 'client', 'Regular customer with access to inquiry features', '2025-10-20 07:25:42', '2025-10-20 07:25:42');
+(3, 'employee', 'Delivery and logistics personnel', '2025-10-31 16:35:20', '2025-10-31 16:38:08');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_addresses`
+--
+
+CREATE TABLE `user_addresses` (
+  `id` int(11) NOT NULL,
+  `account_id` int(11) NOT NULL,
+  `address_label` varchar(50) NOT NULL,
+  `street` text DEFAULT NULL,
+  `barangay_code` varchar(10) DEFAULT NULL,
+  `barangay_name` varchar(100) DEFAULT NULL,
+  `city_code` varchar(10) DEFAULT NULL,
+  `city_name` varchar(100) DEFAULT NULL,
+  `province_code` varchar(10) DEFAULT NULL,
+  `province_name` varchar(100) DEFAULT NULL,
+  `region_code` varchar(10) DEFAULT NULL,
+  `region_name` varchar(100) DEFAULT NULL,
+  `is_default` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_addresses`
+--
+
+INSERT INTO `user_addresses` (`id`, `account_id`, `address_label`, `street`, `barangay_code`, `barangay_name`, `city_code`, `city_name`, `province_code`, `province_name`, `region_code`, `region_name`, `is_default`, `created_at`, `updated_at`) VALUES
+(1, 7, 'Home', 'bahay', '124711015', 'Uguis', '124711', 'Nueva Era', '1247', 'Ilocos Norte', '12', 'Ilocos Region', 0, '2025-10-30 06:10:42', '2025-10-30 06:25:07'),
+(2, 8, 'Home', 'haha', '101802003', 'Cantaan', '101802', 'Guinsiliban', '1018', 'Camiguin', '10', 'Region X (Northern Mindanao)', 1, '2025-10-30 06:10:42', '2025-10-30 06:10:42'),
+(3, 9, 'Home', 'haha', '175210011', 'Malibago', '175210', 'Pola', '1752', 'Oriental Mindoro', '17', 'Region IV-B (MIMAROPA)', 1, '2025-10-30 06:10:42', '2025-10-30 06:10:42'),
+(4, 10, 'Home', 'bahay', '137603002', 'Bayanan', '137603', 'City Of Muntinlupa', '1376', 'Ncr, Fourth District', '13', 'National Capital Region (NCR)', 1, '2025-10-30 06:10:42', '2025-10-30 06:10:42'),
+(5, 15, 'Home', NULL, NULL, NULL, NULL, 'Quezon City', NULL, NULL, NULL, NULL, 1, '2025-10-30 06:10:42', '2025-10-30 06:10:42'),
+(6, 7, 'Work', '', NULL, 'La Fuente', NULL, 'Santa Rosa', NULL, 'Nueva Ecija', NULL, 'Central Luzon', 1, '2025-10-30 06:24:47', '2025-10-30 06:24:50'),
+(7, 7, 'office', '', NULL, 'Chanarian', NULL, 'Basco', NULL, 'Batanes', NULL, 'Cagayan Valley', 0, '2025-10-30 07:14:11', '2025-10-30 07:14:11');
 
 -- --------------------------------------------------------
 
@@ -389,15 +630,6 @@ CREATE TABLE `user_profiles` (
   `birthdate` date DEFAULT NULL,
   `contact_number` varchar(15) DEFAULT NULL,
   `gender` enum('male','female','other') DEFAULT NULL,
-  `region_code` varchar(10) DEFAULT NULL,
-  `region_name` varchar(100) DEFAULT NULL,
-  `province_code` varchar(10) DEFAULT NULL,
-  `province_name` varchar(100) DEFAULT NULL,
-  `city_code` varchar(10) DEFAULT NULL,
-  `city_name` varchar(100) DEFAULT NULL,
-  `barangay_code` varchar(10) DEFAULT NULL,
-  `barangay_name` varchar(100) DEFAULT NULL,
-  `street` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -406,12 +638,12 @@ CREATE TABLE `user_profiles` (
 -- Dumping data for table `user_profiles`
 --
 
-INSERT INTO `user_profiles` (`id`, `account_id`, `first_name`, `last_name`, `middle_name`, `birthdate`, `contact_number`, `gender`, `region_code`, `region_name`, `province_code`, `province_name`, `city_code`, `city_name`, `barangay_code`, `barangay_name`, `street`, `created_at`, `updated_at`) VALUES
-(2, 7, 'aj', 'lin', 'mac', '2025-09-02', '091287382173721', 'male', '12', 'Region XII (SOCCSKSARGEN)', '1247', 'Cotabato (North Cotabato)', '124711', 'Pigkawayan', '124711015', 'Kimarayang', 'bahay', '2025-09-12 11:34:43', '2025-09-12 11:43:27'),
-(3, 8, 'Ajey', 'Linsangan', 'M', '2025-09-01', '09127312983', 'male', '10', 'Region X (Northern Mindanao)', '1018', 'Camiguin', '101802', 'Guinsiliban', '101802003', 'Cantaan', 'haha', '2025-09-12 11:45:37', '2025-10-08 06:15:57'),
-(4, 9, 'haha', 'hah', 'hah', '2025-09-15', '080282', 'female', '17', 'Region IV-B (MIMAROPA)', '1752', 'Oriental Mindoro', '175210', 'Pola', '175210011', 'Malibago', 'haha', '2025-09-15 09:34:45', '2025-09-15 09:34:45'),
-(5, 10, 'Alvin', 'Bayabos', 'S', '2025-01-14', '09871123213', 'male', '13', 'National Capital Region (NCR)', '1376', 'Ncr, Fourth District', '137603', 'City Of Muntinlupa', '137603002', 'Bayanan', 'bahay', '2025-09-16 11:56:11', '2025-10-15 06:08:57'),
-(9, 15, 'John', 'Doe', NULL, NULL, '09171234567', 'male', NULL, NULL, NULL, NULL, NULL, 'Quezon City', NULL, NULL, NULL, '2025-10-20 07:26:36', '2025-10-20 07:26:36');
+INSERT INTO `user_profiles` (`id`, `account_id`, `first_name`, `last_name`, `middle_name`, `birthdate`, `contact_number`, `gender`, `created_at`, `updated_at`) VALUES
+(2, 7, 'aj', 'lin', 'mac', '2025-09-02', '091287382173721', 'male', '2025-09-12 11:34:43', '2025-09-12 11:43:27'),
+(3, 8, 'Ajey', 'Linsangan', 'M', '2025-09-01', '09127312983', 'male', '2025-09-12 11:45:37', '2025-10-08 06:15:57'),
+(4, 9, 'haha', 'hah', 'hah', '2025-09-15', '080282', 'female', '2025-09-15 09:34:45', '2025-09-15 09:34:45'),
+(5, 10, 'Alvin', 'Bayabos', 'S', '2025-01-14', '09871123213', 'male', '2025-09-16 11:56:11', '2025-10-15 06:08:57'),
+(9, 15, 'John', 'Doe', NULL, NULL, '09171234567', 'male', '2025-10-20 07:26:36', '2025-10-20 07:26:36');
 
 --
 -- Indexes for dumped tables
@@ -426,6 +658,14 @@ ALTER TABLE `accounts`
   ADD KEY `role_id` (`role_id`);
 
 --
+-- Indexes for table `cart`
+--
+ALTER TABLE `cart`
+  ADD PRIMARY KEY (`cart_id`),
+  ADD KEY `product_id` (`product_id`),
+  ADD KEY `idx_cart_lookup` (`account_id`,`product_id`,`size`,`color`);
+
+--
 -- Indexes for table `categories`
 --
 ALTER TABLE `categories`
@@ -433,18 +673,29 @@ ALTER TABLE `categories`
   ADD UNIQUE KEY `category_code` (`category_code`);
 
 --
+-- Indexes for table `chatbot_inquiries`
+--
+ALTER TABLE `chatbot_inquiries`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_email` (`email`),
+  ADD KEY `idx_conversation` (`conversation_id`),
+  ADD KEY `idx_converted` (`is_converted`);
+
+--
 -- Indexes for table `conversations`
 --
 ALTER TABLE `conversations`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_email` (`email`);
+  ADD KEY `idx_email` (`email`),
+  ADD KEY `idx_conversations_accepted` (`is_accepted`,`updated_at`);
 
 --
 -- Indexes for table `employees`
 --
 ALTER TABLE `employees`
   ADD PRIMARY KEY (`employee_id`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `email` (`email`),
+  ADD KEY `account_id` (`account_id`);
 
 --
 -- Indexes for table `generated_3d_models`
@@ -463,13 +714,35 @@ ALTER TABLE `generated_3d_models`
 --
 ALTER TABLE `inquiries`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `conversation_id` (`conversation_id`);
+  ADD KEY `conversation_id` (`conversation_id`),
+  ADD KEY `idx_inquiries_accepted_submitted` (`is_accepted`,`submitted_at`);
 
 --
 -- Indexes for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
   ADD PRIMARY KEY (`attempt_id`);
+
+--
+-- Indexes for table `orders`
+--
+ALTER TABLE `orders`
+  ADD PRIMARY KEY (`order_id`),
+  ADD UNIQUE KEY `order_number` (`order_number`),
+  ADD KEY `product_id` (`product_id`),
+  ADD KEY `address_id` (`address_id`),
+  ADD KEY `idx_order_number` (`order_number`),
+  ADD KEY `idx_account_id` (`account_id`),
+  ADD KEY `idx_order_status` (`order_status`),
+  ADD KEY `idx_created_at` (`created_at`),
+  ADD KEY `assigned_employee_id` (`assigned_employee_id`);
+
+--
+-- Indexes for table `order_status_history`
+--
+ALTER TABLE `order_status_history`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_order_id` (`order_id`);
 
 --
 -- Indexes for table `password_resets`
@@ -492,7 +765,8 @@ ALTER TABLE `products`
 ALTER TABLE `replies`
   ADD PRIMARY KEY (`id`),
   ADD KEY `inquiry_id` (`inquiry_id`),
-  ADD KEY `conversation_id` (`conversation_id`);
+  ADD KEY `conversation_id` (`conversation_id`),
+  ADD KEY `idx_replies_inquiry_conversation` (`inquiry_id`,`conversation_id`,`sent_at`);
 
 --
 -- Indexes for table `roles`
@@ -500,6 +774,15 @@ ALTER TABLE `replies`
 ALTER TABLE `roles`
   ADD PRIMARY KEY (`role_id`),
   ADD UNIQUE KEY `role_name` (`role_name`);
+
+--
+-- Indexes for table `user_addresses`
+--
+ALTER TABLE `user_addresses`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_account_id` (`account_id`),
+  ADD KEY `idx_default` (`account_id`,`is_default`),
+  ADD KEY `idx_account_default` (`account_id`,`is_default`);
 
 --
 -- Indexes for table `user_profiles`
@@ -516,43 +799,67 @@ ALTER TABLE `user_profiles`
 -- AUTO_INCREMENT for table `accounts`
 --
 ALTER TABLE `accounts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+
+--
+-- AUTO_INCREMENT for table `cart`
+--
+ALTER TABLE `cart`
+  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `chatbot_inquiries`
+--
+ALTER TABLE `chatbot_inquiries`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `conversations`
 --
 ALTER TABLE `conversations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `employees`
 --
 ALTER TABLE `employees`
-  MODIFY `employee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `employee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `generated_3d_models`
 --
 ALTER TABLE `generated_3d_models`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `inquiries`
 --
 ALTER TABLE `inquiries`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
   MODIFY `attempt_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `orders`
+--
+ALTER TABLE `orders`
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `order_status_history`
+--
+ALTER TABLE `order_status_history`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `password_resets`
@@ -564,19 +871,25 @@ ALTER TABLE `password_resets`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `replies`
 --
 ALTER TABLE `replies`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
   MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `user_addresses`
+--
+ALTER TABLE `user_addresses`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `user_profiles`
@@ -595,6 +908,25 @@ ALTER TABLE `accounts`
   ADD CONSTRAINT `accounts_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE SET NULL;
 
 --
+-- Constraints for table `cart`
+--
+ALTER TABLE `cart`
+  ADD CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `cart_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `chatbot_inquiries`
+--
+ALTER TABLE `chatbot_inquiries`
+  ADD CONSTRAINT `chatbot_inquiries_ibfk_1` FOREIGN KEY (`conversation_id`) REFERENCES `conversations` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `employees`
+--
+ALTER TABLE `employees`
+  ADD CONSTRAINT `employees_ibfk_1` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE SET NULL;
+
+--
 -- Constraints for table `generated_3d_models`
 --
 ALTER TABLE `generated_3d_models`
@@ -608,6 +940,21 @@ ALTER TABLE `inquiries`
   ADD CONSTRAINT `inquiries_ibfk_1` FOREIGN KEY (`conversation_id`) REFERENCES `conversations` (`id`);
 
 --
+-- Constraints for table `orders`
+--
+ALTER TABLE `orders`
+  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`),
+  ADD CONSTRAINT `orders_ibfk_3` FOREIGN KEY (`address_id`) REFERENCES `user_addresses` (`id`),
+  ADD CONSTRAINT `orders_ibfk_4` FOREIGN KEY (`assigned_employee_id`) REFERENCES `employees` (`employee_id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `order_status_history`
+--
+ALTER TABLE `order_status_history`
+  ADD CONSTRAINT `order_status_history_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `products`
 --
 ALTER TABLE `products`
@@ -619,6 +966,12 @@ ALTER TABLE `products`
 --
 ALTER TABLE `replies`
   ADD CONSTRAINT `replies_ibfk_2` FOREIGN KEY (`conversation_id`) REFERENCES `conversations` (`id`);
+
+--
+-- Constraints for table `user_addresses`
+--
+ALTER TABLE `user_addresses`
+  ADD CONSTRAINT `user_addresses_ibfk_1` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `user_profiles`

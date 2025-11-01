@@ -29,6 +29,28 @@
         fill: #1a1a2e;
     }
 
+    .chat-notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #ef4444;
+        color: white;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
     .chat-widget-popup {
         position: fixed;
         bottom: 100px;
@@ -193,6 +215,37 @@
         color: #1a1a2e;
         border-bottom-right-radius: 4px;
         font-weight: 500;
+    }
+
+    /* Status banner */
+    .chat-status-banner {
+        padding: 12px 20px;
+        background: rgba(59, 130, 246, 0.1);
+        border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        color: rgba(59, 130, 246, 1);
+        font-size: 12px;
+        text-align: center;
+        display: none;
+    }
+
+    .chat-status-banner.active {
+        display: block;
+    }
+
+    .chat-status-banner.pending {
+        background: rgba(251, 191, 36, 0.1);
+        border-color: rgba(251, 191, 36, 0.2);
+        color: rgba(251, 191, 36, 1);
+    }
+
+    .chat-status-banner.accepted {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.2);
+        color: rgba(34, 197, 94, 1);
+    }
+
+    .chat-status-banner i {
+        margin-right: 5px;
     }
 
     /* Quick Questions */
@@ -452,6 +505,35 @@
         display: none !important;
     }
 
+    /* View Messages Link */
+    .chat-view-messages {
+        padding: 15px 20px;
+        background: rgba(233, 185, 73, 0.05);
+        border-top: 1px solid rgba(233, 185, 73, 0.1);
+        text-align: center;
+    }
+
+    .chat-view-messages-btn {
+        background: linear-gradient(135deg, #e9b949 0%, #d4a943 100%);
+        border: none;
+        color: #1a1a2e;
+        padding: 10px 24px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Montserrat', sans-serif;
+        letter-spacing: 0.5px;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .chat-view-messages-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(233, 185, 73, 0.4);
+    }
+
     /* Responsive Design */
     @media screen and (max-width: 768px) {
         .chat-widget-button {
@@ -474,15 +556,6 @@
             height: 500px;
         }
     }
-
-    @media screen and (max-width: 768px) {
-        body:not(.sidebar-collapsed) .chat-widget-button,
-        body:not(.sidebar-collapsed) .chat-widget-popup,
-        body.sidebar-collapsed .chat-widget-button,
-        body.sidebar-collapsed .chat-widget-popup {
-            right: 20px;
-        }
-    }
 </style>
 
 <!-- Chat Widget HTML -->
@@ -490,9 +563,15 @@
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
     </svg>
+    <span class="chat-notification-badge hidden" id="chatNotificationBadge">1</span>
 </button>
 
 <div class="chat-widget-popup" id="chatWidgetPopup">
+    <div class="chat-status-banner" id="chatStatusBanner">
+        <i class="fas fa-info-circle"></i>
+        <span id="chatStatusText">Connecting...</span>
+    </div>
+
     <div class="chat-widget-header">
         <div class="chat-widget-header-info">
             <div class="chat-widget-avatar">SR</div>
@@ -544,6 +623,13 @@
         <button class="chat-signin-offer-btn" id="signinOfferBtn">Sign In for Updates</button>
     </div>
 
+    <!-- View Messages Link (for logged in users) -->
+    <div class="chat-view-messages hidden" id="chatViewMessages">
+        <a href="../client/pages/client-messages.php" class="chat-view-messages-btn">
+            <i class="fas fa-envelope-open-text"></i> View Full Conversation
+        </a>
+    </div>
+
     <!-- Login Form (shown when user tries to send custom message) -->
     <div class="chat-login-form hidden" id="chatLoginForm">
         <div class="chat-login-form-title">Sign in to send a message</div>
@@ -584,11 +670,16 @@
 
 <!-- Chat Widget Script -->
 <script>
+// Enhanced Chat Widget Script with Conversation Loading
 (function() {
-    // Check if user is logged in (check PHP session)
+    // Check if user is logged in
     const isLoggedIn = <?php echo isset($_SESSION['account_id']) ? 'true' : 'false'; ?>;
-    let guestUser = null; // Store guest user info
-    let pendingMessage = ''; // Store message typed before login
+    let guestUser = null;
+    let pendingMessage = '';
+    let conversationId = null;
+    let hasSubmittedMessage = false;
+    let isLoadingConversation = false;
+    let pollInterval = null;
     
     const chatButton = document.getElementById('chatWidgetButton');
     const chatPopup = document.getElementById('chatWidgetPopup');
@@ -605,18 +696,155 @@
     const quickQuestionsGrid = document.getElementById('quickQuestionsGrid');
     const signinOffer = document.getElementById('chatSigninOffer');
     const signinOfferBtn = document.getElementById('signinOfferBtn');
+    const chatStatusBanner = document.getElementById('chatStatusBanner');
+    const chatStatusText = document.getElementById('chatStatusText');
+    const chatViewMessages = document.getElementById('chatViewMessages');
+    const notificationBadge = document.getElementById('chatNotificationBadge');
+
+    // Load saved state from localStorage
+    function loadSavedState() {
+        if (!isLoggedIn) {
+            const saved = localStorage.getItem('chatWidgetState');
+            if (saved) {
+                try {
+                    const state = JSON.parse(saved);
+                    guestUser = state.guestUser;
+                    conversationId = state.conversationId;
+                    hasSubmittedMessage = state.hasSubmittedMessage;
+                } catch (e) {
+                    console.error('Error loading saved state:', e);
+                }
+            }
+        }
+    }
+
+    // Save state to localStorage
+    function saveState() {
+        if (!isLoggedIn) {
+            const state = {
+                guestUser: guestUser,
+                conversationId: conversationId,
+                hasSubmittedMessage: hasSubmittedMessage
+            };
+            localStorage.setItem('chatWidgetState', JSON.stringify(state));
+        }
+    }
+
+    // Update status banner
+    function updateStatus(status) {
+        chatStatusBanner.classList.remove('pending', 'accepted');
+        
+        if (status === 'pending') {
+            chatStatusBanner.classList.add('active', 'pending');
+            chatStatusText.innerHTML = '<i class="fas fa-clock"></i> Your message has been sent. Waiting for admin response...';
+        } else if (status === 'accepted') {
+            chatStatusBanner.classList.add('active', 'accepted');
+            chatStatusText.innerHTML = '<i class="fas fa-check-circle"></i> Connected! Chat with our support team.';
+        } else {
+            chatStatusBanner.classList.remove('active');
+        }
+    }
+
+    // Load existing conversation
+    async function loadExistingConversation() {
+        if (isLoadingConversation) return;
+        isLoadingConversation = true;
+
+        try {
+            const requestData = {};
+            if (!isLoggedIn && guestUser) {
+                requestData.email = guestUser.email;
+            }
+            
+            const response = await fetch('../client/process/fetch_chatbot_conversation.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestData)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.has_conversation) {
+                conversationId = data.conversation_id;
+                hasSubmittedMessage = true;
+                
+                // Clear existing messages except welcome message
+                while (chatMessages.children.length > 1) {
+                    chatMessages.removeChild(chatMessages.lastChild);
+                }
+                
+                // Add all messages from conversation
+                if (data.messages && data.messages.length > 0) {
+                    data.messages.forEach(msg => {
+                        addMessage(msg.message, msg.sender, false);
+                    });
+                }
+                
+                // Update UI based on conversation status
+                if (data.is_accepted) {
+                    updateStatus('accepted');
+                    if (isLoggedIn) {
+                        chatViewMessages.classList.remove('hidden');
+                        signinOffer.classList.add('hidden');
+                    }
+                } else {
+                    updateStatus('pending');
+                }
+                
+                // Show unread badge if there are unread messages
+                if (data.unread_count > 0) {
+                    notificationBadge.textContent = data.unread_count;
+                    notificationBadge.classList.remove('hidden');
+                }
+                
+                saveState();
+            } else if (!data.has_conversation) {
+                // No conversation yet
+                if (isLoggedIn) {
+                    chatViewMessages.classList.add('hidden');
+                }
+            }
+        } catch (error) {
+            console.error('Error loading conversation:', error);
+        } finally {
+            isLoadingConversation = false;
+        }
+    }
+
+    // Initialize
+    loadSavedState();
+    
+    // Load conversation on page load if user is logged in or has guest info
+    if (isLoggedIn || (guestUser && guestUser.email)) {
+        setTimeout(() => loadExistingConversation(), 500);
+    }
 
     // Toggle chat popup
     chatButton.addEventListener('click', function() {
         chatPopup.classList.toggle('active');
         if (chatPopup.classList.contains('active')) {
             chatInput.focus();
+            notificationBadge.classList.add('hidden');
+            
+            // Reload conversation when opened
+            if (conversationId || isLoggedIn || guestUser) {
+                loadExistingConversation();
+            }
+            
+            // Start polling
+            if (!pollInterval) {
+                startPolling();
+            }
+        } else {
+            // Stop polling when closed
+            stopPolling();
         }
     });
 
     // Close chat popup
     closeButton.addEventListener('click', function() {
         chatPopup.classList.remove('active');
+        stopPolling();
     });
 
     // Toggle quick questions
@@ -633,9 +861,7 @@
     // Back button click
     formBackButton.addEventListener('click', function() {
         hideLoginForm();
-        // Clear the pending message
         pendingMessage = '';
-        // Restore the message in input
         chatInput.focus();
     });
 
@@ -645,11 +871,9 @@
             const question = this.getAttribute('data-question');
             addMessage(question, 'user');
             
-            // Collapse quick questions after selection
             quickQuestionsGrid.classList.add('collapsed');
             quickQuestionsToggle.classList.add('collapsed');
             
-            // Bot responses for quick questions
             setTimeout(function() {
                 let response = '';
                 switch(question) {
@@ -668,8 +892,7 @@
                 }
                 addMessage(response, 'bot');
                 
-                // Show sign in offer for non-logged users after bot response
-                if (!isLoggedIn && !guestUser) {
+                if (!isLoggedIn && !guestUser && !hasSubmittedMessage) {
                     setTimeout(function() {
                         signinOffer.classList.remove('hidden');
                     }, 500);
@@ -704,55 +927,43 @@
             email: formData.get('email')
         };
 
-        // Hide login form and sign in offer, show chat
         hideLoginForm();
         signinOffer.classList.add('hidden');
         
-        // Add welcome message
         addMessage(`Welcome, ${guestUser.first_name}! You can now send messages.`, 'bot');
         
-        // Send the pending message if there was one
+        // Check if there's an existing conversation for this email
+        loadExistingConversation();
+        
         if (pendingMessage) {
-            addMessage(pendingMessage, 'user');
-            saveMessageToDatabase(pendingMessage);
-            pendingMessage = '';
-            
-            // Bot response
-            setTimeout(function() {
-                addMessage('Thank you for your message! A member of our team will respond to you shortly. For immediate assistance, please call us at (044) 329-0881.', 'bot');
-            }, 1000);
+            setTimeout(() => {
+                addMessage(pendingMessage, 'user');
+                saveMessageToDatabase(pendingMessage);
+                pendingMessage = '';
+            }, 500);
         }
         
-        // Focus on input
+        saveState();
         chatInput.focus();
     });
 
     // Send message function
     function sendMessage() {
         const message = chatInput.value.trim();
-        if (message) {
-            // Check if user is logged in or has signed up as guest
-            if (!isLoggedIn && !guestUser) {
-                // Store the message and show login form
-                pendingMessage = message;
-                chatInput.value = '';
-                showLoginForm();
-                addMessage('Please sign in to send your message.', 'bot');
-                return;
-            }
+        if (!message) return;
 
-            // User is logged in or has signed up, send the message
-            addMessage(message, 'user');
+        if (!isLoggedIn && !guestUser) {
+            pendingMessage = message;
             chatInput.value = '';
-            
-            // Save message to database via AJAX
-            saveMessageToDatabase(message);
-            
-            // Simulate bot response
-            setTimeout(function() {
-                addMessage('Thank you for your message! A member of our team will respond to you shortly. For immediate assistance, please call us at (044) 329-0881.', 'bot');
-            }, 1000);
+            showLoginForm();
+            addMessage('Please sign in to send your message.', 'bot');
+            return;
         }
+
+        addMessage(message, 'user');
+        chatInput.value = '';
+        
+        saveMessageToDatabase(message);
     }
 
     // Save message to database
@@ -768,20 +979,40 @@
             data.email = guestUser.email;
         }
 
-        // AJAX call to save message
-        fetch('save_chat_message.php', {
+        fetch('../client/pages/save_chatbot_message.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Message saved:', data);
+            if (data.success) {
+                conversationId = data.conversation_id;
+                hasSubmittedMessage = true;
+                
+                if (data.is_accepted) {
+                    updateStatus('accepted');
+                } else {
+                    updateStatus('pending');
+                }
+                
+                saveState();
+                
+                setTimeout(function() {
+                    addMessage('Thank you for your message! A member of our team will respond to you shortly.', 'bot');
+                    
+                    if (isLoggedIn) {
+                        chatViewMessages.classList.remove('hidden');
+                    }
+                }, 1000);
+            } else {
+                console.error('Error saving message:', data.message);
+                addMessage('⚠️ There was an error sending your message. Please try again.', 'bot');
+            }
         })
         .catch(error => {
             console.error('Error saving message:', error);
+            addMessage('⚠️ Connection error. Please check your internet and try again.', 'bot');
         });
     }
 
@@ -791,24 +1022,103 @@
     // Enter key to send
     chatInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
+            e.preventDefault();
             sendMessage();
         }
     });
 
     // Add message to chat
-    function addMessage(text, sender) {
+    function addMessage(text, sender, shouldScroll = true) {
         const messageDiv = document.createElement('div');
         messageDiv.className = 'chat-widget-message ' + sender;
         
         const bubbleDiv = document.createElement('div');
         bubbleDiv.className = 'chat-widget-message-bubble';
-        bubbleDiv.textContent = text;
+        bubbleDiv.innerHTML = text.replace(/\n/g, '<br>');
         
         messageDiv.appendChild(bubbleDiv);
         chatMessages.appendChild(messageDiv);
         
-        // Scroll to bottom
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        if (shouldScroll) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    }
+
+    // Start polling for new messages
+    function startPolling() {
+        if (pollInterval) return;
+        
+        pollInterval = setInterval(() => {
+            if (conversationId && (isLoggedIn || (guestUser && guestUser.email))) {
+                checkForNewMessages();
+            }
+        }, 5000);
+    }
+
+    // Stop polling
+    function stopPolling() {
+        if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+        }
+    }
+
+    // Check for new messages
+    async function checkForNewMessages() {
+        try {
+            const requestData = {};
+            if (!isLoggedIn && guestUser) {
+                requestData.email = guestUser.email;
+            }
+            
+            const response = await fetch('../client/process/fetch_chatbot_conversation.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestData)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.has_conversation) {
+                const currentMessageCount = chatMessages.children.length - 1; // Exclude welcome message
+                
+                if (data.messages && data.messages.length > currentMessageCount) {
+                    // Reload all messages
+                    while (chatMessages.children.length > 1) {
+                        chatMessages.removeChild(chatMessages.lastChild);
+                    }
+                    
+                    data.messages.forEach(msg => {
+                        addMessage(msg.message, msg.sender, false);
+                    });
+                    
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    // Show notification if chat is closed
+                    if (!chatPopup.classList.contains('active') && data.unread_count > 0) {
+                        notificationBadge.textContent = data.unread_count;
+                        notificationBadge.classList.remove('hidden');
+                    }
+                }
+                
+                // Update status
+                if (data.is_accepted) {
+                    updateStatus('accepted');
+                    if (isLoggedIn) {
+                        chatViewMessages.classList.remove('hidden');
+                    }
+                } else {
+                    updateStatus('pending');
+                }
+            }
+        } catch (error) {
+            console.error('Error checking for new messages:', error);
+        }
+    }
+
+    // Start polling if chat is open
+    if (chatPopup.classList.contains('active')) {
+        startPolling();
     }
 })();
 </script>

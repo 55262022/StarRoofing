@@ -251,6 +251,9 @@ if ($productId) {
           <button id="importGLBBtn" class="btn btn-outline-secondary">
             <i class="fa fa-file-import me-2"></i>Import .glb / .gltf
           </button>
+          <button id="print3DBtn" class="btn btn-warning">
+            <i class="fa fa-print me-2"></i>Prepare for 3D Print
+          </button>
           <button id="downloadBtn" class="btn btn-success">
             <i class="fa fa-download me-2"></i>Export .gltf
           </button>
@@ -353,6 +356,144 @@ if ($productId) {
   </div>
 </div>
 
+<!-- 3D Print Settings Modal -->
+<div class="modal fade" id="print3DModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="background: #ffffff; border-radius: 15px;">
+      <div class="modal-header" style="border-bottom: 2px solid #f0f0f0;">
+        <h5 class="modal-title" style="color: #111827; font-weight: 700;">
+          <i class="fa fa-print me-2"></i>3D Print Settings
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" style="color: #111827;">
+        <div class="row g-3">
+          <!-- Print Material -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Print Material</label>
+            <select id="printMaterial" class="form-select">
+              <option value="pla">PLA (Polylactic Acid)</option>
+              <option value="abs">ABS (Acrylonitrile Butadiene Styrene)</option>
+              <option value="petg">PETG (Polyethylene Terephthalate Glycol)</option>
+              <option value="tpu">TPU (Thermoplastic Polyurethane)</option>
+              <option value="nylon">Nylon</option>
+              <option value="resin">Resin</option>
+            </select>
+            <small class="text-muted">Select the material for 3D printing</small>
+          </div>
+
+          <!-- Print Quality -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Print Quality</label>
+            <select id="printQuality" class="form-select">
+              <option value="draft">Draft (0.3mm layer height)</option>
+              <option value="normal" selected>Normal (0.2mm layer height)</option>
+              <option value="fine">Fine (0.1mm layer height)</option>
+              <option value="ultra">Ultra Fine (0.05mm layer height)</option>
+            </select>
+            <small class="text-muted">Higher quality = longer print time</small>
+          </div>
+
+          <!-- Infill Density -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Infill Density: <span id="infillValue">20%</span></label>
+            <input type="range" class="form-range" id="printInfill" min="0" max="100" step="5" value="20">
+            <small class="text-muted">Higher infill = stronger but heavier</small>
+          </div>
+
+          <!-- Support Structure -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Support Structure</label>
+            <select id="printSupport" class="form-select">
+              <option value="none">None</option>
+              <option value="touching" selected>Touching Build Plate</option>
+              <option value="everywhere">Everywhere</option>
+            </select>
+            <small class="text-muted">Supports for overhanging parts</small>
+          </div>
+
+          <!-- Print Scale -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Scale (%): <span id="printScaleValue">100%</span></label>
+            <input type="range" class="form-range" id="printScale" min="10" max="500" step="10" value="100">
+            <small class="text-muted">Adjust model size for printing</small>
+          </div>
+
+          <!-- Print Orientation -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Print Orientation</label>
+            <select id="printOrientation" class="form-select">
+              <option value="auto" selected>Auto (Optimal)</option>
+              <option value="flat">Flat (XY Plane)</option>
+              <option value="side">Side (XZ Plane)</option>
+              <option value="upright">Upright (YZ Plane)</option>
+            </select>
+            <small class="text-muted">Best orientation for printing</small>
+          </div>
+
+          <!-- Estimated Print Time -->
+          <div class="col-12">
+            <div class="alert alert-info mb-0">
+              <h6 class="mb-2"><i class="fa fa-clock me-2"></i>Estimated Print Time</h6>
+              <div id="estimatedPrintTime" class="fw-bold" style="font-size: 1.1rem;">Calculating...</div>
+              <small class="text-muted d-block mt-1">Based on selected settings</small>
+            </div>
+          </div>
+
+          <!-- Material Cost -->
+          <div class="col-12">
+            <div class="alert alert-success mb-0">
+              <h6 class="mb-2"><i class="fa fa-coins me-2"></i>Estimated Material Cost</h6>
+              <div id="estimatedCost" class="fw-bold" style="font-size: 1.1rem;">₱0.00</div>
+              <small class="text-muted d-block mt-1">Approximate cost based on material and infill</small>
+            </div>
+          </div>
+
+          <!-- Additional Options -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">Additional Options</label>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="printRaft" checked>
+              <label class="form-check-label" for="printRaft">
+                Add Raft (Build Plate Adhesion)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="printBrim">
+              <label class="form-check-label" for="printBrim">
+                Add Brim (Edge Adhesion)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="hollowModel">
+              <label class="form-check-label" for="hollowModel">
+                Hollow Model (Save Material)
+              </label>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">Print Notes (Optional)</label>
+            <textarea id="printNotes" class="form-control" rows="3" placeholder="Add any special instructions or notes for the 3D print..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="border-top: 2px solid #f0f0f0;">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fa fa-times me-2"></i>Cancel
+        </button>
+        <button type="button" id="exportSTLBtn" class="btn btn-primary">
+          <i class="fa fa-file-export me-2"></i>Export STL for Printing
+        </button>
+        <button type="button" id="sendToPrinterBtn" class="btn btn-success">
+          <i class="fa fa-print me-2"></i>Send to 3D Printer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 // Pass PHP data to JavaScript
 const PRODUCT_ID = <?= $productId ? $productId : 'null' ?>;
@@ -372,6 +513,7 @@ const HAS_MODEL = <?= ($productData && isset($productData['final_model_path']) &
 </script>
 
 <script type="module" src="../javascript/3dmodel_editor.js"></script>
+<script src="../javascript/print3d_handler.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -429,17 +429,6 @@ if ($result->num_rows > 0) {
         <!-- Search & Filter Section -->
         <div class="filter-bar">
             <input type="text" id="searchInput" placeholder="🔍 Search materials..." />
-            <select id="categoryFilter">
-                <option value="">All Categories</option>
-                <?php
-                $cat_result = $conn->query("SELECT category_name FROM categories ORDER BY category_name ASC");
-                while ($cat = $cat_result->fetch_assoc()):
-                ?>
-                    <option value="<?= htmlspecialchars(strtolower($cat['category_name'])) ?>">
-                        <?= htmlspecialchars($cat['category_name']) ?>
-                    </option>
-                <?php endwhile; ?>
-            </select>
         </div>
 
         <!-- Products Grid -->

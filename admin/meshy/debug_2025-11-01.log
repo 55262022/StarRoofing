@@ -1,0 +1,55 @@
+13:47:40 - === meshy_upload.php started ===
+13:47:40 - POST data | {"product_id":"18","image_path":"uploads\/products\/1761997659_J bolt.jpg"}
+13:47:40 - FILES data | "NO"
+13:47:40 - Using product image mode
+13:47:40 - Testing path: C:\xampp\htdocs\starroofing\admin\meshy/../../uploads/products/1761997659_J bolt.jpg
+13:47:40 - Found at: C:\xampp\htdocs\starroofing\admin\meshy/../../uploads/products/1761997659_J bolt.jpg
+13:47:40 - Product image loaded | {"path":"C:\\xampp\\htdocs\\starroofing\\admin\\meshy\/..\/..\/uploads\/products\/1761997659_J bolt.jpg","name":"1761997659_J bolt.jpg","type":"image\/jpeg","size":32982,"hash":"c515044d24461e15cdb225089b68df81"}
+13:47:40 - No duplicate found, proceeding with API call
+13:47:40 - Data URI created | {"length":43999}
+13:47:40 - JSON payload size: 44479 bytes
+13:47:41 - API Response | {"code":202,"response":"{\"result\":\"019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f\"}"}
+13:47:41 - Task created successfully: 019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f
+13:47:41 - Database record created for task: 019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f
+13:47:41 - Product table updated with task_id | {"product_id":18}
+13:47:41 - === meshy_upload.php completed ===
+13:47:41 - Checking status | {"task_id":"019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f"}
+13:47:42 - API Response | {"code":200}
+13:47:42 - Task state | {"status":"in_progress"}
+13:47:52 - Checking status | {"task_id":"019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f"}
+13:47:52 - API Response | {"code":200}
+13:47:52 - Task state | {"status":"in_progress"}
+13:48:02 - Checking status | {"task_id":"019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f"}
+13:48:03 - API Response | {"code":200}
+13:48:03 - Task state | {"status":"in_progress"}
+13:48:13 - Checking status | {"task_id":"019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f"}
+13:48:14 - API Response | {"code":200}
+13:48:14 - Task state | {"status":"in_progress"}
+13:48:24 - Checking status | {"task_id":"019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f"}
+13:48:24 - API Response | {"code":200}
+13:48:24 - Task state | {"status":"in_progress"}
+13:48:34 - Checking status | {"task_id":"019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f"}
+13:48:35 - API Response | {"code":200}
+13:48:35 - Task state | {"status":"in_progress"}
+13:48:45 - Checking status | {"task_id":"019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f"}
+13:48:45 - API Response | {"code":200}
+13:48:45 - Task state | {"status":"in_progress"}
+13:48:55 - Checking status | {"task_id":"019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f"}
+13:48:56 - API Response | {"code":200}
+13:48:56 - Task state | {"status":"in_progress"}
+13:49:06 - Checking status | {"task_id":"019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f"}
+13:49:06 - API Response | {"code":200}
+13:49:06 - Task state | {"status":"in_progress"}
+13:49:17 - Checking status | {"task_id":"019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f"}
+13:49:17 - API Response | {"code":200}
+13:49:17 - Task state | {"status":"in_progress"}
+13:49:27 - Checking status | {"task_id":"019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f"}
+13:49:28 - API Response | {"code":200}
+13:49:28 - Task state | {"status":"in_progress"}
+13:49:38 - Checking status | {"task_id":"019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f"}
+13:49:38 - API Response | {"code":200}
+13:49:38 - Task state | {"status":"succeeded"}
+13:49:38 - Model URL found | {"url":"https:\/\/assets.meshy.ai\/3b7a3bf4-2114-49b6-b91c-d1ee797186b9\/tasks\/019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f\/output\/model.glb?Expires=1762260572&Signature=aLlyeRW6n2VQ8ZnrLThoNLKean8JVx0dJniakkksgsq1zRYmit8gMy8mez3mQVZ0yH3UpmH8H4M1XINsGyH0ODd0sanpcTGggz6mH5ipodcIX-Bp5W0pLZtIaN0oVYzJo3fbZmc0z6ea4vvLX8Fm7iBxJCfu~J-ZTSrCPcRHiUKMmyqHYwyvhdVSHABVMejGxErTtC0R4xYoXqtlVkcvt~0RNsNhMavpJWmbf0BBlaK1T~HXIAgBmZzU-cJWV1UvsTDACFfs3E3~K89RxVaSzlpiQUGcSVDyj0eEi5NNWsj-t2n5Md3E8c30kXyd8FfYp0dZG~tv3oTuGJ6Mi9N1Ug__&Key-Pair-Id=KL5I0C8H7HX83"}
+13:49:40 - Model downloaded successfully | {"path":"C:\\xampp\\htdocs\\starroofing\\admin\\meshy\/..\/..\/uploads\/3dmodels\/model_690601e2c1f1a.glb","relative_path":"uploads\/3dmodels\/model_690601e2c1f1a.glb","size":8273536,"exists":true,"readable":true}
+13:49:40 - Database updated | {"id":6,"path":"uploads\/3dmodels\/model_690601e2c1f1a.glb"}
+13:49:40 - Product table updated | {"product_id":18,"path":"uploads\/3dmodels\/model_690601e2c1f1a.glb"}

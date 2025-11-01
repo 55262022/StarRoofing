@@ -10,7 +10,7 @@
         <li><a href="#" onclick="showSection('dashboard')"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
         <li><a href="#" onclick="showSection('3dmodel')"><i class="fas fa-cube"></i> <span>3D Model</span></a></li>
         <li><a href="#" onclick="showSection('inventory')"><i class="fas fa-boxes"></i> <span>Inventory</span></a></li>
-        <li><a href="#" onclick="showSection('estimation')"><i class="fas fa-calculator"></i> <span>Estimate</span></a></li>
+        <li><a href="#" onclick="showSection('order')"><i class="fa-solid fa-bag-shopping"></i> <span>Order</span></a></li>
         <li><a href="#" onclick="showSection('employees')"><i class="fa-solid fa-user-tie"></i> <span>Employees</span></a></li>
         <li><a href="#" onclick="showSection('clients')"><i class="fas fa-users"></i> <span>Clients</span></a></li>
         <li><a href="#" onclick="showSection('messages')"><i class="fa-solid fa-inbox"></i> <span>Inbox</span></a></li>
@@ -45,8 +45,8 @@
         else if (section === 'inventory') {
             document.getElementById('inventory-section').classList.remove('hidden');
         }
-        else if (section === 'estimation') {
-            document.getElementById('estimation-section').classList.remove('hidden');
+        else if (section === 'order') {
+            document.getElementById('order-section').classList.remove('hidden');
         } 
         else if (section === 'employees') {
             document.getElementById('employees-section').classList.remove('hidden');

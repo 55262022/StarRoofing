@@ -2,12 +2,25 @@
 session_start();
 include '../database/starroofing_db.php';
 
-// ✅ If user already logged in, redirect based on their role
-if (isset($_SESSION['account_id'])) {
-    if ($_SESSION['role_id'] == 1) {
-        header("Location: ../admin/dashboard.php");
-    } elseif ($_SESSION['role_id'] == 2) {
-        header("Location: ../homepage.php");
+// If user already logged in, redirect based on their role
+if (isset($_SESSION['account_id']) || isset($_SESSION['employee_id'])) {
+    $returnUrl = $_GET['return_url'] ?? null;
+
+    if (!empty($returnUrl)) {
+        header("Location: " . urldecode($returnUrl));
+        exit();
+    }
+
+    if (isset($_SESSION['role_id'])) {
+        if ($_SESSION['role_id'] == 1) {
+            header("Location: ../admin/dashboard.php");
+        } elseif ($_SESSION['role_id'] == 2) {
+            header("Location: homepage.php");
+        } elseif ($_SESSION['role_id'] == 3) {
+            header("Location: ../employee/dashboard.php");
+        }
+    } elseif (isset($_SESSION['employee_id'])) {
+        header("Location: ../employee/dashboard.php");
     } else {
         header("Location: ../index.php");
     }
@@ -18,7 +31,7 @@ $error = '';
 $success = '';
 $email_value = '';
 
-// ✅ Session-based flash messages
+// Session-based flash messages
 if (isset($_SESSION['error'])) {
     $error = $_SESSION['error'];
     unset($_SESSION['error']);
@@ -29,7 +42,7 @@ if (isset($_SESSION['success'])) {
     unset($_SESSION['success']);
 }
 
-// ✅ Handle login form submission
+// Handle login form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
     $password = $_POST['password'];
@@ -39,10 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($email) || empty($password)) {
         $error = "Please enter both email and password.";
     } else {
-        $sql = "SELECT a.id, a.email, a.password, a.role_id, a.account_status, 
-                       up.first_name, up.last_name
+        // Query accounts table with role_id and employee data
+        $sql = "SELECT a.id, a.email, a.password, a.role_id, a.account_status,
+                       up.first_name AS user_first_name, up.last_name AS user_last_name,
+                       e.employee_id, e.first_name AS emp_first_name, e.last_name AS emp_last_name,
+                       e.department, e.is_archived
                 FROM accounts a 
                 LEFT JOIN user_profiles up ON a.id = up.account_id 
+                LEFT JOIN employees e ON a.id = e.account_id
                 WHERE a.email = ?";
         
         $stmt = $conn->prepare($sql);
@@ -55,37 +72,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($result->num_rows === 1) {
                 $user = $result->fetch_assoc();
                 
-                // ✅ Verify password
+                // Verify password
                 if (password_verify($password, $user['password'])) {
-                    // ✅ Check if account is active
+                    // Check if account is active
                     if ($user['account_status'] !== 'active') {
                         $error = "Your account is " . htmlspecialchars($user['account_status']) . ". Please contact the administrator.";
                     } else {
-                        // ✅ Update last login
+                        // Update last login
                         $update_sql = "UPDATE accounts SET last_login = NOW() WHERE id = ?";
                         $update_stmt = $conn->prepare($update_sql);
                         $update_stmt->bind_param("i", $user['id']);
                         $update_stmt->execute();
                         $update_stmt->close();
                         
-                        // ✅ Set session variables
+                        // Set session variables
                         $_SESSION['account_id'] = $user['id'];
                         $_SESSION['email'] = $user['email'];
-                        $_SESSION['first_name'] = $user['first_name'];
-                        $_SESSION['last_name'] = $user['last_name'];
                         $_SESSION['role_id'] = $user['role_id'];
                         
-                        $_SESSION['success'] = "Log In Successful!";
-
-                        // ✅ Redirect based on role
-                        if ($user['role_id'] == 1) {
-                            header("Location: ../admin/dashboard.php");
-                        } elseif ($user['role_id'] == 2) {
-                            header("Location: homepage.php");
+                        // Check if this is an employee (role_id = 3)
+                        if ($user['role_id'] == 3 && !empty($user['employee_id'])) {
+                            // Check if employee is archived
+                            if ($user['is_archived'] == 1) {
+                                $error = "Your employee account is inactive. Please contact the administrator.";
+                                session_destroy();
+                            } else {
+                                // Employee login
+                                $_SESSION['employee_id'] = $user['employee_id'];
+                                $_SESSION['first_name'] = $user['emp_first_name'];
+                                $_SESSION['last_name'] = $user['emp_last_name'];
+                                $_SESSION['department'] = $user['department'];
+                                $_SESSION['is_employee'] = true;
+                                
+                                $_SESSION['success'] = "Log In Successful!";
+                                header("Location: ../employee/dashboard.php");
+                                exit();
+                            }
                         } else {
-                            header("Location: ../index.php");
+                            // Regular user (admin or client)
+                            $_SESSION['first_name'] = $user['user_first_name'];
+                            $_SESSION['last_name'] = $user['user_last_name'];
+                            
+                            $_SESSION['success'] = "Log In Successful!";
+
+                            // Redirect based on role
+                            if ($user['role_id'] == 1) {
+                                header("Location: ../admin/dashboard.php");
+                            } elseif ($user['role_id'] == 2) {
+                                header("Location: homepage.php");
+                            } else {
+                                header("Location: ../index.php");
+                            }
+                            exit();
                         }
-                        exit();
                     }
                 } else {
                     $error = "Invalid email or password.";
@@ -96,6 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $stmt->close();
         } else {
+            error_log("Prepare failed: " . $conn->error);
             $error = "Database error. Please try again later.";
         }
     }
@@ -111,20 +151,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/login.css">
-    <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
-    <!-- Back Button -->
     <a href="../index.php" class="back-button">
         <i class="fas fa-arrow-left"></i>
         <span>Back to Home</span>
     </a>
     
     <div class="login-container">
-        
         <div class="login-box">
-
             <div class="login-header">
                 <i class="fas fa-lock"></i>
                 <h1>Log In</h1>
@@ -175,21 +211,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Password visibility toggle
         document.getElementById('togglePassword').addEventListener('click', function() {
             const passwordInput = document.getElementById('password');
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            
-            // Toggle eye icon
             this.classList.toggle('fa-eye');
             this.classList.toggle('fa-eye-slash');
         });
         
-        // Simple animation for input focus
         const inputs = document.querySelectorAll('input');
         inputs.forEach(input => {
-            // Check if input has value on page load
             if (input.value !== '') {
                 input.parentElement.classList.add('focused');
                 if (input.parentElement.classList.contains('password-container')) {
@@ -214,17 +245,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             });
         });
 
-        // Display PHP error messages with SweetAlert
         <?php if (!empty($error)): ?>
             Swal.fire({
                 icon: 'error',
                 title: 'Log In Failed',
-                text: 'Incorrect Email or Password',
+                text: '<?php echo addslashes($error); ?>',
                 confirmButtonColor: '#3B71CA'
             });
         <?php endif; ?>
 
-        // Display password reset success message
         <?php if (isset($_GET['reset']) && $_GET['reset'] === 'success'): ?>
             Swal.fire({
                 icon: 'success',
@@ -234,7 +263,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 confirmButtonColor: '#3B71CA'
             });
         <?php endif; ?>
-
     </script>
 </body>
 </html>

@@ -9,7 +9,7 @@ $page = $_GET['page'] ?? 1;
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
-// Build query for clients (joining user_profiles and accounts)
+// Build query for clients - FIXED to join with user_addresses
 $query = "SELECT 
             up.id,
             up.first_name,
@@ -18,17 +18,18 @@ $query = "SELECT
             up.birthdate,
             up.contact_number,
             up.gender,
-            up.region_name,
-            up.province_name,
-            up.city_name,
-            up.barangay_name,
-            up.street,
+            ua.region_name,
+            ua.province_name,
+            ua.city_name,
+            ua.barangay_name,
+            ua.street,
             up.created_at,
             a.email,
             a.account_status,
             a.last_login
           FROM user_profiles up
           INNER JOIN accounts a ON up.account_id = a.id
+          LEFT JOIN user_addresses ua ON a.id = ua.account_id AND ua.is_default = 1
           WHERE a.role_id = 2";
 
 $count_query = "SELECT COUNT(*) as total 
@@ -52,7 +53,7 @@ $query .= " ORDER BY up.created_at DESC LIMIT ? OFFSET ?";
 // Get total count for pagination
 $stmt_count = $conn->prepare($count_query);
 if ($status_filter !== 'all' && !empty($search_term)) {
-    $stmt_count->bind_param("ssss", $status_filter, $search_like, $search_like, $search_like, $search_like);
+    $stmt_count->bind_param("sssss", $status_filter, $search_like, $search_like, $search_like, $search_like);
 } elseif ($status_filter !== 'all') {
     $stmt_count->bind_param("s", $status_filter);
 } elseif (!empty($search_term)) {
@@ -66,7 +67,7 @@ $total_pages = ceil($total_clients / $limit);
 // Get clients
 $stmt = $conn->prepare($query);
 if ($status_filter !== 'all' && !empty($search_term)) {
-    $stmt->bind_param("ssssii", $status_filter, $search_like, $search_like, $search_like, $search_like, $limit, $offset);
+    $stmt->bind_param("sssssii", $status_filter, $search_like, $search_like, $search_like, $search_like, $limit, $offset);
 } elseif ($status_filter !== 'all') {
     $stmt->bind_param("sii", $status_filter, $limit, $offset);
 } elseif (!empty($search_term)) {
@@ -107,18 +108,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->begin_transaction();
         
         try {
-            // Insert into accounts table
-            $account_query = "INSERT INTO accounts (email, password, role_id, account_status) VALUES (?, ?, 3, ?)";
+            // Insert into accounts table - FIXED role_id to 2 for clients
+            $account_query = "INSERT INTO accounts (email, password, role_id, account_status) VALUES (?, ?, 2, ?)";
             $stmt_account = $conn->prepare($account_query);
             $stmt_account->bind_param("sss", $email, $password, $account_status);
             $stmt_account->execute();
             $account_id = $conn->insert_id;
             
-            // Insert into user_profiles table
-            $profile_query = "INSERT INTO user_profiles (account_id, first_name, last_name, middle_name, birthdate, contact_number, gender, region_code, region_name, province_code, province_name, city_code, city_name, barangay_code, barangay_name, street) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            // Insert into user_profiles table - REMOVED address fields
+            $profile_query = "INSERT INTO user_profiles (account_id, first_name, last_name, middle_name, birthdate, contact_number, gender) VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt_profile = $conn->prepare($profile_query);
-            $stmt_profile->bind_param("isssssssssssssss", $account_id, $first_name, $last_name, $middle_name, $birthdate, $contact_number, $gender, $region_code, $region_name, $province_code, $province_name, $city_code, $city_name, $barangay_code, $barangay_name, $street);
+            $stmt_profile->bind_param("issssss", $account_id, $first_name, $last_name, $middle_name, $birthdate, $contact_number, $gender);
             $stmt_profile->execute();
+            
+            // Insert into user_addresses table - NEW
+            $address_query = "INSERT INTO user_addresses (account_id, address_label, street, barangay_code, barangay_name, city_code, city_name, province_code, province_name, region_code, region_name, is_default) VALUES (?, 'Home', ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
+            $stmt_address = $conn->prepare($address_query);
+            $stmt_address->bind_param("isssssssss", $account_id, $street, $barangay_code, $barangay_name, $city_code, $city_name, $province_code, $province_name, $region_code, $region_name);
+            $stmt_address->execute();
             
             // Commit transaction
             $conn->commit();
@@ -147,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = $_POST['email'];
         $account_status = $_POST['account_status'];
         
-        // Address fields - CORRECTED field names
+        // Address fields
         $street = $_POST['street'];
         $barangay_code = $_POST['barangay_code'];
         $barangay_name = $_POST['barangay_name'];
@@ -158,42 +165,119 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $region_code = $_POST['region_code'];
         $region_name = $_POST['region_name'];
 
-        // CORRECTED UPDATE QUERY - matching your database field names
-        $update_query = "UPDATE accounts a 
-                        INNER JOIN user_profiles up ON a.id = up.account_id 
-                        SET a.email=?, a.account_status=?, 
-                            up.first_name=?, up.last_name=?, up.middle_name=?, 
-                            up.birthdate=?, up.contact_number=?, up.gender=?, 
-                            up.street=?, up.barangay_code=?, up.barangay_name=?,
-                            up.city_code=?, up.city_name=?, up.province_code=?, 
-                            up.province_name=?, up.region_code=?, up.region_name=?
-                        WHERE up.id=?";
+        $conn->begin_transaction();
         
-        $stmt = $conn->prepare($update_query);
-        $stmt->bind_param("sssssssssssssssssi", 
-            $email, $account_status, 
-            $first_name, $last_name, $middle_name, 
-            $birthdate, $contact_number, $gender,
-            $street, $barangay_code, $barangay_name,
-            $city_code, $city_name, $province_code,
-            $province_name, $region_code, $region_name,
-            $client_id
-        );
-
-        if ($stmt->execute()) {
+        try {
+            // Update accounts and user_profiles - REMOVED address fields from user_profiles
+            $update_query = "UPDATE accounts a 
+                            INNER JOIN user_profiles up ON a.id = up.account_id 
+                            SET a.email=?, a.account_status=?, 
+                                up.first_name=?, up.last_name=?, up.middle_name=?, 
+                                up.birthdate=?, up.contact_number=?, up.gender=?
+                            WHERE up.id=?";
+            
+            $stmt = $conn->prepare($update_query);
+            $stmt->bind_param("ssssssssi", 
+                $email, $account_status, 
+                $first_name, $last_name, $middle_name, 
+                $birthdate, $contact_number, $gender,
+                $client_id
+            );
+            $stmt->execute();
+            
+            // Get account_id from user_profiles
+            $get_account_query = "SELECT account_id FROM user_profiles WHERE id = ?";
+            $stmt_get = $conn->prepare($get_account_query);
+            $stmt_get->bind_param("i", $client_id);
+            $stmt_get->execute();
+            $result_get = $stmt_get->get_result();
+            $account_data = $result_get->fetch_assoc();
+            $account_id = $account_data['account_id'];
+            
+            // Update or Insert address in user_addresses
+            $check_address = "SELECT id FROM user_addresses WHERE account_id = ? AND is_default = 1";
+            $stmt_check = $conn->prepare($check_address);
+            $stmt_check->bind_param("i", $account_id);
+            $stmt_check->execute();
+            $result_check = $stmt_check->get_result();
+            
+            if ($result_check->num_rows > 0) {
+                // Update existing address
+                $update_address = "UPDATE user_addresses 
+                                  SET street=?, barangay_code=?, barangay_name=?, 
+                                      city_code=?, city_name=?, province_code=?, 
+                                      province_name=?, region_code=?, region_name=?
+                                  WHERE account_id=? AND is_default=1";
+                $stmt_address = $conn->prepare($update_address);
+                $stmt_address->bind_param("sssssssssi", 
+                    $street, $barangay_code, $barangay_name,
+                    $city_code, $city_name, $province_code,
+                    $province_name, $region_code, $region_name,
+                    $account_id
+                );
+            } else {
+                // Insert new address
+                $insert_address = "INSERT INTO user_addresses 
+                                  (account_id, address_label, street, barangay_code, barangay_name, 
+                                   city_code, city_name, province_code, province_name, 
+                                   region_code, region_name, is_default) 
+                                  VALUES (?, 'Home', ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
+                $stmt_address = $conn->prepare($insert_address);
+                $stmt_address->bind_param("isssssssss", 
+                    $account_id, $street, $barangay_code, $barangay_name,
+                    $city_code, $city_name, $province_code,
+                    $province_name, $region_code, $region_name
+                );
+            }
+            $stmt_address->execute();
+            
+            $conn->commit();
+            
             $_SESSION['message'] = "Client updated successfully!";
             $_SESSION['message_type'] = "success";
-        } else {
-            $_SESSION['message'] = "Error updating client: " . $conn->error;
+        } catch (Exception $e) {
+            $conn->rollback();
+            $_SESSION['message'] = "Error updating client: " . $e->getMessage();
             $_SESSION['message_type'] = "error";
         }
 
         header("Location: clients.php");
         exit();
     }
+    
+    if ($action === 'update_status') {
+        $client_id = $_POST['client_id'];
+        $new_status = $_POST['account_status'];
+        
+        // Get account_id from user_profiles
+        $get_account_query = "SELECT account_id FROM user_profiles WHERE id = ?";
+        $stmt_get = $conn->prepare($get_account_query);
+        $stmt_get->bind_param("i", $client_id);
+        $stmt_get->execute();
+        $result_get = $stmt_get->get_result();
+        $account_data = $result_get->fetch_assoc();
+        $account_id = $account_data['account_id'];
+        
+        // Update account status
+        $update_query = "UPDATE accounts SET account_status = ? WHERE id = ?";
+        $stmt = $conn->prepare($update_query);
+        $stmt->bind_param("si", $new_status, $account_id);
+        
+        if ($stmt->execute()) {
+            $_SESSION['message'] = "Client status updated successfully!";
+            $_SESSION['message_type'] = "success";
+        } else {
+            $_SESSION['message'] = "Error updating status: " . $conn->error;
+            $_SESSION['message_type'] = "error";
+        }
+        
+        header("Location: clients.php");
+        exit();
+    }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Email check for AJAX
+if (isset($_POST['check_email'])) {
     $email = $_POST['email'] ?? '';
     
     if (!empty($email)) {
@@ -209,6 +293,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo "available";
         }
     }
+    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -226,70 +311,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- CSS style -->
     <link rel="stylesheet" href="../css/admin_main.css">
     <style>
-        .user-profile {
-            position: relative;
-            cursor: pointer;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        
-        .user-name {
-            font-weight: 500;
-        }
-        
-        .user-dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            right: 0;
-            width: 200px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            z-index: 100;
-            margin-top: 10px;
-        }
-        
-        .user-dropdown.active {
-            display: block;
-        }
-        
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            color: #2c3e50;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-        
-        .dropdown-item:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .dropdown-item i {
-            margin-right: 10px;
-            width: 16px;
-            text-align: center;
-        }
-        
-        .dropdown-divider {
-            height: 1px;
-            background-color: #eee;
-            margin: 5px 0;
-        }
-        
         .client-content {
             flex: 1;
             padding: 30px;
@@ -372,7 +393,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             align-items: center;
         }
 
-        /* Search Input */
         .search-input {
             flex: 1;
             padding: 10px 15px;
@@ -498,19 +518,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 0 0 5px 0;
         }
 
-        .client-detail {
-            display: flex;
-            flex-direction: column;
-        }
-        
         .detail-label {
             font-size: 12px;
             color: #7f8c8d;
-        }
-        
-        .detail-value {
-            font-weight: 500;
-            color: #2c3e50;
         }
         
         .status {
@@ -644,17 +654,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 align-items: flex-start;
                 gap: 15px;
             }
-            
-            .status-filter {
-                overflow-x: auto;
-                padding-bottom: 10px;
-            }
-            
-            .client-table {
-                overflow-x: auto;
-                display: block;
-                white-space: nowrap;
-            }
         }
         
         .alert {
@@ -683,22 +682,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 10px;
         }
         
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-            vertical-align: middle;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
         .section-title {
             color: #2c3e50;
             margin: 30px 0 20px 0;
@@ -718,11 +701,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <div class="main-container">
-        
-        <!-- Main Content -->
         <div class="main-content">
-            
-            <!-- Client Content -->
             <div class="client-content">
                 <div class="page-header">
                     <div>
@@ -739,22 +718,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="alert alert-<?= $_SESSION['message_type'] ?>">
                         <?= $_SESSION['message'] ?>
                     </div>
-                    <?php unset($_SESSION['message']); ?>
+                    <?php unset($_SESSION['message']); unset($_SESSION['message_type']); ?>
                 <?php endif; ?>
 
                 <!-- Search Bar -->
                 <form method="GET" action="" class="search-form">
                     <input type="hidden" name="status" value="<?= htmlspecialchars($status_filter) ?>">
-
                     <input type="text" name="search" placeholder="Search clients by name, email, or contact..." 
                         value="<?= htmlspecialchars($search_term) ?>" class="search-input">
-                    
-                    <!-- Search Button -->
                     <button type="submit" class="search-btn">
                         <i class="fas fa-search"></i> Search
                     </button>
-
-                    <!-- Reset Button -->
                     <button type="button" class="search-btn" onclick="window.location='clients.php?status=<?= htmlspecialchars($status_filter) ?>'">
                         <i class="fas fa-times"></i> Reset
                     </button>
@@ -793,8 +767,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     <?= htmlspecialchars($client['first_name'] . ' ' . $client['last_name']) ?>
                                                 </div>
                                                 <div class="detail-label">
-                                                    <?= htmlspecialchars(ucfirst($client['gender'])) ?> • 
-                                                    <?= date('M d, Y', strtotime($client['birthdate'])) ?>
+                                                    <?= htmlspecialchars(ucfirst($client['gender'] ?? 'N/A')) ?> • 
+                                                    <?= $client['birthdate'] ? date('M d, Y', strtotime($client['birthdate'])) : 'N/A' ?>
                                                 </div>
                                             </td>
                                             <td>
@@ -803,8 +777,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <td><?= htmlspecialchars($client['contact_number'] ?? 'N/A') ?></td>
                                             <td>
                                                 <div class="detail-label">
-                                                    <?= htmlspecialchars($client['city_name'] ?? '') ?>, 
-                                                    <?= htmlspecialchars($client['province_name'] ?? '') ?>
+                                                    <?= htmlspecialchars($client['city_name'] ?? 'N/A') ?>, 
+                                                    <?= htmlspecialchars($client['province_name'] ?? 'N/A') ?>
                                                 </div>
                                             </td>
                                             <td><?= date('M j, Y', strtotime($client['created_at'])) ?></td>
@@ -819,17 +793,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         data-id="<?= $client['id'] ?>"
                                                         data-firstname="<?= htmlspecialchars($client['first_name']) ?>"
                                                         data-lastname="<?= htmlspecialchars($client['last_name']) ?>"
-                                                        data-middlename="<?= htmlspecialchars($client['middle_name']) ?>"
-                                                        data-birthdate="<?= htmlspecialchars($client['birthdate']) ?>"
-                                                        data-contact="<?= htmlspecialchars($client['contact_number']) ?>"
-                                                        data-gender="<?= htmlspecialchars($client['gender']) ?>"
+                                                        data-middlename="<?= htmlspecialchars($client['middle_name'] ?? '') ?>"
+                                                        data-birthdate="<?= htmlspecialchars($client['birthdate'] ?? '') ?>"
+                                                        data-contact="<?= htmlspecialchars($client['contact_number'] ?? '') ?>"
+                                                        data-gender="<?= htmlspecialchars($client['gender'] ?? '') ?>"
                                                         data-email="<?= htmlspecialchars($client['email']) ?>"
                                                         data-status="<?= htmlspecialchars($client['account_status']) ?>"
                                                         data-street="<?= htmlspecialchars($client['street'] ?? '') ?>"
-                                                        data-barangay="<?= htmlspecialchars($client['barangay_name']) ?>"
-                                                        data-city="<?= htmlspecialchars($client['city_name']) ?>"
-                                                        data-province="<?= htmlspecialchars($client['province_name']) ?>"
-                                                        data-region="<?= htmlspecialchars($client['region_name']) ?>">
+                                                        data-barangay="<?= htmlspecialchars($client['barangay_name'] ?? '') ?>"
+                                                        data-city="<?= htmlspecialchars($client['city_name'] ?? '') ?>"
+                                                        data-province="<?= htmlspecialchars($client['province_name'] ?? '') ?>"
+                                                        data-region="<?= htmlspecialchars($client['region_name'] ?? '') ?>">
                                                         <i class="fas fa-edit"></i> Edit
                                                     </button>
                                                     <button class="btn btn-danger status-toggle-btn" 
@@ -1167,7 +1141,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (addClientBtn) {
                 addClientBtn.addEventListener("click", () => {
                     document.getElementById("addClientForm").reset();
-                    // Set today's date as default
                     document.getElementById("birthdate").valueAsDate = new Date();
                     document.getElementById("account_status").value = "active";
                     addClientModal.classList.add("active");
@@ -1276,27 +1249,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Function to initialize address selector for edit modal
             function initializeEditAddressSelector(clientData) {
-                // Clear existing options first
                 $('#editRegion').empty().append('<option value="">Select Region</option>');
                 $('#editProvince').empty().append('<option value="">Select Province</option>').prop('disabled', true);
                 $('#editCity').empty().append('<option value="">Select City</option>').prop('disabled', true);
                 $('#editBarangay').empty().append('<option value="">Select Barangay</option>').prop('disabled', true);
 
-                // Load regions
                 const url = '../ph-json/region.json';
                 $.getJSON(url, function(data) {
                     $.each(data, function(key, entry) {
                         $('#editRegion').append($('<option></option>').attr('value', entry.region_code).text(entry.region_name));
                     });
                     
-                    // If we have region data, try to select it
                     if (clientData.region) {
-                        // Find the region code by name
                         const region = data.find(r => r.region_name === clientData.region);
                         if (region) {
                             $('#editRegion').val(region.region_code).trigger('change');
                             
-                            // After region loads provinces, try to select province
                             setTimeout(() => {
                                 if (clientData.province) {
                                     const provinceSelect = $('#editProvince');
@@ -1306,7 +1274,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     if (provinceOption.length) {
                                         provinceSelect.val(provinceOption.val()).trigger('change');
                                         
-                                        // After province loads cities, try to select city
                                         setTimeout(() => {
                                             if (clientData.city) {
                                                 const citySelect = $('#editCity');
@@ -1316,7 +1283,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 if (cityOption.length) {
                                                     citySelect.val(cityOption.val()).trigger('change');
                                                     
-                                                    // After city loads barangays, try to select barangay
                                                     setTimeout(() => {
                                                         if (clientData.barangay) {
                                                             const barangaySelect = $('#editBarangay');
@@ -1338,13 +1304,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 });
 
-                // Set up event handlers for edit modal
                 $('#editRegion').off('change').on('change', function() {
                     const regionCode = $(this).val();
                     const regionName = $(this).find('option:selected').text();
                     $('#editRegionName').val(regionName);
                     
-                    // Load provinces
                     $('#editProvince').empty().append('<option value="">Select Province</option>').prop('disabled', true);
                     $('#editCity').empty().append('<option value="">Select City</option>').prop('disabled', true);
                     $('#editBarangay').empty().append('<option value="">Select Barangay</option>').prop('disabled', true);
@@ -1367,7 +1331,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     const provinceName = $(this).find('option:selected').text();
                     $('#editProvinceName').val(provinceName);
                     
-                    // Load cities
                     $('#editCity').empty().append('<option value="">Select City</option>').prop('disabled', true);
                     $('#editBarangay').empty().append('<option value="">Select Barangay</option>').prop('disabled', true);
                     
@@ -1389,7 +1352,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     const cityName = $(this).find('option:selected').text();
                     $('#editCityName').val(cityName);
                     
-                    // Load barangays
                     $('#editBarangay').empty().append('<option value="">Select Barangay</option>').prop('disabled', true);
                     
                     if (cityCode) {
@@ -1436,16 +1398,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 const feedback = document.getElementById('emailFeedback');
                 
                 if (email.length > 0) {
-                    // Show loading
                     feedback.innerHTML = '<span style="color:#3498db;">Checking email availability...</span>';
                     
-                    // AJAX request to check email
-                    fetch('../process/check_email.php', {
+                    fetch('clients.php', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
                         },
-                        body: 'email=' + encodeURIComponent(email)
+                        body: 'check_email=1&email=' + encodeURIComponent(email)
                     })
                     .then(response => response.text())
                     .then(data => {
@@ -1478,7 +1438,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     return false;
                 }
                 
-                // Show confirmation
                 e.preventDefault();
                 Swal.fire({
                     title: 'Are you sure?',

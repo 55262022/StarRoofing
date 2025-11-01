@@ -20,7 +20,7 @@
             <a href="../client/pages/client-profile.php" class="icon-btn" title="Profile">
                 <i class="fa-regular fa-user"></i>
             </a>
-            <a href="cart.php" class="icon-btn" title="Basket">
+            <a href="../client/pages/my_basket.php" class="icon-btn" title="Basket">
                 <i class="fa-solid fa-bag-shopping"></i>
             </a>
         </div>

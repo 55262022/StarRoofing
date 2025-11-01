@@ -24,15 +24,33 @@ function isClient() {
 }
 
 /**
+ * Check if user is employee (role_id = 3)
+ */
+function isEmployee() {
+    return isset($_SESSION['role_id']) && $_SESSION['role_id'] == 3;
+}
+
+/**
  * Require authentication - redirect to login if not logged in
  */
 function requireAuth($redirectPath = null) {
     if (!isLoggedIn()) {
-        // Auto-detect the correct path to login
         if ($redirectPath === null) {
             $redirectPath = getLoginPath();
         }
-        header("Location: $redirectPath");
+
+        // Get the current full URL so we can redirect back after login
+        $currentUrl = $_SERVER['REQUEST_URI'];
+        $redirectUrl = $redirectPath . '?return_url=' . urlencode($currentUrl);
+
+        echo "<script>
+            if (window.top !== window.self) {
+                // Break out of iframe and redirect the top window
+                window.top.location.href = '$redirectUrl';
+            } else {
+                window.location.href = '$redirectUrl';
+            }
+        </script>";
         exit();
     }
 }
@@ -66,21 +84,52 @@ function requireClient() {
 }
 
 /**
+ * Require employee access - redirect if not employee
+ */
+function requireEmployee() {
+    if (!isLoggedIn()) {
+        header("Location: " . getLoginPath());
+        exit();
+    }
+    if (!isEmployee()) {
+        header("Location: " . getHomePath());
+        exit();
+    }
+}
+
+/**
  * Get the correct path to login page based on current directory
  */
 function getLoginPath() {
-    // Check current directory structure
-    $currentPath = $_SERVER['SCRIPT_FILENAME'];
-    
+    $currentPath = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME']);
+
+    // If script is inside client/pages (e.g. /client/pages/checkout.php)
+    if (strpos($currentPath, '/client/pages/') !== false) {
+        return '../../public/login.php';
+    }
+
+    // If script is inside client/ (but not pages)
+    if (strpos($currentPath, '/client/') !== false) {
+        return '../public/login.php';
+    }
+
+    // If inside admin (common)
     if (strpos($currentPath, '/admin/') !== false) {
         return '../public/login.php';
-    } elseif (strpos($currentPath, '/client/') !== false) {
-        return '../public/login.php';
-    } elseif (strpos($currentPath, '/public/') !== false) {
-        return 'login.php';
-    } else {
-        return 'public/login.php';
     }
+
+    // If inside employee
+    if (strpos($currentPath, '/employee/') !== false) {
+        return '../public/login.php';
+    }
+
+    // If current script is in public folder already
+    if (strpos($currentPath, '/public/') !== false) {
+        return 'login.php';
+    }
+
+    // Fallback: absolute path from webroot to public
+    return '/public/login.php';
 }
 
 /**
@@ -92,6 +141,8 @@ function getHomePath() {
     if (strpos($currentPath, '/admin/') !== false) {
         return '../index.php';
     } elseif (strpos($currentPath, '/client/') !== false) {
+        return '../index.php';
+    } elseif (strpos($currentPath, '/employee/') !== false) {
         return '../index.php';
     } else {
         return 'index.php';
@@ -162,6 +213,8 @@ function redirectByRole() {
         header("Location: ../admin/dashboard.php");
     } elseif (isClient()) {
         header("Location: ../index.php");
+    } elseif (isEmployee()) {
+        header("Location: ../employee/dashboard.php");
     } else {
         header("Location: ../index.php");
     }

@@ -49,7 +49,9 @@ session_start();
             </p>
 
             <div class="hero-cta-buttons">
+            <?php if(!isset($_SESSION['account_id'])): ?>
                 <a href="register.php" class="cta-primary">GET STARTED</a>
+            <?php endif; ?>
                 <a href="#about" class="cta-secondary">LEARN MORE</a>
             </div>
 
@@ -98,6 +100,7 @@ session_start();
             <div class="about-split">
                                 <div class="about-image" data-aos="fade-right">
                     <div class="image-placeholder">
+                        <!-- image ng company -->
                         <img src="../assets/images/about-us.jpg" alt="About Star Roofing">
                         <div class="about-badge">
                             <span class="badge-year">15+</span>
@@ -120,7 +123,7 @@ session_start();
                             <span class="stat-label">Projects Completed</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-number">98%</span>
+                            <span class="stat-number">95%</span>
                             <span class="stat-label">Client Satisfaction</span>
                         </div>
                         <div class="stat-item">

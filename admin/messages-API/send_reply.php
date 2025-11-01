@@ -29,8 +29,17 @@ if (!$conversation_id) {
 }
 
 // Insert reply with conversation_id and inquiry_id so clients fetching by conversation get it
-$stmt = $conn->prepare("INSERT INTO replies (conversation_id, inquiry_id, related_inquiry_id, related_product_id, sender, message) VALUES (?, ?, ?, ?, 'admin', ?)");
+$stmt = $conn->prepare("
+    INSERT INTO replies (conversation_id, inquiry_id, related_inquiry_id, related_product_id, sender, message, is_read) 
+    VALUES (?, ?, ?, ?, 'admin', ?, 0)
+");
 $stmt->bind_param('iiiis', $conversation_id, $id, $id, $product_id, $message);
+
+// Update conversation timestamp
+$stmt2 = $conn->prepare("UPDATE conversations SET updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+$stmt2->bind_param('i', $conversation_id);
+$stmt2->execute();
+$stmt2->close();
 $ok = $stmt->execute();
 $stmt->close();
 

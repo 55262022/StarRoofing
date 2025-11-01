@@ -68,10 +68,15 @@ $colors = [
     ['name' => 'Silver', 'hex' => '#C0C0C0', 'rgb' => [0.75, 0.75, 0.75]],
     ['name' => 'Gray', 'hex' => '#808080', 'rgb' => [0.5, 0.5, 0.5]],
     ['name' => 'Black', 'hex' => '#000000', 'rgb' => [0.0, 0.0, 0.0]],
-    ['name' => 'Red', 'hex' => '#DC143C', 'rgb' => [0.86, 0.08, 0.24]],
-    ['name' => 'Blue', 'hex' => '#1E90FF', 'rgb' => [0.12, 0.56, 1.0]],
-    ['name' => 'Green', 'hex' => '#228B22', 'rgb' => [0.13, 0.55, 0.13]],
-    ['name' => 'Brown', 'hex' => '#8B4513', 'rgb' => [0.55, 0.27, 0.07]],
+
+    // Corrected RGB from hex
+    ['name' => 'Clay', 'hex' => '#2E2E32', 'rgb' => [0.18, 0.18, 0.20]],
+    ['name' => 'Sangria', 'hex' => '#5E1914', 'rgb' => [0.37, 0.10, 0.08]],
+    ['name' => 'Eggshell', 'hex' => '#DCCE92', 'rgb' => [0.86, 0.81, 0.57]],
+    ['name' => 'Dark Royal Blue', 'hex' => '#202073', 'rgb' => [0.13, 0.13, 0.45]],
+    ['name' => 'Chili Red', 'hex' => '#951411', 'rgb' => [0.58, 0.08, 0.07]],
+    ['name' => 'Dark Green', 'hex' => '#006400', 'rgb' => [0.0, 0.39, 0.0]],
+    ['name' => 'Brown', 'hex' => '#3D2411', 'rgb' => [0.24, 0.14, 0.07]],
 ];
 ?>
 <!DOCTYPE html>
@@ -83,539 +88,7 @@ $colors = [
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background: #0a0a0a;
-            color: #fff;
-            min-height: 100vh;
-            padding-bottom: 100px;
-        }
-
-        /* Back Button */
-        .back-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: #fff;
-            font-weight: 600;
-            padding: 20px 30px;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.05);
-            margin: 20px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .back-button:hover {
-            background: rgba(233, 185, 73, 0.1);
-            color: #e9b949;
-            transform: translateX(-5px);
-        }
-
-        /* Main Container */
-        .product-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 40px;
-            margin-bottom: 120px;
-        }
-
-        /* Left Column - Image/Model */
-        .product-media {
-            position: relative;
-        }
-
-        /* View Toggle Buttons */
-        .view-toggle {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .view-toggle button {
-            flex: 1;
-            padding: 12px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            color: rgba(255, 255, 255, 0.6);
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .view-toggle button:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.3);
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .view-toggle button.active {
-            background: rgba(233, 185, 73, 0.15);
-            border-color: #e9b949;
-            color: #e9b949;
-        }
-
-        .view-toggle button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        /* Media Container */
-        .media-container {
-            position: relative;
-            width: 100%;
-            height: 500px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            overflow: hidden;
-        }
-
-        .product-media img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 20px;
-            display: none;
-        }
-
-        .product-media img.active {
-            display: block;
-        }
-
-        model-viewer {
-            width: 100%;
-            height: 100%;
-            display: none;
-        }
-
-        model-viewer.active {
-            display: block;
-        }
-
-        /* 3D Model Controls Info */
-        .model-controls-info {
-            position: absolute;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 12px 20px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.8);
-            display: none;
-            z-index: 10;
-            white-space: nowrap;
-        }
-
-        model-viewer.active ~ .model-controls-info {
-            display: block;
-        }
-
-        .model-controls-info i {
-            color: #e9b949;
-            margin: 0 5px;
-        }
-
-        /* Right Column - Info */
-        .product-info h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 15px;
-            line-height: 1.2;
-        }
-
-        .product-price {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #e9b949;
-            margin-bottom: 25px;
-        }
-
-        .product-meta {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .meta-item {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 12px 20px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .meta-item i {
-            color: #e9b949;
-            margin-right: 8px;
-        }
-
-        .meta-label {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.6);
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .meta-value {
-            font-weight: 600;
-            color: #fff;
-        }
-
-        /* Description */
-        .product-description {
-            margin-bottom: 30px;
-        }
-
-        .product-description h3 {
-            font-size: 1.2rem;
-            color: #e9b949;
-            margin-bottom: 12px;
-            font-weight: 700;
-        }
-
-        .product-description p {
-            color: rgba(255, 255, 255, 0.7);
-            line-height: 1.8;
-        }
-
-        /* Customization Section */
-        .customization-section {
-            margin: 30px 0;
-            padding: 25px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .customization-section h3 {
-            font-size: 1.1rem;
-            color: #e9b949;
-            margin-bottom: 20px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Color Selection */
-        .color-selection {
-            margin-bottom: 25px;
-        }
-
-        .color-label {
-            display: block;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-
-        .color-options {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .color-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            border: 3px solid transparent;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        .color-btn:hover {
-            transform: scale(1.1);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .color-btn.active {
-            border-color: #e9b949;
-            transform: scale(1.15);
-            box-shadow: 0 0 0 4px rgba(233, 185, 73, 0.2);
-        }
-
-        .color-btn::after {
-            content: attr(data-name);
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.6);
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .color-btn:hover::after,
-        .color-btn.active::after {
-            opacity: 1;
-        }
-
-        /* Input Fields */
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .input-group input,
-        .input-group select {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            color: #fff;
-            font-size: 1rem;
-            font-family: 'Montserrat', sans-serif;
-            transition: all 0.3s ease;
-        }
-
-        .input-group input:focus,
-        .input-group select:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.08);
-            border-color: #e9b949;
-            box-shadow: 0 0 0 3px rgba(233, 185, 73, 0.1);
-        }
-
-        .input-group select option {
-            background: #1a1a2e;
-            color: #fff;
-        }
-
-        /* Quantity */
-        .quantity-selector {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin: 25px 0;
-        }
-
-        .quantity-selector label {
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .quantity-controls {
-            display: flex;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .quantity-controls button {
-            background: transparent;
-            border: none;
-            color: #e9b949;
-            font-size: 1.2rem;
-            padding: 10px 15px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .quantity-controls button:hover {
-            background: rgba(233, 185, 73, 0.1);
-        }
-
-        .quantity-controls input {
-            width: 60px;
-            text-align: center;
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        /* Fixed Bottom Bar */
-        .bottom-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(26, 26, 46, 0.98);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-        }
-
-        .bottom-bar button {
-            flex: 1;
-            max-width: 300px;
-            padding: 16px 32px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-family: 'Montserrat', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-buy-now {
-            background: #e9b949;
-            color: #1a1a2e;
-            border: 2px solid #e9b949;
-        }
-
-        .btn-buy-now:hover {
-            background: transparent;
-            color: #e9b949;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(233, 185, 73, 0.4);
-        }
-
-        .btn-add-cart {
-            background: transparent;
-            color: #fff;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-add-cart:hover {
-            border-color: #e9b949;
-            color: #e9b949;
-            background: rgba(233, 185, 73, 0.1);
-            transform: translateY(-3px);
-        }
-
-        /* Responsive */
-        @media (max-width: 968px) {
-            .product-grid {
-                grid-template-columns: 1fr;
-                gap: 30px;
-                padding: 30px;
-            }
-
-            .product-info h1 {
-                font-size: 2rem;
-            }
-
-            .product-price {
-                font-size: 2rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .product-container {
-                padding: 10px;
-            }
-
-            .product-grid {
-                padding: 20px;
-            }
-
-            .back-button {
-                margin: 10px;
-            }
-
-            .bottom-bar {
-                flex-direction: column;
-                padding: 15px;
-            }
-
-            .bottom-bar button {
-                width: 100%;
-                max-width: 100%;
-            }
-
-            .color-options {
-                gap: 8px;
-            }
-
-            .color-btn {
-                width: 45px;
-                height: 45px;
-            }
-
-            .media-container {
-                height: 400px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .product-info h1 {
-                font-size: 1.5rem;
-            }
-
-            .product-price {
-                font-size: 1.8rem;
-            }
-
-            .product-meta {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .customization-section {
-                padding: 15px;
-            }
-
-            .media-container {
-                height: 350px;
-            }
-
-            .view-toggle button {
-                font-size: 0.8rem;
-                padding: 10px 15px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="../../css/item-details.css">
 </head>
 <body>
 
@@ -739,21 +212,6 @@ $colors = [
                             <option value="zinc">Zinc</option>
                         </select>
                     </div>
-
-                    <!-- Size Slider -->
-                    <div class="input-group">
-                        <label for="sizeSlider">
-                            <i class="fas fa-expand"></i> Scale: <span id="scaleValue">1.0x</span>
-                        </label>
-                        <input 
-                            type="range" 
-                            id="sizeSlider" 
-                            min="0.5" 
-                            max="2" 
-                            step="0.1" 
-                            value="1"
-                            style="width: 100%;">
-                    </div>
                 </div>
                 <?php endif; ?>
 
@@ -789,7 +247,7 @@ $colors = [
         <button class="btn-buy-now" onclick="buyNow()">
             <i class="fas fa-shopping-bag"></i> Buy Now
         </button>
-        <button class="btn-add-cart" type="submit" form="cartForm">
+        <button class="btn-add-cart" type="button" id="addToCartBtn">
             <i class="fas fa-cart-plus"></i> Add to Cart
         </button>
     </div>
@@ -838,9 +296,7 @@ $colors = [
         function buyNow() {
             const form = document.getElementById('cartForm');
             const formData = new FormData(form);
-            
-            alert('Proceeding to checkout...');
-            // window.location.href = 'checkout.php?product_id=<?= $product_id ?>&quantity=' + formData.get('quantity');
+            window.location.href = 'checkout.php?product_id=<?= $product_id ?>&quantity=' + formData.get('quantity');
         }
 
         <?php if ($modelPath): ?>
@@ -899,5 +355,274 @@ $colors = [
         }
         <?php endif; ?>
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+// Replace the existing SweetAlert script with this custom modal
+document.getElementById('addToCartBtn').addEventListener('click', function() {
+    // Create modal HTML
+    const modalHTML = `
+        <div class="cart-modal-overlay" id="cartModal">
+            <div class="cart-modal">
+                <button class="modal-close" onclick="closeCartModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <div class="modal-header">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h2>Add to Cart</h2>
+                </div>
+
+                <div class="modal-body">
+                    <div class="product-preview">
+                        <img src="<?= htmlspecialchars($imagePath) ?>" alt="Product">
+                        <div class="product-details">
+                            <h3><?= htmlspecialchars($product['name']) ?></h3>
+                            <p class="price">₱<?= number_format($product['price'], 2) ?></p>
+                        </div>
+                    </div>
+
+                    <form id="modalCartForm">
+                        <div class="modal-input-group">
+                            <label>
+                                <i class="fas fa-hashtag"></i> Quantity
+                            </label>
+                            <div class="quantity-control-modal">
+                                <button type="button" onclick="modalDecrease()">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" id="modalQty" value="1" min="1" max="<?= $product['stock_quantity'] ?>" readonly>
+                                <button type="button" onclick="modalIncrease()">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="modal-input-group">
+                            <label>
+                                <i class="fas fa-ruler"></i> Size
+                            </label>
+                            <select id="modalSize" required>
+                                <option value="">Select Size</option>
+                                <option value="Small">Small</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Large">Large</option>
+                                <option value="XL">XL</option>
+                            </select>
+                        </div>
+
+                        <div class="modal-input-group">
+                            <label>
+                                <i class="fas fa-palette"></i> Color
+                            </label>
+                            <div class="color-grid">
+                                <div class="color-option" data-color="White" onclick="selectModalColor(this)">
+                                    <div class="color-swatch" style="background: #FFFFFF; border: 2px solid #ddd;"></div>
+                                    <span>White</span>
+                                </div>
+                                <div class="color-option" data-color="Silver" onclick="selectModalColor(this)">
+                                    <div class="color-swatch" style="background: #C0C0C0;"></div>
+                                    <span>Silver</span>
+                                </div>
+                                <div class="color-option" data-color="Gray" onclick="selectModalColor(this)">
+                                    <div class="color-swatch" style="background: #808080;"></div>
+                                    <span>Gray</span>
+                                </div>
+                                <div class="color-option" data-color="Black" onclick="selectModalColor(this)">
+                                    <div class="color-swatch" style="background: #000000;"></div>
+                                    <span>Black</span>
+                                </div>
+                                <div class="color-option" data-color="Red" onclick="selectModalColor(this)">
+                                    <div class="color-swatch" style="background: #DC143C;"></div>
+                                    <span>Red</span>
+                                </div>
+                                <div class="color-option" data-color="Blue" onclick="selectModalColor(this)">
+                                    <div class="color-swatch" style="background: #1E90FF;"></div>
+                                    <span>Blue</span>
+                                </div>
+                                <div class="color-option" data-color="Green" onclick="selectModalColor(this)">
+                                    <div class="color-swatch" style="background: #228B22;"></div>
+                                    <span>Green</span>
+                                </div>
+                            </div>
+                            <input type="hidden" id="modalColor" required>
+                        </div>
+
+                        <div class="modal-summary">
+                            <div class="summary-row">
+                                <span>Subtotal:</span>
+                                <span class="summary-value" id="modalSubtotal">₱<?= number_format($product['price'], 2) ?></span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-cancel" onclick="closeCartModal()">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn-modal-add" onclick="submitModalCart()">
+                        <i class="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Inject modal into body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+});
+
+// Modal control functions
+function closeCartModal() {
+    const modal = document.getElementById('cartModal');
+    modal.classList.add('closing');
+    setTimeout(() => {
+        modal.remove();
+        document.body.style.overflow = '';
+    }, 300);
+}
+
+function modalDecrease() {
+    const input = document.getElementById('modalQty');
+    if (input.value > 1) {
+        input.value = parseInt(input.value) - 1;
+        updateModalSubtotal();
+    }
+}
+
+function modalIncrease() {
+    const input = document.getElementById('modalQty');
+    const max = parseInt(input.max);
+    if (input.value < max) {
+        input.value = parseInt(input.value) + 1;
+        updateModalSubtotal();
+    }
+}
+
+function selectModalColor(element) {
+    document.querySelectorAll('.color-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    element.classList.add('selected');
+    document.getElementById('modalColor').value = element.dataset.color;
+}
+
+function updateModalSubtotal() {
+    const qty = parseInt(document.getElementById('modalQty').value);
+    const price = <?= $product['price'] ?>;
+    const subtotal = qty * price;
+    document.getElementById('modalSubtotal').textContent = '₱' + subtotal.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+async function submitModalCart() {
+    const qty = document.getElementById('modalQty').value;
+    const size = document.getElementById('modalSize').value;
+    const color = document.getElementById('modalColor').value;
+
+    // Validation
+    if (!size) {
+        showModalError('Please select a size');
+        return;
+    }
+    if (!color) {
+        showModalError('Please select a color');
+        return;
+    }
+
+    // Show loading state
+    const addBtn = document.querySelector('.btn-modal-add');
+    const originalText = addBtn.innerHTML;
+    addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+    addBtn.disabled = true;
+
+    try {
+        const response = await fetch('../actions/add_to_cart.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                product_id: '<?= $product_id ?>',
+                quantity: qty,
+                size: size,
+                color: color
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            showSuccessMessage(qty, size, color);
+            closeCartModal();
+        } else {
+            showModalError(data.message || 'Failed to add to cart');
+            addBtn.innerHTML = originalText;
+            addBtn.disabled = false;
+        }
+    } catch (error) {
+        showModalError('Network error. Please try again.');
+        addBtn.innerHTML = originalText;
+        addBtn.disabled = false;
+    }
+}
+
+function showModalError(message) {
+    const existingError = document.querySelector('.modal-error');
+    if (existingError) existingError.remove();
+
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'modal-error';
+    errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+    
+    const modalBody = document.querySelector('.modal-body');
+    modalBody.insertBefore(errorDiv, modalBody.firstChild);
+
+    setTimeout(() => errorDiv.remove(), 3000);
+}
+
+function showSuccessMessage(qty, size, color) {
+    const successHTML = `
+        <div class="success-toast">
+            <div class="success-content">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <h4>Added to Cart!</h4>
+                    <p>${qty}x ${size} - ${color}</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', successHTML);
+    
+    setTimeout(() => {
+        document.querySelector('.success-toast').classList.add('show');
+    }, 10);
+    
+    setTimeout(() => {
+        const toast = document.querySelector('.success-toast');
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Close modal on overlay click
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('cart-modal-overlay')) {
+        closeCartModal();
+    }
+});
+
+// Close modal on ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('cartModal')) {
+        closeCartModal();
+    }
+});
+</script>
+
+
 </body>
 </html>
