@@ -101,7 +101,7 @@ session_start();
                                 <div class="about-image" data-aos="fade-right">
                     <div class="image-placeholder">
                         <!-- image ng company -->
-                        <img src="../assets/images/about-us.jpg" alt="About Star Roofing">
+                        <img src="../company-pic/starroofing-bldg1.jpg" alt="About Star Roofing">
                         <div class="about-badge">
                             <span class="badge-year">15+</span>
                             <span class="badge-number">Years of Excellence</span>

@@ -194,6 +194,67 @@ $order_stmt->close();
         transform: scaleX(1);
     }
 
+    /* Clickable order card */
+    .order-card-clickable {
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        align-items: center;
+        gap: 25px;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 25px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .order-card-clickable::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #e9b949, transparent);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .order-card-clickable::after {
+        content: '\f061';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        right: 25px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #e9b949;
+        font-size: 1.5rem;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .order-card-clickable:hover {
+        background: rgba(233, 185, 73, 0.05);
+        border-color: rgba(233, 185, 73, 0.3);
+        transform: translateY(-5px);
+        padding-right: 70px;
+    }
+
+    .order-card-clickable:hover::before {
+        transform: scaleX(1);
+    }
+
+    .order-card-clickable:hover::after {
+        opacity: 1;
+        right: 30px;
+    }
+
     .item-image {
         width: 120px;
         height: 120px;
@@ -203,7 +264,7 @@ $order_stmt->close();
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .item-card img {
+    .item-card img, .order-card-clickable img {
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -383,6 +444,17 @@ $order_stmt->close();
         border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
+    /* Click to view hint */
+    .view-hint {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: rgba(233, 185, 73, 0.7);
+        margin-top: 10px;
+        font-style: italic;
+    }
+
     /* Responsive Design */
     @media (max-width: 968px) {
         .item-card {
@@ -398,6 +470,10 @@ $order_stmt->close();
 
         .item-actions .btn {
             flex: 1;
+        }
+
+        .order-card-clickable {
+            grid-template-columns: 100px 1fr;
         }
     }
 
@@ -415,9 +491,22 @@ $order_stmt->close();
             margin-bottom: 30px;
         }
 
-        .item-card {
+        .item-card, .order-card-clickable {
             grid-template-columns: 80px 1fr;
             padding: 20px;
+        }
+
+        .order-card-clickable:hover {
+            padding-right: 20px;
+        }
+
+        .order-card-clickable::after {
+            font-size: 1.2rem;
+            right: 20px;
+        }
+
+        .order-card-clickable:hover::after {
+            right: 20px;
         }
 
         .item-image {
@@ -445,7 +534,7 @@ $order_stmt->close();
     }
 
     @media (max-width: 480px) {
-        .item-card {
+        .item-card, .order-card-clickable {
             grid-template-columns: 1fr;
             text-align: center;
             padding: 20px;
@@ -573,7 +662,7 @@ $order_stmt->close();
             <?php if ($order_items->num_rows > 0): ?>
                 <div class="item-list">
                     <?php while ($order = $order_items->fetch_assoc()): ?>
-                        <div class="item-card">
+                        <a href="track-order.php?order_number=<?= urlencode($order['order_number']) ?>" class="order-card-clickable">
                             <div class="item-image">
                                 <img src="/STARROOFING/<?= htmlspecialchars($order['image_path']) ?>" alt="<?= htmlspecialchars($order['product_name']) ?>">
                             </div>
@@ -585,15 +674,19 @@ $order_stmt->close();
                                     <span class="meta-badge">
                                         <i class="fas fa-boxes"></i> Qty: <?= (int)$order['quantity'] ?>
                                     </span>
-                                    <span class="meta-badge" style="border-color: <?= $order['order_status'] === 'pending' ? '#f39c12' : ($order['order_status'] === 'completed' ? '#2ecc71' : '#e74c3c') ?>; color: <?= $order['order_status'] === 'pending' ? '#f39c12' : ($order['order_status'] === 'completed' ? '#2ecc71' : '#e74c3c') ?>;">
+                                    <span class="meta-badge" style="border-color: <?= $order['order_status'] === 'pending' ? '#f39c12' : ($order['order_status'] === 'delivered' ? '#2ecc71' : ($order['order_status'] === 'cancelled' ? '#e74c3c' : '#3b82f6')) ?>; color: <?= $order['order_status'] === 'pending' ? '#f39c12' : ($order['order_status'] === 'delivered' ? '#2ecc71' : ($order['order_status'] === 'cancelled' ? '#e74c3c' : '#3b82f6')) ?>;">
                                         <i class="fas fa-info-circle"></i> <?= ucfirst($order['order_status']) ?>
                                     </span>
                                 </div>
                                 
                                 <p><i class="far fa-calendar-alt"></i> <?= date('F j, Y - g:i A', strtotime($order['created_at'])) ?></p>
                                 <p class="price">₱<?= number_format($order['total_amount'], 2) ?></p>
+                                
+                                <span class="view-hint">
+                                    <i class="fas fa-mouse-pointer"></i> Click to view order details
+                                </span>
                             </div>
-                        </div>
+                        </a>
                     <?php endwhile; ?>
                 </div>
             <?php else: ?>

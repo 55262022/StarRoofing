@@ -379,14 +379,93 @@ $emp_result = $conn->query($emp_sql);
         background: rgba(59, 130, 246, 0.3);
     }
 
-    .payment-proof {
+    /* Payment Proof Styles - Enhanced */
+    .payment-proof-section {
+        margin-top: 25px;
+        padding: 20px;
+        background: rgba(34, 197, 94, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .payment-proof-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        font-weight: 700;
+        color: #22c55e;
+        font-size: 1.1rem;
+    }
+
+    .payment-proof-image {
+        width: 100%;
+        max-width: 600px;
+        border-radius: 10px;
+        border: 2px solid rgba(34, 197, 94, 0.3);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .payment-proof-image:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 12px rgba(0,0,0,0.4);
+    }
+
+    .no-payment-proof {
+        padding: 20px;
+        text-align: center;
+        background: rgba(239, 68, 68, 0.1);
+        border-radius: 10px;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        color: rgba(255,255,255,0.6);
         margin-top: 15px;
     }
 
-    .payment-proof img {
-        max-width: 100%;
+    /* Image Modal for Full View */
+    .image-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.95);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .image-modal.active {
+        display: flex;
+    }
+
+    .image-modal-content {
+        max-width: 90%;
+        max-height: 90%;
         border-radius: 10px;
-        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 0 50px rgba(233,185,73,0.3);
+    }
+
+    .image-modal-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255,255,255,0.1);
+        border: none;
+        color: #fff;
+        font-size: 2rem;
+        cursor: pointer;
+        padding: 10px 20px;
+        border-radius: 10px;
+        transition: 0.3s;
+    }
+
+    .image-modal-close:hover {
+        background: rgba(233,185,73,0.3);
+        color: #e9b949;
     }
 
     .empty-history {
@@ -513,18 +592,16 @@ $emp_result = $conn->query($emp_sql);
         min-height: 80px;
     }
 
-    /* Dropdown option styling */
     .form-group select option {
-        background: #1a1a2e; /* Navy blue for dropdown options */
+        background: #1a1a2e;
         color: #fff;
         padding: 10px;
     }
 
     .form-group select option:hover {
-        background: #2a2a4e; /* Slightly lighter on hover */
+        background: #2a2a4e;
     }
 
-    /* Placeholder styling */
     .form-group select option[value=""] {
         color: rgba(255,255,255,0.5);
     }
@@ -668,12 +745,31 @@ $emp_result = $conn->query($emp_sql);
                         <?php endif; ?>
                     </div>
 
-                    <?php if ($order['payment_proof']): ?>
-                    <div class="payment-proof">
-                        <strong>Payment Proof:</strong>
-                        <br><br>
-                        <img src="../../uploads/payment_proofs/<?= htmlspecialchars($order['payment_proof']) ?>" 
-                             alt="Payment Proof">
+                    <!-- Delivery Proof Section -->
+                    <?php if (!empty($order['delivery_proof'])): ?>
+                    <div class="payment-proof-section" style="background: rgba(14, 165, 233, 0.05); border-color: rgba(14, 165, 233, 0.2);">
+                        <div class="payment-proof-header" style="color: #0ea5e9;">
+                            <i class="fas fa-truck-loading"></i>
+                            Proof of Delivery
+                        </div>
+                        <img src="/STARROOFING/uploads/delivery_proofs/<?= htmlspecialchars($order['delivery_proof']) ?>" 
+                             alt="Delivery Proof"
+                             class="payment-proof-image"
+                             onclick="openImageModal(this.src)"
+                             onerror="this.parentElement.innerHTML='<div class=\'no-payment-proof\'><i class=\'fas fa-exclamation-triangle\'></i> Delivery proof image not found</div>'">
+                        <p style="margin-top: 10px; font-size: 0.85rem; color: rgba(255,255,255,0.6);">
+                            <i class="fas fa-info-circle"></i> Click image to view full size
+                        </p>
+                    </div>
+                    <?php elseif (in_array($order['order_status'], ['delivered'])): ?>
+                    <div class="no-payment-proof">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p style="margin-top: 10px;">Delivery proof not uploaded yet</p>
+                    </div>
+                    <?php elseif (in_array($order['order_status'], ['shipped'])): ?>
+                    <div class="no-payment-proof" style="background: rgba(14, 165, 233, 0.1); border-color: rgba(14, 165, 233, 0.2);">
+                        <i class="fas fa-truck"></i>
+                        <p style="margin-top: 10px; color: #0ea5e9;">Order is out for delivery - waiting for proof</p>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -804,8 +900,6 @@ $emp_result = $conn->query($emp_sql);
 
                     <div class="action-buttons">
                         <?php 
-                        // Show Update Status button only for: pending, confirmed
-                        // Hide for: processing (use assign instead), shipped (employee only), delivered, cancelled
                         if (in_array($order['order_status'], ['pending', 'confirmed'])): 
                         ?>
                         <button class="btn btn-update" onclick="updateOrderStatus(<?= $order['order_id'] ?>, '<?= $order['order_status'] ?>')">
@@ -814,7 +908,6 @@ $emp_result = $conn->query($emp_sql);
                         <?php endif; ?>
                         
                         <?php 
-                        // Show Assign Employee button only when status is processing
                         if ($order['order_status'] === 'processing'): 
                         ?>
                         <button class="btn btn-assign" onclick="openAssignModal()">
@@ -824,7 +917,6 @@ $emp_result = $conn->query($emp_sql);
                         <?php endif; ?>
                         
                         <?php 
-                        // Show message if order is shipped (waiting for employee)
                         if ($order['order_status'] === 'shipped'): 
                         ?>
                         <div style="background: rgba(14, 165, 233, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #0ea5e9;">
@@ -838,7 +930,6 @@ $emp_result = $conn->query($emp_sql);
                         <?php endif; ?>
                         
                         <?php 
-                        // Show message if order is delivered
                         if ($order['order_status'] === 'delivered'): 
                         ?>
                         <div style="background: rgba(34, 197, 94, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #22c55e;">
@@ -852,7 +943,6 @@ $emp_result = $conn->query($emp_sql);
                         <?php endif; ?>
                         
                         <?php 
-                        // Show message if order is cancelled
                         if ($order['order_status'] === 'cancelled'): 
                         ?>
                         <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #ef4444;">
@@ -922,6 +1012,12 @@ $emp_result = $conn->query($emp_sql);
         </div>
     </div>
 
+    <!-- Image Modal for Full View -->
+    <div class="image-modal" id="imageModal">
+        <button class="image-modal-close" onclick="closeImageModal()">&times;</button>
+        <img src="" alt="Payment Proof Full View" class="image-modal-content" id="modalImage">
+    </div>
+
     <!-- Assign Employee Modal -->
     <div class="modal" id="assignEmployeeModal">
         <div class="modal-content">
@@ -948,7 +1044,7 @@ $emp_result = $conn->query($emp_sql);
                         <select id="employee_id" name="employee_id" required>
                             <option value="">-- Select Employee --</option>
                             <?php
-                            $emp_result->data_seek(0); // Reset result pointer
+                            $emp_result->data_seek(0);
                             while ($emp = $emp_result->fetch_assoc()): 
                             ?>
                                 <option value="<?= $emp['employee_id'] ?>" <?= ($order['assigned_employee_id'] == $emp['employee_id']) ? 'selected' : '' ?>>
@@ -973,6 +1069,31 @@ $emp_result = $conn->query($emp_sql);
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Image Modal Functions
+        function openImageModal(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').classList.add('active');
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.remove('active');
+        }
+
+        // Close image modal when clicking outside
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImageModal();
+            }
+        });
+
+        // Close image modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImageModal();
+                closeAssignModal();
+            }
+        });
+
         function openAssignModal() {
             document.getElementById('assignEmployeeModal').classList.add('active');
         }
@@ -996,7 +1117,6 @@ $emp_result = $conn->query($emp_sql);
                 return;
             }
             
-            // Show loading
             Swal.fire({
                 title: 'Assigning Employee...',
                 text: 'Please wait',
@@ -1044,7 +1164,6 @@ $emp_result = $conn->query($emp_sql);
         }
 
         function updateOrderStatus(orderId, currentStatus) {
-            // Define valid transitions for admin (excluding shipped - employee only)
             const statusOptions = {
                 'pending': ['confirmed', 'cancelled'],
                 'confirmed': ['processing', 'cancelled']
@@ -1093,7 +1212,6 @@ $emp_result = $conn->query($emp_sql);
             formData.append('order_id', orderId);
             formData.append('status', newStatus);
             
-            // Show loading
             Swal.fire({
                 title: 'Updating Status...',
                 text: 'Please wait',
@@ -1139,7 +1257,6 @@ $emp_result = $conn->query($emp_sql);
             });
         }
 
-        // Close modal when clicking outside
         document.getElementById('assignEmployeeModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeAssignModal();

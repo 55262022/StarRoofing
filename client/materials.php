@@ -462,30 +462,26 @@ if ($result->num_rows > 0) {
                 
                 <div class="price">₱<?= number_format($product['price'], 2) ?></div>
 
-                <?php if ($product['stock_quantity'] > 0): ?>
-                    <div class="stock">
+                <div class="stock <?= $product['stock_quantity'] > 0 ? '' : 'out-stock' ?>">
+
+                    <?php if ($product['stock_quantity'] > 0): ?>
                         <i class="fa fa-check-circle"></i>
                         <?= $product['stock_quantity'] . ' ' . htmlspecialchars($product['unit']) ?> available
-                    </div>
-                    <a href="pages/item-details.php?product_id=<?= $product['product_id'] ?>" class="view-details-btn">
-                        <i class="fa fa-cart-plus"></i> View Details
-                    </a>
-                <?php else: ?>
-                    <div class="stock out-stock">
+                    <?php else: ?>
                         <i class="fa fa-times-circle"></i>
                         Out of stock
-                    </div>
-                    <button class="view-details-btn" disabled>
-                        <i class="fa fa-ban"></i> Unavailable
-                    </button>
-                <?php endif; ?>
+                    <?php endif; ?>
+                </div>
+                <a href="pages/item-details.php?product_id=<?= $product['product_id'] ?>" class="view-details-btn">
+                    <i class="fa fa-eye"></i> View Details
+                </a>
             </div>
             <?php endforeach; ?>
         </div>
         <?php else: ?>
             <div class="empty-state">
                 <i class="fa fa-box-open"></i>
-                <p>No materials available at the moment.</p>
+                <p>No products available at the moment.</p>
             </div>
         <?php endif; ?>
     </div>

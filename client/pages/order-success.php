@@ -372,6 +372,7 @@ if (!$order) {
         <?php endif; ?>
 
         <div class="action-buttons">
+            <!-- track order button -->
             <a href="track-order.php?order_number=<?= urlencode($order['order_number']) ?>" class="btn btn-primary">
                 <i class="fas fa-search"></i> Track Order
             </a>
@@ -382,11 +383,5 @@ if (!$order) {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        // Show confetti or celebration animation (optional)
-        document.addEventListener('DOMContentLoaded', function() {
-            // You can add confetti animation here if you want
-        });
-    </script>
 </body>
 </html>

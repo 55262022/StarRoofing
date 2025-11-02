@@ -646,7 +646,7 @@ foreach ($deliveries as $delivery) {
                         <?php elseif ($delivery['order_status'] === 'delivered' && !empty($delivery['delivery_proof'])): ?>
                             <div class="delivery-actions">
                                 <p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); margin-bottom: 0.5rem;">Proof of Delivery</p>
-                                <img src="../<?= htmlspecialchars($delivery['delivery_proof']) ?>" alt="Proof of delivery" class="proof-image">
+                                <img src="/STARROOFING/uploads/delivery_proofs/<?= htmlspecialchars($delivery['delivery_proof']) ?>" alt="Proof of delivery" class="proof-image">
                                 <div class="completed-badge">
                                     <i class="fas fa-check-circle"></i>
                                     <span>Delivery Completed - <?= date('M j, Y', strtotime($delivery['delivered_at'])) ?></span>

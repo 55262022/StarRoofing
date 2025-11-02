@@ -244,12 +244,21 @@ $colors = [
 
     <!-- Fixed Bottom Bar -->
     <div class="bottom-bar">
-        <button class="btn-buy-now" onclick="buyNow()">
-            <i class="fas fa-shopping-bag"></i> Buy Now
-        </button>
-        <button class="btn-add-cart" type="button" id="addToCartBtn">
-            <i class="fas fa-cart-plus"></i> Add to Cart
-        </button>
+        <?php if ($product['stock_quantity'] > 0): ?>
+            <button class="btn-buy-now" onclick="buyNow()">
+                <i class="fas fa-shopping-bag"></i> Buy Now
+            </button>
+            <button class="btn-add-cart" type="button" id="addToCartBtn">
+                <i class="fas fa-cart-plus"></i> Add to Cart
+            </button>
+        <?php else: ?>
+            <button class="btn-buy-now" disabled style="background: gray; cursor: not-allowed;">
+                <i class="fas fa-ban"></i> Sold Out
+            </button>
+            <button class="btn-add-cart" type="button" disabled style="background: gray; cursor: not-allowed;">
+                <i class="fas fa-ban"></i> Sold Out
+            </button>
+        <?php endif; ?>
     </div>
 
     <script>
@@ -360,6 +369,10 @@ $colors = [
 <script>
 // Replace the existing SweetAlert script with this custom modal
 document.getElementById('addToCartBtn').addEventListener('click', function() {
+    <?php if ($product['stock_quantity'] <= 0): ?>
+    document.getElementById('addToCartBtn').disabled = true;
+    <?php endif; ?>
+
     // Create modal HTML
     const modalHTML = `
         <div class="cart-modal-overlay" id="cartModal">
