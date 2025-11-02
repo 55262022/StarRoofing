@@ -42,7 +42,7 @@ try {
     $employee = $emp_result->fetch_assoc();
     $emp_stmt->close();
 
-    // Verify order exists and is in correct status
+    // Verify order exists and is in processing status
     $order_check = "SELECT order_id, order_number, order_status FROM orders WHERE order_id = ?";
     $order_stmt = $conn->prepare($order_check);
     $order_stmt->bind_param("i", $order_id);
@@ -55,14 +55,23 @@ try {
     }
 
     $order = $order_result->fetch_assoc();
+    
+    // Check if order is in processing status
+    if ($order['order_status'] !== 'processing') {
+        echo json_encode(['success' => false, 'message' => 'Order must be in processing status to assign employee']);
+        exit();
+    }
+    
     $order_stmt->close();
 
     // Start transaction
     $conn->begin_transaction();
 
-    // Update order with assigned employee
+    // Update order: assign employee AND change status to shipped
     $update_sql = "UPDATE orders SET 
                    assigned_employee_id = ?,
+                   order_status = 'shipped',
+                   shipped_at = NOW(),
                    updated_at = NOW()
                    WHERE order_id = ?";
     
@@ -70,22 +79,21 @@ try {
     $update_stmt->bind_param("ii", $employee_id, $order_id);
     
     if (!$update_stmt->execute()) {
-        throw new Exception("Failed to assign employee to order");
+        throw new Exception("Failed to assign employee and ship order");
     }
     $update_stmt->close();
 
-    // Add to order status history
-    $history_notes = "Order assigned to employee: {$employee['first_name']} {$employee['last_name']}";
+    // Add to order status history for shipping
+    $history_notes = "Order shipped and assigned to delivery employee: {$employee['first_name']} {$employee['last_name']}";
     if (!empty($notes)) {
-        $history_notes .= "\nInstructions: " . $notes;
+        $history_notes .= " | Delivery Instructions: " . $notes;
     }
     
     $history_sql = "INSERT INTO order_status_history (order_id, status, notes, created_by) 
-                    VALUES (?, ?, ?, ?)";
+                    VALUES (?, 'shipped', ?, ?)";
     $history_stmt = $conn->prepare($history_sql);
-    $current_status = $order['order_status'];
     $admin_id = $_SESSION['account_id'];
-    $history_stmt->bind_param("issi", $order_id, $current_status, $history_notes, $admin_id);
+    $history_stmt->bind_param("isi", $order_id, $history_notes, $admin_id);
     
     if (!$history_stmt->execute()) {
         throw new Exception("Failed to update order history");
@@ -97,7 +105,7 @@ try {
     
     echo json_encode([
         'success' => true, 
-        'message' => "Order successfully assigned to {$employee['first_name']} {$employee['last_name']}!"
+        'message' => "Order #{$order['order_number']} has been assigned to {$employee['first_name']} {$employee['last_name']} and marked as shipped!"
     ]);
 
 } catch (Exception $e) {

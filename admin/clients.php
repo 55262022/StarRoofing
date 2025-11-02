@@ -748,7 +748,6 @@ if (isset($_POST['check_email'])) {
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>Client ID</th>
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Contact</th>
@@ -761,7 +760,6 @@ if (isset($_POST['check_email'])) {
                                 <tbody>
                                     <?php foreach ($clients as $client): ?>
                                         <tr>
-                                            <td><?= htmlspecialchars($client['id']) ?></td>
                                             <td>
                                                 <div class="client-name">
                                                     <?= htmlspecialchars($client['first_name'] . ' ' . $client['last_name']) ?>

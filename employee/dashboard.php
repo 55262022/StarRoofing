@@ -44,7 +44,7 @@ if (!$employee_id) {
     exit();
 }
 
-// Get employee's assigned orders
+// Get employee's assigned orders - INCLUDING PROCESSING STATUS
 $sql = "SELECT 
     o.order_id,
     o.order_number,
@@ -66,13 +66,14 @@ $sql = "SELECT
     o.created_at
 FROM orders o
 WHERE o.assigned_employee_id = ? 
-AND o.order_status IN ('shipped', 'delivered')
+AND o.order_status IN ('processing', 'shipped', 'delivered')
 ORDER BY 
     CASE 
-        WHEN o.order_status = 'shipped' THEN 1
-        WHEN o.order_status = 'delivered' THEN 2
+        WHEN o.order_status = 'processing' THEN 1
+        WHEN o.order_status = 'shipped' THEN 2
+        WHEN o.order_status = 'delivered' THEN 3
     END,
-    o.shipped_at DESC";
+    o.created_at DESC";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $employee_id);
@@ -85,6 +86,7 @@ while ($row = $result->fetch_assoc()) {
 }
 
 // Calculate statistics
+$pending_count = 0;
 $active_count = 0;
 $completed_today = 0;
 $total_count = count($deliveries);
@@ -92,6 +94,9 @@ $total_count = count($deliveries);
 $today = date('Y-m-d');
 
 foreach ($deliveries as $delivery) {
+    if ($delivery['order_status'] === 'processing') {
+        $pending_count++;
+    }
     if ($delivery['order_status'] === 'shipped') {
         $active_count++;
     }

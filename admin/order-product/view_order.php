@@ -496,8 +496,13 @@ $emp_result = $conn->query($emp_sql);
     }
 
     .form-group input:focus,
-    .form-group select:focus,
     .form-group textarea:focus {
+        outline: none;
+        border-color: #e9b949;
+        box-shadow: 0 0 0 3px rgba(233,185,73,0.15);
+    }
+
+    .form-group select:focus {
         outline: none;
         border-color: #e9b949;
         box-shadow: 0 0 0 3px rgba(233,185,73,0.15);
@@ -506,6 +511,22 @@ $emp_result = $conn->query($emp_sql);
     .form-group textarea {
         resize: vertical;
         min-height: 80px;
+    }
+
+    /* Dropdown option styling */
+    .form-group select option {
+        background: #1a1a2e; /* Navy blue for dropdown options */
+        color: #fff;
+        padding: 10px;
+    }
+
+    .form-group select option:hover {
+        background: #2a2a4e; /* Slightly lighter on hover */
+    }
+
+    /* Placeholder styling */
+    .form-group select option[value=""] {
+        color: rgba(255,255,255,0.5);
     }
 
     .btn-outline {
@@ -782,56 +803,72 @@ $emp_result = $conn->query($emp_sql);
                     </div>
 
                     <div class="action-buttons">
-                        <?php if ($order['order_status'] !== 'cancelled' && $order['order_status'] !== 'delivered'): ?>
+                        <?php 
+                        // Show Update Status button only for: pending, confirmed
+                        // Hide for: processing (use assign instead), shipped (employee only), delivered, cancelled
+                        if (in_array($order['order_status'], ['pending', 'confirmed'])): 
+                        ?>
                         <button class="btn btn-update" onclick="updateOrderStatus(<?= $order['order_id'] ?>, '<?= $order['order_status'] ?>')">
                             <i class="fas fa-edit"></i> Update Status
                         </button>
                         <?php endif; ?>
                         
-                        <?php if ($order['order_status'] === 'processing' || $order['order_status'] === 'confirmed'): ?>
+                        <?php 
+                        // Show Assign Employee button only when status is processing
+                        if ($order['order_status'] === 'processing'): 
+                        ?>
                         <button class="btn btn-assign" onclick="openAssignModal()">
                             <i class="fas fa-user-plus"></i> 
-                            <?= empty($order['assigned_employee_name']) ? 'Assign Employee' : 'Reassign Employee' ?>
+                            <?= empty($order['assigned_employee_name']) ? 'Assign Employee & Ship' : 'Reassign Employee' ?>
                         </button>
+                        <?php endif; ?>
+                        
+                        <?php 
+                        // Show message if order is shipped (waiting for employee)
+                        if ($order['order_status'] === 'shipped'): 
+                        ?>
+                        <div style="background: rgba(14, 165, 233, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #0ea5e9;">
+                            <p style="color: #0ea5e9; font-weight: 600; margin: 0;">
+                                <i class="fas fa-truck"></i> Order is out for delivery
+                            </p>
+                            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0 0 0;">
+                                Waiting for delivery employee to mark as delivered
+                            </p>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php 
+                        // Show message if order is delivered
+                        if ($order['order_status'] === 'delivered'): 
+                        ?>
+                        <div style="background: rgba(34, 197, 94, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #22c55e;">
+                            <p style="color: #22c55e; font-weight: 600; margin: 0;">
+                                <i class="fas fa-check-circle"></i> Order Completed
+                            </p>
+                            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0 0 0;">
+                                This order has been successfully delivered
+                            </p>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php 
+                        // Show message if order is cancelled
+                        if ($order['order_status'] === 'cancelled'): 
+                        ?>
+                        <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #ef4444;">
+                            <p style="color: #ef4444; font-weight: 600; margin: 0;">
+                                <i class="fas fa-times-circle"></i> Order Cancelled
+                            </p>
+                            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0 0 0;">
+                                This order has been cancelled
+                            </p>
+                        </div>
                         <?php endif; ?>
                         
                         <button class="btn btn-print" onclick="window.print()">
                             <i class="fas fa-print"></i> Print Order
                         </button>
                     </div>
-                </div>
-
-                <!-- Status History Card -->
-                <div class="card" style="margin-top: 30px;">
-                    <div class="card-header">
-                        <h2 class="card-title">
-                            <i class="fas fa-history"></i> Status History
-                        </h2>
-                    </div>
-
-                    <?php if ($history->num_rows > 0): ?>
-                    <div class="timeline">
-                        <?php while ($h = $history->fetch_assoc()): ?>
-                        <div class="timeline-item">
-                            <div class="timeline-status"><?= ucfirst($h['status']) ?></div>
-                            <div class="timeline-date">
-                                <?= date('M j, Y - g:i A', strtotime($h['created_at'])) ?>
-                            </div>
-                            <?php if ($h['notes']): ?>
-                            <div class="timeline-notes"><?= htmlspecialchars($h['notes']) ?></div>
-                            <?php endif; ?>
-                            <?php if ($h['admin_email']): ?>
-                            <div class="timeline-admin">by <?= htmlspecialchars($h['admin_email']) ?></div>
-                            <?php endif; ?>
-                        </div>
-                        <?php endwhile; ?>
-                    </div>
-                    <?php else: ?>
-                    <div class="empty-history">
-                        <i class="fas fa-inbox" style="font-size: 3rem; opacity: 0.3; margin-bottom: 10px;"></i>
-                        <p>No status history available</p>
-                    </div>
-                    <?php endif; ?>
                 </div>
 
                 <!-- Timestamps Card -->
@@ -936,157 +973,178 @@ $emp_result = $conn->query($emp_sql);
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-    function openAssignModal() {
-        document.getElementById('assignEmployeeModal').classList.add('active');
-    }
-
-    function closeAssignModal() {
-        document.getElementById('assignEmployeeModal').classList.remove('active');
-        document.getElementById('assignEmployeeForm').reset();
-    }
-
-    function submitAssignment() {
-        const form = document.getElementById('assignEmployeeForm');
-        const formData = new FormData(form);
-        
-        if (!formData.get('employee_id')) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Please select an employee',
-                confirmButtonColor: '#e9b949'
-            });
-            return;
+        function openAssignModal() {
+            document.getElementById('assignEmployeeModal').classList.add('active');
         }
-        
-        fetch('assign_employee.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Employee Assigned!',
-                    text: data.message || 'Employee has been assigned to this order.',
-                    confirmButtonColor: '#e9b949'
-                }).then(() => {
-                    closeAssignModal();
-                    location.reload();
-                });
-            } else {
+
+        function closeAssignModal() {
+            document.getElementById('assignEmployeeModal').classList.remove('active');
+            document.getElementById('assignEmployeeForm').reset();
+        }
+
+        function submitAssignment() {
+            const form = document.getElementById('assignEmployeeForm');
+            const formData = new FormData(form);
+            
+            if (!formData.get('employee_id')) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: data.message || 'Failed to assign employee.',
+                    text: 'Please select an employee',
                     confirmButtonColor: '#e9b949'
                 });
+                return;
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
+            
+            // Show loading
             Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'An error occurred while assigning the employee.',
-                confirmButtonColor: '#e9b949'
-            });
-        });
-    }
-
-    function updateOrderStatus(orderId, currentStatus) {
-        const statusOptions = {
-            'pending': ['confirmed', 'cancelled'],
-            'confirmed': ['processing', 'cancelled'],
-            'processing': ['shipped', 'cancelled'],
-            'shipped': ['delivered'],
-            'delivered': [],
-            'cancelled': []
-        };
-
-        const nextStatuses = statusOptions[currentStatus];
-        
-        if (nextStatuses.length === 0) {
-            Swal.fire({
-                icon: 'info',
-                title: 'No Actions Available',
-                text: 'This order cannot be updated further.',
-                confirmButtonColor: '#e9b949'
-            });
-            return;
-        }
-
-        const inputOptions = {};
-        nextStatuses.forEach(status => {
-            inputOptions[status] = status.charAt(0).toUpperCase() + status.slice(1);
-        });
-
-        Swal.fire({
-            title: 'Update Order Status',
-            input: 'select',
-            inputOptions: inputOptions,
-            inputPlaceholder: 'Select new status',
-            showCancelButton: true,
-            confirmButtonColor: '#e9b949',
-            confirmButtonText: 'Update',
-            inputValidator: (value) => {
-                if (!value) {
-                    return 'Please select a status!';
+                title: 'Assigning Employee...',
+                text: 'Please wait',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
                 }
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                updateStatus(orderId, result.value);
-            }
-        });
-    }
-
-    function updateStatus(orderId, newStatus) {
-        const formData = new FormData();
-        formData.append('order_id', orderId);
-        formData.append('status', newStatus);
-        
-        fetch('update_order_status.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Updated!',
-                    text: 'Order status has been updated.',
-                    confirmButtonColor: '#e9b949'
-                }).then(() => {
-                    location.reload();
-                });
-            } else {
+            });
+            
+            fetch('assign_employee.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Employee Assigned & Shipped!',
+                        text: data.message,
+                        confirmButtonColor: '#e9b949'
+                    }).then(() => {
+                        closeAssignModal();
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Failed to assign employee.',
+                        confirmButtonColor: '#e9b949'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: data.message || 'Failed to update order status.',
+                    text: 'An error occurred while assigning the employee.',
                     confirmButtonColor: '#e9b949'
                 });
-            }
-        })
-        .catch(error => {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'An error occurred while updating the order.',
-                confirmButtonColor: '#e9b949'
             });
-        });
-    }
-
-    // Close modal when clicking outside
-    document.getElementById('assignEmployeeModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeAssignModal();
         }
-    });
+
+        function updateOrderStatus(orderId, currentStatus) {
+            // Define valid transitions for admin (excluding shipped - employee only)
+            const statusOptions = {
+                'pending': ['confirmed', 'cancelled'],
+                'confirmed': ['processing', 'cancelled']
+            };
+
+            const nextStatuses = statusOptions[currentStatus];
+            
+            if (!nextStatuses || nextStatuses.length === 0) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'No Actions Available',
+                    text: 'This order cannot be updated further.',
+                    confirmButtonColor: '#e9b949'
+                });
+                return;
+            }
+
+            const inputOptions = {};
+            nextStatuses.forEach(status => {
+                inputOptions[status] = status.charAt(0).toUpperCase() + status.slice(1);
+            });
+
+            Swal.fire({
+                title: 'Update Order Status',
+                input: 'select',
+                inputOptions: inputOptions,
+                inputPlaceholder: 'Select new status',
+                showCancelButton: true,
+                confirmButtonColor: '#e9b949',
+                confirmButtonText: 'Update',
+                cancelButtonText: 'Cancel',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Please select a status!';
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    updateStatus(orderId, result.value);
+                }
+            });
+        }
+
+        function updateStatus(orderId, newStatus) {
+            const formData = new FormData();
+            formData.append('order_id', orderId);
+            formData.append('status', newStatus);
+            
+            // Show loading
+            Swal.fire({
+                title: 'Updating Status...',
+                text: 'Please wait',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            fetch('update_order_status.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Updated!',
+                        text: 'Order status has been updated successfully.',
+                        confirmButtonColor: '#e9b949'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Failed to update order status.',
+                        confirmButtonColor: '#e9b949'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while updating the order.',
+                    confirmButtonColor: '#e9b949'
+                });
+            });
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('assignEmployeeModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAssignModal();
+            }
+        });
     </script>
 </body>
 </html>
