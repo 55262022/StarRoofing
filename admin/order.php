@@ -101,8 +101,7 @@ $counts_query = "
         COUNT(*) as total,
         SUM(CASE WHEN order_status = 'pending' THEN 1 ELSE 0 END) as pending,
         SUM(CASE WHEN order_status = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
-        SUM(CASE WHEN order_status = 'processing' THEN 1 ELSE 0 END) as processing,
-        SUM(CASE WHEN order_status = 'shipped' THEN 1 ELSE 0 END) as shipped,
+        SUM(CASE WHEN order_status = 'to_ship' THEN 1 ELSE 0 END) as to_ship,
         SUM(CASE WHEN order_status = 'delivered' THEN 1 ELSE 0 END) as delivered,
         SUM(CASE WHEN order_status = 'cancelled' THEN 1 ELSE 0 END) as cancelled
     FROM orders
@@ -332,8 +331,7 @@ $counts = $counts_result->fetch_assoc();
 
     .status-pending { background: rgba(234, 179, 8, 0.2); color: #eab308; }
     .status-confirmed { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
-    .status-processing { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
-    .status-shipped { background: rgba(14, 165, 233, 0.2); color: #0ea5e9; }
+    .status-to_ship { background: rgba(14, 165, 233, 0.2); color: #0ea5e9; }
     .status-delivered { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
     .status-cancelled { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
 
@@ -496,11 +494,8 @@ $counts = $counts_result->fetch_assoc();
             <a href="?status=confirmed" class="status-tab <?= $status_filter === 'confirmed' ? 'active' : '' ?>">
                 Confirmed <span class="badge"><?= $counts['confirmed'] ?></span>
             </a>
-            <a href="?status=processing" class="status-tab <?= $status_filter === 'processing' ? 'active' : '' ?>">
-                Processing <span class="badge"><?= $counts['processing'] ?></span>
-            </a>
-            <a href="?status=shipped" class="status-tab <?= $status_filter === 'shipped' ? 'active' : '' ?>">
-                Shipped <span class="badge"><?= $counts['shipped'] ?></span>
+            <a href="?status=to_ship" class="status-tab <?= $status_filter === 'to_ship' ? 'active' : '' ?>">
+                To Ship <span class="badge"><?= $counts['to_ship'] ?></span>
             </a>
             <a href="?status=delivered" class="status-tab <?= $status_filter === 'delivered' ? 'active' : '' ?>">
                 Delivered <span class="badge"><?= $counts['delivered'] ?></span>

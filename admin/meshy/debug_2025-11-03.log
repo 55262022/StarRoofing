@@ -1,0 +1,96 @@
+02:55:36 - === meshy_upload.php started ===
+02:55:36 - POST data
+02:55:36 - FILES data | "YES"
+02:55:36 - Using uploaded files mode
+02:55:36 - Upload file loaded | {"name":"lumpia.jpg","type":"image\/jpeg","size":3940020,"hash":"e3233816006af20ef605c292d2d83234"}
+02:55:36 - No duplicate found, proceeding with API call
+02:55:36 - Data URI created | {"length":5253383}
+02:55:36 - JSON payload size: 5312831 bytes
+02:56:30 - API Response | {"code":202,"response":"{\"result\":\"019a476e-1bab-77c8-b25b-8a90e9c54d3f\"}"}
+02:56:30 - Task created successfully: 019a476e-1bab-77c8-b25b-8a90e9c54d3f
+02:56:30 - Database record created for task: 019a476e-1bab-77c8-b25b-8a90e9c54d3f
+02:56:30 - === meshy_upload.php completed ===
+02:56:30 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:56:31 - API Response | {"code":200}
+02:56:31 - Task state | {"status":"in_progress"}
+02:56:41 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:56:42 - API Response | {"code":200}
+02:56:42 - Task state | {"status":"in_progress"}
+02:56:52 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:56:53 - API Response | {"code":200}
+02:56:53 - Task state | {"status":"in_progress"}
+02:57:03 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:57:04 - API Response | {"code":200}
+02:57:04 - Task state | {"status":"in_progress"}
+02:57:14 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:57:15 - API Response | {"code":200}
+02:57:15 - Task state | {"status":"in_progress"}
+02:57:25 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:57:26 - API Response | {"code":200}
+02:57:26 - Task state | {"status":"in_progress"}
+02:57:36 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:57:37 - API Response | {"code":200}
+02:57:37 - Task state | {"status":"in_progress"}
+02:57:47 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:57:48 - API Response | {"code":200}
+02:57:48 - Task state | {"status":"in_progress"}
+02:57:58 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:58:02 - API Response | {"code":200}
+02:58:02 - Task state | {"status":"in_progress"}
+02:58:12 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:58:12 - API Response | {"code":200}
+02:58:12 - Task state | {"status":"in_progress"}
+02:58:22 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:58:23 - API Response | {"code":200}
+02:58:23 - Task state | {"status":"in_progress"}
+02:58:33 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:58:34 - API Response | {"code":200}
+02:58:34 - Task state | {"status":"in_progress"}
+02:58:44 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:58:45 - API Response | {"code":200}
+02:58:45 - Task state | {"status":"in_progress"}
+02:58:56 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:58:58 - API Response | {"code":200}
+02:58:58 - Task state | {"status":"in_progress"}
+02:59:08 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:59:09 - API Response | {"code":200}
+02:59:09 - Task state | {"status":"in_progress"}
+02:59:19 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:59:20 - API Response | {"code":200}
+02:59:20 - Task state | {"status":"in_progress"}
+02:59:30 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:59:31 - API Response | {"code":200}
+02:59:31 - Task state | {"status":"in_progress"}
+02:59:41 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:59:42 - API Response | {"code":200}
+02:59:42 - Task state | {"status":"in_progress"}
+02:59:52 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+02:59:53 - API Response | {"code":200}
+02:59:53 - Task state | {"status":"in_progress"}
+03:00:03 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+03:00:04 - API Response | {"code":200}
+03:00:04 - Task state | {"status":"in_progress"}
+03:00:14 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+03:00:15 - API Response | {"code":200}
+03:00:15 - Task state | {"status":"in_progress"}
+03:00:25 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+03:00:26 - API Response | {"code":200}
+03:00:26 - Task state | {"status":"in_progress"}
+03:00:36 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+03:00:37 - API Response | {"code":200}
+03:00:37 - Task state | {"status":"in_progress"}
+03:00:47 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+03:00:48 - API Response | {"code":200}
+03:00:48 - Task state | {"status":"in_progress"}
+03:00:58 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+03:00:59 - API Response | {"code":200}
+03:00:59 - Task state | {"status":"in_progress"}
+03:01:09 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+03:01:10 - API Response | {"code":200}
+03:01:10 - Task state | {"status":"in_progress"}
+03:01:20 - Checking status | {"task_id":"019a476e-1bab-77c8-b25b-8a90e9c54d3f"}
+03:01:21 - API Response | {"code":200}
+03:01:21 - Task state | {"status":"succeeded"}
+03:01:21 - Model URL found | {"url":"https:\/\/assets.meshy.ai\/3b7a3bf4-2114-49b6-b91c-d1ee797186b9\/tasks\/019a476e-1bab-77c8-b25b-8a90e9c54d3f\/output\/model.glb?Expires=1762394477&Signature=ozM1rq1fdVF2qw-NTPR4GGv8Mp-R9nxe0o8yNaYlQI1mFZGGtdbB7QRA3DdBa7DDQjzqIjp6j0LLgUS41AdRMQIuHiCvWOKvck2hHmPoINsbhIKhitSGgd8YipvKK9URlaG0fsqItEmauUP8Ma5sjZxc9xD8xyXy9RlZqfjC0ZRDzZH65J~e5vtXaHDaqg~JJhGTCOU99wDl~0v7DPgXS4237dBcUskc7WfMdmOWESaMPPPPU91IkjpRrnEDKdDq-8URY~waYbPURqx~ReziclNt7omW36XIiX59KkYMBzTCJq10CLJvq17e9jfQwlu5RjFZGCD8B8WSiGWj35pJ~w__&Key-Pair-Id=KL5I0C8H7HX83"}
+03:02:29 - Model downloaded successfully | {"path":"C:\\xampp\\htdocs\\starroofing\\admin\\meshy\/..\/..\/uploads\/3dmodels\/model_69080cf145d19.glb","relative_path":"uploads\/3dmodels\/model_69080cf145d19.glb","size":7970976,"exists":true,"readable":true}
+03:02:29 - Database updated | {"id":7,"path":"uploads\/3dmodels\/model_69080cf145d19.glb"}

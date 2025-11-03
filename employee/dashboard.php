@@ -44,7 +44,7 @@ if (!$employee_id) {
     exit();
 }
 
-// Get employee's assigned orders - INCLUDING PROCESSING STATUS
+// Get employee's assigned orders
 $sql = "SELECT 
     o.order_id,
     o.order_number,
@@ -61,17 +61,17 @@ $sql = "SELECT
     o.quantity,
     o.order_status,
     o.delivery_proof,
-    o.shipped_at,
     o.delivered_at,
-    o.created_at
+    o.created_at,
+    o.updated_at,
+    COALESCE(o.assigned_at, o.updated_at) as assignment_date
 FROM orders o
 WHERE o.assigned_employee_id = ? 
-AND o.order_status IN ('processing', 'shipped', 'delivered')
+AND o.order_status IN ('to_ship', 'delivered')
 ORDER BY 
     CASE 
-        WHEN o.order_status = 'processing' THEN 1
-        WHEN o.order_status = 'shipped' THEN 2
-        WHEN o.order_status = 'delivered' THEN 3
+        WHEN o.order_status = 'to_ship' THEN 1
+        WHEN o.order_status = 'delivered' THEN 2
     END,
     o.created_at DESC";
 
@@ -94,10 +94,8 @@ $total_count = count($deliveries);
 $today = date('Y-m-d');
 
 foreach ($deliveries as $delivery) {
-    if ($delivery['order_status'] === 'processing') {
+    if ($delivery['order_status'] === 'to_ship') {
         $pending_count++;
-    }
-    if ($delivery['order_status'] === 'shipped') {
         $active_count++;
     }
     if ($delivery['order_status'] === 'delivered' && 
@@ -562,8 +560,8 @@ foreach ($deliveries as $delivery) {
 
         <div class="filter-tabs">
             <button class="filter-btn active" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="shipped">
-                Shipped <span class="filter-count"><?= $active_count ?></span>
+            <button class="filter-btn" data-filter="to_ship">
+                To Ship <span class="filter-count"><?= $active_count ?></span>
             </button>
             <button class="filter-btn" data-filter="delivered">
                 Delivered <span class="filter-count"><?= $total_count - $active_count ?></span>
@@ -620,8 +618,8 @@ foreach ($deliveries as $delivery) {
                             <div class="detail-item">
                                 <i class="fas fa-clock detail-icon"></i>
                                 <div class="detail-content">
-                                    <p>Shipped Date</p>
-                                    <p><?= date('M j, Y g:i A', strtotime($delivery['shipped_at'])) ?></p>
+                                    <p>Assigned Date</p>
+                                    <p><?= date('M j, Y g:i A', strtotime($delivery['assignment_date'])) ?></p>
                                 </div>
                             </div>
 
@@ -633,7 +631,7 @@ foreach ($deliveries as $delivery) {
                             <?php endif; ?>
                         </div>
 
-                        <?php if ($delivery['order_status'] === 'shipped'): ?>
+                        <?php if ($delivery['order_status'] === 'to_ship'): ?>
                             <div class="delivery-actions">
                                 <form action="../employee/upload_delivery_proof.php" method="POST" enctype="multipart/form-data" class="upload-form">
                                     <input type="hidden" name="order_id" value="<?= $delivery['order_id'] ?>">

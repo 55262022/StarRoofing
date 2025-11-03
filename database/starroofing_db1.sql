@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 02, 2025 at 10:34 AM
+-- Generation Time: Nov 03, 2025 at 09:18 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -43,15 +43,17 @@ CREATE TABLE `accounts` (
 --
 
 INSERT INTO `accounts` (`id`, `email`, `password`, `role_id`, `account_status`, `last_login`, `created_at`, `updated_at`) VALUES
-(7, 'ajmacaraig19@gmail.com', '$2y$10$vpvhTBLnHY84MDjuEUlAQ.XWjiJ2MW8iUUxsJB0kzF97DtmQU3H/G', 2, 'active', '2025-11-02 08:13:45', '2025-09-12 11:34:43', '2025-11-02 08:13:45'),
-(8, 'ajmacaraig20@gmail.com', '$2y$10$0xiOQg8aTUFKO9g/vajF.u5fM.nD9vMHXLqLPLoCia/HEzwR8XqAe', 1, 'active', '2025-11-02 07:40:36', '2025-09-12 11:45:37', '2025-11-02 07:40:36'),
+(7, 'ajmacaraig19@gmail.com', '$2y$10$vpvhTBLnHY84MDjuEUlAQ.XWjiJ2MW8iUUxsJB0kzF97DtmQU3H/G', 2, 'active', '2025-11-03 06:04:43', '2025-09-12 11:34:43', '2025-11-03 06:04:43'),
+(8, 'ajmacaraig20@gmail.com', '$2y$10$0xiOQg8aTUFKO9g/vajF.u5fM.nD9vMHXLqLPLoCia/HEzwR8XqAe', 1, 'active', '2025-11-03 02:21:23', '2025-09-12 11:45:37', '2025-11-03 02:21:23'),
 (9, 'ajmacaraig18@gmail.com', '$2y$10$TRYyLzGYJgBEC7JTpo5qD.8IOknPQ/Nhpa04gkhQmrHFe02.P4mLu', 2, 'active', '2025-10-08 06:52:34', '2025-09-15 09:34:45', '2025-10-12 07:29:51'),
 (10, '57842022@holycross.edu.ph', '$2y$10$VbwIwOWnPmhDvFsPwccoaOBzujWxl9waRxoJJbhXxMZpWPIR/Mmlu', 2, 'active', NULL, '2025-09-16 11:56:11', '2025-09-16 11:59:57'),
 (13, 'admin@gmail.com', '$2y$10$d7Cg4ccEJ1OLypxRhgg3rutDJYaVZwUrCcpzEv0vkIwH0Ddl.wp3a', 1, 'active', '2025-10-30 18:57:59', '2025-10-09 04:09:49', '2025-10-30 18:57:59'),
 (15, 'client@example.com', '186474c1f2c2f735a54c2cf82ee8e87f2a5cd30940e280029363fecedfc5328c', NULL, 'active', NULL, '2025-10-20 07:26:25', '2025-10-20 07:26:25'),
-(17, 'chiechie@gmail.com', '$2y$10$Xk81bIAEzFiiBUsddcv3Ne3wtU.lP5tvqDVP53OaZVYxhkuOIZnlO', 3, 'active', '2025-11-02 07:44:45', '2025-11-01 06:25:05', '2025-11-02 07:44:45'),
-(18, 'docenajoshua28@gmaill.com', '$2y$10$Xk81bIAEzFiiBUsddcv3Ne3wtU.lP5tvqDVP53OaZVYxhkuOIZnlO', 3, 'active', NULL, '2025-11-01 06:25:05', '2025-11-01 06:25:05'),
-(19, 'ajmacaraig1827@gmail.com', '$2y$10$PpXJxHYxsJy0I5HxqTg1Ze5YYZLPhVnxsITXw22J16LBPIqY/Qq8C', 3, 'active', '2025-11-02 08:18:44', '2025-11-01 10:13:20', '2025-11-02 08:18:44');
+(17, 'archieramirez@gmail.com', '$2y$10$Xk81bIAEzFiiBUsddcv3Ne3wtU.lP5tvqDVP53OaZVYxhkuOIZnlO', 3, 'active', '2025-11-03 07:53:39', '2025-11-01 06:25:05', '2025-11-03 08:04:08'),
+(18, 'docenajoshua28@gmail.com', '$2y$10$Xk81bIAEzFiiBUsddcv3Ne3wtU.lP5tvqDVP53OaZVYxhkuOIZnlO', 3, 'active', '2025-11-03 07:57:02', '2025-11-01 06:25:05', '2025-11-03 07:57:02'),
+(19, 'ajmacaraig1827@gmail.com', '$2y$10$PpXJxHYxsJy0I5HxqTg1Ze5YYZLPhVnxsITXw22J16LBPIqY/Qq8C', 3, 'active', '2025-11-02 08:18:44', '2025-11-01 10:13:20', '2025-11-02 08:18:44'),
+(21, '66652022@holycross.edu.ph', '$2y$10$x5WL7KDsmO.c8lclg81WueNHOr78JexTFEePwHClAJA.7GgIW12B6', 3, 'active', NULL, '2025-11-03 07:03:15', '2025-11-03 07:03:15'),
+(22, 'jacamile@gmail.com', '$2y$10$K3Sf/Ed2YP97YyOl0IoDteYcgcKN/9zIq.08FyWI5Sc/60SilTz3i', 3, 'active', NULL, '2025-11-03 08:04:46', '2025-11-03 08:04:46');
 
 -- --------------------------------------------------------
 
@@ -169,7 +171,7 @@ CREATE TABLE `conversations` (
 --
 
 INSERT INTO `conversations` (`id`, `email`, `is_accepted`, `created_at`, `updated_at`, `unread_count`, `last_message_at`, `last_message_sender`) VALUES
-(6, 'ajmacaraig19@gmail.com', 1, '2025-10-23 07:44:44', '2025-10-31 06:02:40', 0, NULL, NULL),
+(6, 'ajmacaraig19@gmail.com', 1, '2025-10-23 07:44:44', '2025-11-03 02:45:42', 0, NULL, NULL),
 (7, 'docenajoshua28@gmail.com', 1, '2025-10-28 11:16:03', '2025-10-28 11:16:25', 0, NULL, NULL),
 (8, 'markdiego073@gmail.com', 1, '2025-10-28 12:09:37', '2025-10-28 12:36:02', 0, NULL, NULL),
 (9, 'ajmacaraig1827@gmail.com', 1, '2025-10-28 12:36:59', '2025-10-28 13:04:53', 0, NULL, NULL),
@@ -202,9 +204,11 @@ CREATE TABLE `employees` (
 --
 
 INSERT INTO `employees` (`employee_id`, `account_id`, `first_name`, `last_name`, `email`, `password`, `phone`, `department`, `hire_date`, `image_path`, `created_at`, `updated_at`, `is_archived`) VALUES
-(1, 17, 'archie', 'ramirez', 'chiechie@gmail.com', NULL, '09627646372', 'Sales', '2025-09-17', 'uploads/employees/68cff607c1937.jpg', '2025-09-21 12:56:39', '2025-11-01 06:25:05', 0),
-(2, 18, 'Joshua', 'Docena', 'docenajoshua28@gmaill.com', NULL, '09728374893', 'Roofing', '2025-09-27', 'uploads/employees/68d8299b2fef9.png', '2025-09-27 18:14:51', '2025-11-01 06:25:05', 0),
-(3, 19, 'Arieljon', 'Linsangan', '', NULL, '09152076679', 'Sales', '2025-11-01', NULL, '2025-11-01 10:13:20', '2025-11-01 10:13:20', 0);
+(1, 17, 'Archie', 'Ramirez', 'archieramirez@gmail.com', NULL, '09283762182', 'Logistics and Services', '2025-09-17', 'uploads/employees/68cff607c1937.jpg', '2025-09-21 12:56:39', '2025-11-03 08:06:20', 0),
+(2, 18, 'Joshua', 'Docena', 'docenajoshua28@gmail.com', NULL, '09231732198', 'Logistics and Services', '2025-09-27', 'uploads/employees/68d8299b2fef9.png', '2025-09-27 18:14:51', '2025-11-03 08:06:12', 0),
+(3, 19, 'Arieljon', 'Linsangan', 'ajmacaraig1827@gmail.com', NULL, '09123721873', 'Sales Manager', '2025-11-01', NULL, '2025-11-01 10:13:20', '2025-11-03 08:06:06', 0),
+(5, 21, 'Jerthel', 'Sanglay', '66652022@holycross.edu.ph', '$2y$10$x5WL7KDsmO.c8lclg81WueNHOr78JexTFEePwHClAJA.7GgIW12B6', '09181727381', 'Administration', '2025-11-03', NULL, '2025-11-03 07:03:15', '2025-11-03 07:04:53', 0),
+(6, 22, 'Christian', 'Jacamile', 'jacamile@gmail.com', '$2y$10$K3Sf/Ed2YP97YyOl0IoDteYcgcKN/9zIq.08FyWI5Sc/60SilTz3i', '09127321983', 'Logistics and Services', '2025-11-03', NULL, '2025-11-03 08:04:46', '2025-11-03 08:04:46', 0);
 
 -- --------------------------------------------------------
 
@@ -240,7 +244,8 @@ INSERT INTO `generated_3d_models` (`id`, `product_id`, `meshy_task_id`, `image_h
 (3, NULL, '019a19f2-f895-786a-ad90-d85151ecf360', '7f1a41bb0027657cd3692a6e9191d1da', 'images.jpg', NULL, 'model_68fc67be914b7.glb', 'uploads/3dmodels/model_68fc67be914b7.glb', 'uploads/3dmodels/model_68fc67be914b7.glb', 9090820, 'succeeded', NULL, NULL, '2025-10-25 05:59:05', '2025-10-28 08:06:54'),
 (4, 16, '019a2163-e7c0-7c32-a31c-04c6f82cecfc', '4c2ebc13fbb8e8cb565e3205d1502ccc', '1761490082_foam insulation.jpg', NULL, 'model_68fe5004b2736.glb', 'uploads/3dmodels/model_68fe5004b2736.glb', 'uploads/3dmodels/model_68fe5004b2736.glb', 8322188, 'succeeded', NULL, NULL, '2025-10-26 16:39:47', '2025-10-28 08:06:54'),
 (5, 17, '019a29b0-b260-7760-a51b-06c4295186f4', 'b8e115f9a41e16af556e41954bd2e4da', '1761498892_flat deck.jpg', NULL, 'model_69006f6fc7373.glb', 'uploads/3dmodels/model_69006f6fc7373.glb', 'uploads/3dmodels/model_69006f6fc7373.glb', 7671728, 'succeeded', NULL, NULL, '2025-10-28 07:20:35', '2025-10-28 08:06:54'),
-(6, 18, '019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f', 'c515044d24461e15cdb225089b68df81', '1761997659_J bolt.jpg', NULL, 'model_690601e2c1f1a.glb', 'uploads/3dmodels/model_690601e2c1f1a.glb', 'https://assets.meshy.ai/3b7a3bf4-2114-49b6-b91c-d1ee797186b9/tasks/019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f/output/model.glb?Expires=1762260572&Signature=aLlyeRW6n2VQ8ZnrLThoNLKean8JVx0dJniakkksgsq1zRYmit8gMy8mez3mQVZ0yH3UpmH8H4M1XINsGyH0ODd0sanpcTGggz6mH5ipodcIX-Bp5W0pLZtIaN0oVYzJo3fbZmc0z6ea4vvLX8Fm7iBxJCfu~J-ZTSrCPcRHiUKMmyqHYwyvhdVSHABVMejGxErTtC0R4xYoXqtlVkcvt~0RNsNhMavpJWmbf0BBlaK1T~HXIAgBmZzU-cJWV1UvsTDACFfs3E3~K89RxVaSzlpiQUGcSVDyj0eEi5NNWsj-t2n5Md3E8c30kXyd8FfYp0dZG~tv3oTuGJ6Mi9N1Ug__&Key-P', 8273536, 'succeeded', NULL, NULL, '2025-11-01 12:47:41', '2025-11-01 12:49:40');
+(6, 18, '019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f', 'c515044d24461e15cdb225089b68df81', '1761997659_J bolt.jpg', NULL, 'model_690601e2c1f1a.glb', 'uploads/3dmodels/model_690601e2c1f1a.glb', 'https://assets.meshy.ai/3b7a3bf4-2114-49b6-b91c-d1ee797186b9/tasks/019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f/output/model.glb?Expires=1762260572&Signature=aLlyeRW6n2VQ8ZnrLThoNLKean8JVx0dJniakkksgsq1zRYmit8gMy8mez3mQVZ0yH3UpmH8H4M1XINsGyH0ODd0sanpcTGggz6mH5ipodcIX-Bp5W0pLZtIaN0oVYzJo3fbZmc0z6ea4vvLX8Fm7iBxJCfu~J-ZTSrCPcRHiUKMmyqHYwyvhdVSHABVMejGxErTtC0R4xYoXqtlVkcvt~0RNsNhMavpJWmbf0BBlaK1T~HXIAgBmZzU-cJWV1UvsTDACFfs3E3~K89RxVaSzlpiQUGcSVDyj0eEi5NNWsj-t2n5Md3E8c30kXyd8FfYp0dZG~tv3oTuGJ6Mi9N1Ug__&Key-P', 8273536, 'succeeded', NULL, NULL, '2025-11-01 12:47:41', '2025-11-01 12:49:40'),
+(7, NULL, '019a476e-1bab-77c8-b25b-8a90e9c54d3f', 'e3233816006af20ef605c292d2d83234', 'lumpia.jpg', NULL, 'model_69080cf145d19.glb', 'uploads/3dmodels/model_69080cf145d19.glb', 'https://assets.meshy.ai/3b7a3bf4-2114-49b6-b91c-d1ee797186b9/tasks/019a476e-1bab-77c8-b25b-8a90e9c54d3f/output/model.glb?Expires=1762394477&Signature=ozM1rq1fdVF2qw-NTPR4GGv8Mp-R9nxe0o8yNaYlQI1mFZGGtdbB7QRA3DdBa7DDQjzqIjp6j0LLgUS41AdRMQIuHiCvWOKvck2hHmPoINsbhIKhitSGgd8YipvKK9URlaG0fsqItEmauUP8Ma5sjZxc9xD8xyXy9RlZqfjC0ZRDzZH65J~e5vtXaHDaqg~JJhGTCOU99wDl~0v7DPgXS4237dBcUskc7WfMdmOWESaMPPPPU91IkjpRrnEDKdDq-8URY~waYbPURqx~ReziclNt7omW36XIiX59KkYMBzTCJq10CLJvq17e9jfQwlu5RjFZGCD8B8WSiGWj35pJ~w__&Key-P', 7970976, 'succeeded', NULL, NULL, '2025-11-03 01:56:30', '2025-11-03 02:02:29');
 
 -- --------------------------------------------------------
 
@@ -296,7 +301,8 @@ INSERT INTO `inquiries` (`id`, `firstname`, `lastname`, `email`, `phone`, `regio
 (43, 'aj', 'lin', 'ajmacaraig19@gmail.com', 'N/A', '', '', '', '', '', '', '', '', '', 'hello', NULL, 6, '2025-10-29 02:23:08', 1, 'chatbot'),
 (44, 'aj', 'lin', 'ajmacaraig19@gmail.com', 'N/A', '', '', '', '', '', '', '', '', '', 'hi', NULL, 6, '2025-10-29 14:20:29', 1, 'chatbot'),
 (45, 'aj', 'lin', 'ajmacaraig19@gmail.com', 'N/A', '', '', '', '', '', '', '', '', '', 'okkokokokokokkokoko', NULL, 6, '2025-10-30 09:38:30', 1, 'chatbot'),
-(46, 'aj', 'lin', 'ajmacaraig19@gmail.com', 'N/A', '', '', '', '', '', '', '', '', '', 'hi', NULL, 6, '2025-10-31 06:02:40', 0, 'chatbot');
+(46, 'aj', 'lin', 'ajmacaraig19@gmail.com', 'N/A', '', '', '', '', '', '', '', '', '', 'hi', NULL, 6, '2025-10-31 06:02:40', 1, 'chatbot'),
+(47, 'ARIELJON', 'LINSANGAN', 'ajmacaraig19@gmail.com', 'N/A', '', '', '', '', '', '', '', '', '', 'uihg', NULL, 6, '2025-11-03 02:13:19', 1, 'chatbot');
 
 -- --------------------------------------------------------
 
@@ -344,12 +350,12 @@ CREATE TABLE `orders` (
   `payment_status` enum('pending','paid','failed','refunded') DEFAULT 'pending',
   `payment_proof` varchar(255) DEFAULT NULL,
   `delivery_proof` varchar(255) DEFAULT NULL,
-  `order_status` enum('pending','confirmed','processing','shipped','delivered','cancelled') DEFAULT 'pending',
+  `order_status` enum('pending','confirmed','to_ship','delivered','cancelled') DEFAULT 'pending',
   `assigned_employee_id` int(11) DEFAULT NULL,
+  `assigned_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `confirmed_at` timestamp NULL DEFAULT NULL,
-  `shipped_at` timestamp NULL DEFAULT NULL,
   `delivered_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -357,12 +363,13 @@ CREATE TABLE `orders` (
 -- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`order_id`, `order_number`, `account_id`, `customer_first_name`, `customer_last_name`, `customer_email`, `customer_phone`, `address_id`, `delivery_street`, `delivery_barangay`, `delivery_city`, `delivery_province`, `delivery_region`, `delivery_notes`, `product_id`, `product_name`, `product_price`, `quantity`, `subtotal`, `delivery_fee`, `total_amount`, `payment_method`, `payment_status`, `payment_proof`, `delivery_proof`, `order_status`, `assigned_employee_id`, `created_at`, `updated_at`, `confirmed_at`, `shipped_at`, `delivered_at`) VALUES
-(9, 'ORD202511020001', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 6, '', 'La Fuente', 'Santa Rosa', 'Nueva Ecija', 'Central Luzon', '', 18, 'J bolt', 50.00, 5, 250.00, 150.00, 400.00, 'cod', 'paid', NULL, 'delivery_proof_9_1762074793.jpg', 'delivered', 3, '2025-11-02 08:14:18', '2025-11-02 09:13:13', '2025-11-02 08:14:47', '2025-11-02 08:59:01', '2025-11-02 09:13:13'),
-(10, 'ORD202511020002', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 6, '', 'La Fuente', 'Santa Rosa', 'Nueva Ecija', 'Central Luzon', '', 17, 'Flat Deck', 500.00, 1, 500.00, 150.00, 650.00, 'cod', 'pending', NULL, NULL, 'pending', NULL, '2025-11-02 09:20:19', '2025-11-02 09:20:19', NULL, NULL, NULL),
-(11, 'ORD202511020003', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 6, '', 'La Fuente', 'Santa Rosa', 'Nueva Ecija', 'Central Luzon', '', 17, 'Flat Deck', 500.00, 1, 500.00, 150.00, 650.00, 'cod', 'pending', NULL, NULL, 'pending', NULL, '2025-11-02 09:21:05', '2025-11-02 09:21:05', NULL, NULL, NULL),
-(12, 'ORD202511020004', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 7, '', 'Chanarian', 'Basco', 'Batanes', 'Cagayan Valley', '', 17, 'Flat Deck', 500.00, 1, 500.00, 150.00, 650.00, 'cod', 'pending', NULL, NULL, 'pending', NULL, '2025-11-02 09:21:39', '2025-11-02 09:21:39', NULL, NULL, NULL),
-(13, 'ORD202511020005', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 7, '', 'Chanarian', 'Basco', 'Batanes', 'Cagayan Valley', '', 2, 'Simple Structure', 300.00, 1, 300.00, 150.00, 450.00, 'cod', 'pending', NULL, NULL, 'pending', NULL, '2025-11-02 09:21:50', '2025-11-02 09:21:50', NULL, NULL, NULL);
+INSERT INTO `orders` (`order_id`, `order_number`, `account_id`, `customer_first_name`, `customer_last_name`, `customer_email`, `customer_phone`, `address_id`, `delivery_street`, `delivery_barangay`, `delivery_city`, `delivery_province`, `delivery_region`, `delivery_notes`, `product_id`, `product_name`, `product_price`, `quantity`, `subtotal`, `delivery_fee`, `total_amount`, `payment_method`, `payment_status`, `payment_proof`, `delivery_proof`, `order_status`, `assigned_employee_id`, `assigned_at`, `created_at`, `updated_at`, `confirmed_at`, `delivered_at`) VALUES
+(9, 'ORD202511020001', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 6, '', 'La Fuente', 'Santa Rosa', 'Nueva Ecija', 'Central Luzon', '', 18, 'J bolt', 50.00, 5, 250.00, 150.00, 400.00, 'cod', 'paid', NULL, 'delivery_proof_9_1762074793.jpg', 'delivered', 3, NULL, '2025-11-02 08:14:18', '2025-11-02 09:13:13', '2025-11-02 08:14:47', '2025-11-02 09:13:13'),
+(10, 'ORD202511020002', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 6, '', 'La Fuente', 'Santa Rosa', 'Nueva Ecija', 'Central Luzon', '', 17, 'Flat Deck', 500.00, 1, 500.00, 150.00, 650.00, 'cod', 'pending', NULL, NULL, '', 1, NULL, '2025-11-02 09:20:19', '2025-11-03 06:34:14', '2025-11-02 14:24:11', NULL),
+(11, 'ORD202511020003', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 6, '', 'La Fuente', 'Santa Rosa', 'Nueva Ecija', 'Central Luzon', '', 17, 'Flat Deck', 500.00, 1, 500.00, 150.00, 650.00, 'cod', 'pending', NULL, NULL, '', 2, NULL, '2025-11-02 09:21:05', '2025-11-03 06:34:06', '2025-11-02 09:46:16', NULL),
+(13, 'ORD202511020005', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 7, '', 'Chanarian', 'Basco', 'Batanes', 'Cagayan Valley', '', 2, 'Simple Structure', 300.00, 1, 300.00, 150.00, 450.00, 'cod', 'pending', NULL, NULL, 'to_ship', 2, NULL, '2025-11-02 09:21:50', '2025-11-03 08:00:49', '2025-11-02 09:44:21', NULL),
+(14, 'ORD202511020006', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 1, 'bahay', 'Uguis', 'Nueva Era', 'Ilocos Norte', 'Ilocos Region', '', 17, 'Flat Deck', 500.00, 1, 500.00, 150.00, 650.00, 'cod', 'pending', NULL, NULL, '', 1, NULL, '2025-11-02 14:31:05', '2025-11-03 02:24:53', '2025-11-03 02:24:09', NULL),
+(15, 'ORD202511030001', 7, 'aj', 'lin', 'ajmacaraig19@gmail.com', '091287382173721', 7, '', 'Chanarian', 'Basco', 'Batanes', 'Cagayan Valley', 'lkjn', 17, 'Flat Deck', 500.00, 1, 500.00, 150.00, 650.00, 'cod', 'paid', NULL, 'delivery_proof_15_1762136585.jpg', 'delivered', 1, NULL, '2025-11-03 02:18:55', '2025-11-03 02:23:05', '2025-11-03 02:21:56', '2025-11-03 02:23:05');
 
 -- --------------------------------------------------------
 
@@ -373,7 +380,7 @@ INSERT INTO `orders` (`order_id`, `order_number`, `account_id`, `customer_first_
 CREATE TABLE `order_status_history` (
   `id` int(11) NOT NULL,
   `order_id` int(11) NOT NULL,
-  `status` enum('pending','confirmed','processing','shipped','delivered','cancelled') NOT NULL,
+  `status` enum('pending','confirmed','to_ship','delivered','cancelled') DEFAULT NULL,
   `notes` text DEFAULT NULL,
   `created_by` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -386,14 +393,30 @@ CREATE TABLE `order_status_history` (
 INSERT INTO `order_status_history` (`id`, `order_id`, `status`, `notes`, `created_by`, `created_at`) VALUES
 (37, 9, 'pending', 'Order placed', NULL, '2025-11-02 08:14:18'),
 (38, 9, 'confirmed', 'Status updated from Pending to Confirmed', 8, '2025-11-02 08:14:47'),
-(39, 9, 'processing', 'Status updated from Confirmed to Processing', 8, '2025-11-02 08:17:27'),
-(40, 9, 'processing', 'Order assigned to employee: Arieljon Linsangan', 8, '2025-11-02 08:46:00'),
-(41, 9, 'shipped', 'Order shipped and assigned to delivery employee: Arieljon Linsangan', 8, '2025-11-02 08:59:01'),
+(39, 9, '', 'Status updated from Confirmed to Processing', 8, '2025-11-02 08:17:27'),
+(40, 9, '', 'Order assigned to employee: Arieljon Linsangan', 8, '2025-11-02 08:46:00'),
+(41, 9, '', 'Order shipped and assigned to delivery employee: Arieljon Linsangan', 8, '2025-11-02 08:59:01'),
 (42, 9, 'delivered', 'Order delivered with proof of delivery', 19, '2025-11-02 09:13:13'),
 (43, 10, 'pending', 'Order placed', NULL, '2025-11-02 09:20:19'),
 (44, 11, 'pending', 'Order placed', NULL, '2025-11-02 09:21:05'),
-(45, 12, 'pending', 'Order placed', NULL, '2025-11-02 09:21:39'),
-(46, 13, 'pending', 'Order placed', NULL, '2025-11-02 09:21:50');
+(46, 13, 'pending', 'Order placed', NULL, '2025-11-02 09:21:50'),
+(47, 13, 'confirmed', 'Status updated from Pending to Confirmed', 8, '2025-11-02 09:44:21'),
+(50, 11, 'confirmed', 'Status updated from Pending to Confirmed by admin', 8, '2025-11-02 09:46:16'),
+(51, 11, '', 'Status updated from Confirmed to Processing by admin', 8, '2025-11-02 09:46:20'),
+(54, 10, 'confirmed', 'Status updated from Pending to Confirmed by admin', 8, '2025-11-02 14:24:11'),
+(55, 10, '', 'Status updated from Confirmed to Processing by admin', 8, '2025-11-02 14:24:27'),
+(56, 14, 'pending', 'Order placed', NULL, '2025-11-02 14:31:05'),
+(57, 15, 'pending', 'Order placed', NULL, '2025-11-03 02:18:55'),
+(58, 15, 'confirmed', 'Status updated from Pending to Confirmed by admin', 8, '2025-11-03 02:21:56'),
+(59, 15, '', 'Status updated from Confirmed to Processing by admin', 8, '2025-11-03 02:22:24'),
+(60, 15, '', 'Order shipped and assigned to delivery employee: archie ramirez | Delivery Instructions: sdf', 8, '2025-11-03 02:22:32'),
+(61, 15, 'delivered', 'Order delivered with proof of delivery', 17, '2025-11-03 02:23:05'),
+(62, 14, 'confirmed', 'Status updated from Pending to Confirmed by admin', 8, '2025-11-03 02:24:09'),
+(63, 14, '', 'Status updated from Confirmed to Processing by admin', 8, '2025-11-03 02:24:14'),
+(64, 14, '', 'Order shipped and assigned to delivery employee: archie ramirez | Delivery Instructions: Archie, palagay nalang sa harap ng bahay', 8, '2025-11-03 02:24:53'),
+(65, 11, '', 'Order shipped and assigned to delivery employee: Joshua Docena', 8, '2025-11-03 06:34:06'),
+(66, 10, '', 'Order shipped and assigned to delivery employee: archie ramirez', 8, '2025-11-03 06:34:14'),
+(67, 13, 'to_ship', 'Order ready to ship. Assigned to delivery employee: Joshua Docena', 8, '2025-11-03 08:00:49');
 
 -- --------------------------------------------------------
 
@@ -463,7 +486,7 @@ INSERT INTO `products` (`product_id`, `category_id`, `name`, `description`, `pri
 (14, 5, 'Gate', '', 50000.00, 30, 'set', 'uploads/products/1759905769_purok 3.png', NULL, 8, '2025-10-08 06:42:49', '2025-10-26 14:57:13', 1, NULL, NULL, NULL),
 (15, 5, 'Gate', '', 50000.00, 10, 'set', 'uploads/products/1759905994_purok 3.png', NULL, 8, '2025-10-08 06:46:34', '2025-10-08 06:48:49', 1, NULL, NULL, NULL),
 (16, 5, 'Foam Insulation', '', 850.00, 5, 'piece', 'uploads/products/1761490082_foam insulation.jpg', 'uploads/3dmodels/model_68fe5004b2736.glb', 8, '2025-10-26 14:48:02', '2025-10-28 08:06:54', 0, '019a2163-e7c0-7c32-a31c-04c6f82cecfc', 'uploads/3dmodels/model_68fe5004b2736.glb', 4),
-(17, 2, 'Flat Deck', '', 500.00, 6, 'piece', 'uploads/products/1761498892_flat deck.jpg', 'uploads/3dmodels/model_69006f6fc7373.glb', 8, '2025-10-26 17:14:52', '2025-11-02 09:21:39', 0, '019a29b0-b260-7760-a51b-06c4295186f4', 'uploads/3dmodels/model_69006f6fc7373.glb', 5),
+(17, 2, 'Flat Deck', '', 500.00, 4, 'piece', 'uploads/products/1761498892_flat deck.jpg', 'uploads/3dmodels/model_69006f6fc7373.glb', 8, '2025-10-26 17:14:52', '2025-11-03 02:18:55', 0, '019a29b0-b260-7760-a51b-06c4295186f4', 'uploads/3dmodels/model_69006f6fc7373.glb', 5),
 (18, 8, 'J bolt', '', 50.00, 0, 'piece', 'uploads/products/1761997659_J bolt.jpg', 'uploads/3dmodels/model_690601e2c1f1a.glb', 8, '2025-11-01 11:47:39', '2025-11-02 08:14:18', 0, '019a3f75-8fb2-7f58-a1f3-be1e22b8ab8f', 'uploads/3dmodels/model_690601e2c1f1a.glb', 6);
 
 -- --------------------------------------------------------
@@ -540,7 +563,9 @@ INSERT INTO `replies` (`id`, `inquiry_id`, `conversation_id`, `related_inquiry_i
 (48, 43, 6, 43, 0, 'admin', 'bili na kayo', '2025-10-29 03:01:08', 1, 'sent'),
 (49, 45, 6, 45, 0, 'admin', 'hi', '2025-10-31 04:21:14', 1, 'sent'),
 (50, 26, 6, NULL, NULL, 'client', 'hello', '2025-10-31 04:21:21', 1, 'sent'),
-(51, 46, 6, 46, NULL, 'client', 'hi', '2025-10-31 06:02:40', 1, 'sent');
+(51, 46, 6, 46, NULL, 'client', 'hi', '2025-10-31 06:02:40', 1, 'sent'),
+(52, 47, 6, 47, NULL, 'client', 'uihg', '2025-11-03 02:13:19', 1, 'sent'),
+(53, 47, 6, 47, 0, 'admin', 'hello4', '2025-11-03 02:45:42', 1, 'sent');
 
 -- --------------------------------------------------------
 
@@ -599,8 +624,8 @@ INSERT INTO `user_addresses` (`id`, `account_id`, `address_label`, `street`, `ba
 (3, 9, 'Home', 'haha', '175210011', 'Malibago', '175210', 'Pola', '1752', 'Oriental Mindoro', '17', 'Region IV-B (MIMAROPA)', 1, '2025-10-30 06:10:42', '2025-10-30 06:10:42'),
 (4, 10, 'Home', 'bahay', '137603002', 'Bayanan', '137603', 'City Of Muntinlupa', '1376', 'Ncr, Fourth District', '13', 'National Capital Region (NCR)', 1, '2025-10-30 06:10:42', '2025-10-30 06:10:42'),
 (5, 15, 'Home', NULL, NULL, NULL, NULL, 'Quezon City', NULL, NULL, NULL, NULL, 1, '2025-10-30 06:10:42', '2025-10-30 06:10:42'),
-(6, 7, 'Work', '', NULL, 'La Fuente', NULL, 'Santa Rosa', NULL, 'Nueva Ecija', NULL, 'Central Luzon', 1, '2025-10-30 06:24:47', '2025-10-30 06:24:50'),
-(7, 7, 'office', '', NULL, 'Chanarian', NULL, 'Basco', NULL, 'Batanes', NULL, 'Cagayan Valley', 0, '2025-10-30 07:14:11', '2025-10-30 07:14:11');
+(6, 7, 'Work', '', NULL, 'La Fuente', NULL, 'Santa Rosa', NULL, 'Nueva Ecija', NULL, 'Central Luzon', 1, '2025-10-30 06:24:47', '2025-11-03 02:15:09'),
+(7, 7, 'office', '', NULL, 'Chanarian', NULL, 'Basco', NULL, 'Batanes', NULL, 'Cagayan Valley', 0, '2025-10-30 07:14:11', '2025-11-03 02:15:09');
 
 -- --------------------------------------------------------
 
@@ -786,7 +811,7 @@ ALTER TABLE `user_profiles`
 -- AUTO_INCREMENT for table `accounts`
 --
 ALTER TABLE `accounts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `cart`
@@ -816,19 +841,19 @@ ALTER TABLE `conversations`
 -- AUTO_INCREMENT for table `employees`
 --
 ALTER TABLE `employees`
-  MODIFY `employee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `employee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `generated_3d_models`
 --
 ALTER TABLE `generated_3d_models`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `inquiries`
 --
 ALTER TABLE `inquiries`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `login_attempts`
@@ -840,13 +865,13 @@ ALTER TABLE `login_attempts`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `order_status_history`
 --
 ALTER TABLE `order_status_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 
 --
 -- AUTO_INCREMENT for table `password_resets`
@@ -864,7 +889,7 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT for table `replies`
 --
 ALTER TABLE `replies`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT for table `roles`

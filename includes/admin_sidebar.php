@@ -8,7 +8,6 @@
 
     <ul class="sidebar-menu">
         <li><a href="#" onclick="showSection('dashboard')"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
-        <li><a href="#" onclick="showSection('3dmodel')"><i class="fas fa-cube"></i> <span>3D Model</span></a></li>
         <li><a href="#" onclick="showSection('inventory')"><i class="fas fa-boxes"></i> <span>Inventory</span></a></li>
         <li><a href="#" onclick="showSection('order')"><i class="fa-solid fa-bag-shopping"></i> <span>Order</span></a></li>
         <li><a href="#" onclick="showSection('employees')"><i class="fa-solid fa-user-tie"></i> <span>Employees</span></a></li>
@@ -38,9 +37,6 @@
         // Show selected section
         if (section === 'dashboard') {
             if (dashboardContent) dashboardContent.style.display = 'block';
-        } 
-        else if (section === '3dmodel') {
-            document.getElementById('3dmodel-section').classList.remove('hidden');
         } 
         else if (section === 'inventory') {
             document.getElementById('inventory-section').classList.remove('hidden');

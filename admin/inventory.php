@@ -29,6 +29,9 @@ $category_filter = isset($_GET['category']) ? $_GET['category'] : 'all';
 // Determine search term
 $search_term = isset($_GET['search']) ? trim($_GET['search']) : '';
 
+// Determine view mode (table or 3d)
+$view_mode = isset($_GET['view']) ? $_GET['view'] : 'table';
+
 // Build base SQL with category and search
 $sql = "SELECT p.*, c.category_name, c.category_code 
         FROM products p 
@@ -71,7 +74,7 @@ if ($result && $result->num_rows > 0) {
 }
 
 // --- Pagination setup ---
-$limit = 2; 
+$limit = 6; 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 $offset = ($page - 1) * $limit;
@@ -80,6 +83,7 @@ $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $category = isset($_GET['category']) ? trim($_GET['category']) : '';
 
 $where = [];
+$where[] = "p.is_archived = 0";
 if (!empty($search)) {
     $s = $conn->real_escape_string($search);
     $where[] = "(p.name LIKE '%$s%' OR p.description LIKE '%$s%')";
@@ -88,7 +92,7 @@ if (!empty($category) && $category !== 'all') {
     $c = $conn->real_escape_string($category);
     $where[] = "c.category_code = '$c'";
 }
-$whereSQL = count($where) > 0 ? "WHERE " . implode(" AND ", $where) : "WHERE p.is_archived = 0";
+$whereSQL = count($where) > 0 ? "WHERE " . implode(" AND ", $where) : "";
 
 // Count total rows
 $count_sql = "SELECT COUNT(*) as total 
@@ -119,9 +123,10 @@ $result = $conn->query($sql);
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Model Viewer -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
     <!-- CSS style -->
     <link rel="stylesheet" href="../css/admin_main.css">
-    <!-- <link rel="stylesheet" href="../css/inventory.css"> -->
      <style>
         /* Your existing CSS styles */        
         .user-profile {
@@ -274,6 +279,40 @@ $result = $conn->query($sql);
             background-color: #c0392b;
         }
 
+        /* View Toggle Buttons */
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 5px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            width: fit-content;
+        }
+
+        .view-btn {
+            padding: 10px 20px;
+            background-color: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .view-btn.active {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .view-btn:hover:not(.active) {
+            background-color: #e9ecef;
+        }
+
         /* Search Form */
         .search-form {
             margin-bottom: 20px;
@@ -370,6 +409,153 @@ $result = $conn->query($sql);
             height: 60px;
             object-fit: cover;
             border-radius: 6px;
+        }
+
+        /* 3D Model Card View */
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .model-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .model-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .model-card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: #f8f9fa;
+        }
+
+        .model-card-3d-container {
+            width: 100%;
+            height: 250px;
+            background-color: #2c3e50;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .model-card-3d-container model-viewer {
+            width: 100%;
+            height: 100%;
+        }
+
+        .model-card-no-3d {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .model-card-no-3d i {
+            font-size: 48px;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .model-card-no-3d span {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .model-card-content {
+            padding: 20px;
+        }
+
+        .model-card-category {
+            font-size: 12px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .model-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+        }
+
+        .model-card-description {
+            color: #7f8c8d;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .model-card-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .model-card-price {
+            font-size: 20px;
+            font-weight: 600;
+            color: #3498db;
+        }
+
+        .model-card-stock {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .model-card-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .model-card-actions .btn {
+            flex: 1;
+            min-width: 100px;
+            font-size: 13px;
+            padding: 8px 12px;
+        }
+
+        .no-model-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #fdedec;
+            color: #e74c3c;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .has-model-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #e8f6f3;
+            color: #1abc9c;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 10px;
         }
 
         /* Pagination */
@@ -473,7 +659,8 @@ $result = $conn->query($sql);
         
         .status.out-of-stock {
             background-color: #fdedec;
-            color: #e74c3c;        }
+            color: #e74c3c;
+        }
         
         .modal {
             display: none;
@@ -584,7 +771,7 @@ $result = $conn->query($sql);
                 grid-template-columns: 1fr;
             }
             
-            .inventory-grid {
+            .model-grid {
                 grid-template-columns: 1fr;
             }
             
@@ -617,10 +804,21 @@ $result = $conn->query($sql);
                     </button>
                 </div>
 
+                <!-- View Toggle Buttons -->
+                <div class="view-toggle">
+                    <button class="view-btn <?= $view_mode === 'table' ? 'active' : '' ?>" data-view="table">
+                        <i class="fas fa-table"></i> View Table
+                    </button>
+                    <button class="view-btn <?= $view_mode === '3d' ? 'active' : '' ?>" data-view="3d">
+                        <i class="fas fa-cube"></i> View 3D Models
+                    </button>
+                </div>
+
                 <!-- Search Bar -->
                 <form method="GET" action="inventory.php" class="search-form">
-                    <!-- Keep category filter in query -->
+                    <!-- Keep category filter and view mode in query -->
                     <input type="hidden" name="category" value="<?= htmlspecialchars($category_filter) ?>">
+                    <input type="hidden" name="view" value="<?= htmlspecialchars($view_mode) ?>">
 
                     <input type="text" name="search" placeholder="Search products..." 
                         value="<?= htmlspecialchars($search_term) ?>" class="search-input">
@@ -631,7 +829,7 @@ $result = $conn->query($sql);
                     </button>
 
                     <!-- Reset Button -->
-                    <button type="button" class="search-btn" onclick="window.location='inventory.php?category=<?= htmlspecialchars($category_filter) ?>'">
+                    <button type="button" class="search-btn" onclick="window.location='inventory.php?category=<?= htmlspecialchars($category_filter) ?>&view=<?= htmlspecialchars($view_mode) ?>'">
                         <i class="fas fa-times"></i> Clear
                     </button>
                 </form>
@@ -646,10 +844,11 @@ $result = $conn->query($sql);
                     <?php endforeach; ?>
                 </div>
                 
-                <!-- Inventory Table -->
+                <!-- TABLE VIEW -->
+                <?php if ($view_mode === 'table'): ?>
                 <div class="inventory-container">
                     <div class="inventory-table">
-                        <?php if (count($products) > 0): ?>
+                        <?php if ($result && $result->num_rows > 0): ?>
                             <table>
                                 <thead>
                                     <tr>
@@ -664,77 +863,152 @@ $result = $conn->query($sql);
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php if ($result && $result->num_rows > 0): ?>
-                                        <?php while ($row = $result->fetch_assoc()): ?>
-                                            <tr>
-                                                <td>
-                                                    <?php if (!empty($row['image_path'])): ?>
-                                                        <img src="../<?= htmlspecialchars($row['image_path']) ?>" width="50" height="50">
-                                                    <?php else: ?>
-                                                        No Image
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td><?= htmlspecialchars($row['name']) ?></td>
-                                                <td><?= htmlspecialchars($row['category_name']) ?></td>
-                                                <td><?= htmlspecialchars($row['stock_quantity']) ?></td>
-                                                <td><?= htmlspecialchars($row['unit']) ?></td>
-                                                <td><?= "₱" . number_format($row['price'], 2) ?></td>
-                                                <td>
-                                                    <span class="status <?= getStockStatus($row['stock_quantity']) ?>">
-                                                        <?= ucfirst(str_replace("-", " ", getStockStatus($row['stock_quantity']))) ?>
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <?php if (!empty($row['model_path']) || !empty($row['model_url'])): ?>
-                                                        <!-- If product already has a 3D model -->
-                                                        <button class="btn btn-success" onclick="window.location.href='3dmodel.php?product_id=<?= $row['product_id'] ?>'">
-                                                            <i class="fas fa-cube"></i> View 3D Model
-                                                        </button>
-                                                    <?php else: ?>
-                                                        <!-- If product doesn't have a 3D model -->
-                                                        <button class="btn btn-info" onclick="window.location.href='3dmodel.php?product_id=<?= $row['product_id'] ?>'">
-                                                            <i class="fas fa-plus"></i> Add 3D Model
-                                                        </button>
-                                                    <?php endif; ?>
-
-                                                    <button class="btn btn-warning edit-btn" data-id="<?= $row['product_id'] ?>">
-                                                        <i class="fas fa-edit"></i> Edit
+                                    <?php while ($row = $result->fetch_assoc()): ?>
+                                        <tr>
+                                            <td>
+                                                <?php if (!empty($row['image_path'])): ?>
+                                                    <img src="../<?= htmlspecialchars($row['image_path']) ?>" width="50" height="50">
+                                                <?php else: ?>
+                                                    No Image
+                                                <?php endif; ?>
+                                            </td>
+                                            <td><?= htmlspecialchars($row['name']) ?></td>
+                                            <td><?= htmlspecialchars($row['category_name']) ?></td>
+                                            <td><?= htmlspecialchars($row['stock_quantity']) ?></td>
+                                            <td><?= htmlspecialchars($row['unit']) ?></td>
+                                            <td><?= "₱" . number_format($row['price'], 2) ?></td>
+                                            <td>
+                                                <span class="status <?= getStockStatus($row['stock_quantity']) ?>">
+                                                    <?= ucfirst(str_replace("-", " ", getStockStatus($row['stock_quantity']))) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <?php if (!empty($row['model_path']) || !empty($row['model_url'])): ?>
+                                                    <button class="btn btn-success" onclick="window.location.href='3dmodel.php?product_id=<?= $row['product_id'] ?>'">
+                                                        <i class="fas fa-cube"></i> View 3D
                                                     </button>
-
-                                                    <button class="btn btn-danger archive-btn" 
-                                                            data-id="<?= $row['product_id'] ?>" 
-                                                            data-name="<?= htmlspecialchars($row['name']) ?>">
-                                                        <i class="fas fa-archive"></i> Archive
+                                                <?php else: ?>
+                                                    <button class="btn btn-info" onclick="window.location.href='3dmodel.php?product_id=<?= $row['product_id'] ?>'">
+                                                        <i class="fas fa-plus"></i> Add 3D
                                                     </button>
-                                                </td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    <?php else: ?>
-                                        <tr><td colspan="8">No products found.</td></tr>
-                                    <?php endif; ?>
+                                                <?php endif; ?>
+
+                                                <button class="btn btn-warning edit-btn" data-id="<?= $row['product_id'] ?>">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
+
+                                                <button class="btn btn-danger archive-btn" 
+                                                        data-id="<?= $row['product_id'] ?>" 
+                                                        data-name="<?= htmlspecialchars($row['name']) ?>">
+                                                    <i class="fas fa-archive"></i> Archive
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <?php endwhile; ?>
                                 </tbody>
                             </table>
-
-                            <!-- Pagination -->
-                        <div class="pagination">
-                            <?php if ($page > 1): ?>
-                                <a href="?page=<?= $page-1 ?>&category=<?= urlencode($category_filter) ?>&search=<?= urlencode($search_term) ?>" class="page-btn">Prev</a>
-                            <?php endif; ?>
-
-                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                <a href="?page=<?= $i ?>&category=<?= urlencode($category_filter) ?>&search=<?= urlencode($search_term) ?>" 
-                                class="page-btn <?= ($i == $page) ? 'active' : '' ?>"><?= $i ?></a>
-                            <?php endfor; ?>
-
-                            <?php if ($page < $total_pages): ?>
-                                <a href="?page=<?= $page+1 ?>&category=<?= urlencode($category_filter) ?>&search=<?= urlencode($search_term) ?>" class="page-btn">Next</a>
-                            <?php endif; ?>
-                        </div>
                         <?php else: ?>
                             <p>No products found.</p>
                         <?php endif; ?>
                     </div>
                 </div>
+                <?php endif; ?>
+
+                <!-- 3D MODEL CARD VIEW -->
+                <?php if ($view_mode === '3d'): ?>
+                <div class="model-grid">
+                    <?php 
+                    $result->data_seek(0); // Reset result pointer
+                    if ($result && $result->num_rows > 0): 
+                        while ($row = $result->fetch_assoc()): 
+                    ?>
+                        <div class="model-card">
+                            <?php if (!empty($row['model_path']) || !empty($row['model_url'])): ?>
+                                <!-- Display 3D Model -->
+                                <div class="model-card-3d-container">
+                                    <model-viewer 
+                                        src="../<?= !empty($row['model_path']) ? htmlspecialchars($row['model_path']) : htmlspecialchars($row['model_url']) ?>"
+                                        alt="<?= htmlspecialchars($row['name']) ?> 3D Model"
+                                        camera-controls
+                                        auto-rotate
+                                        shadow-intensity="1"
+                                        style="width: 100%; height: 100%;">
+                                    </model-viewer>
+                                </div>
+                            <?php else: ?>
+                                <!-- No 3D Model Available -->
+                                <div class="model-card-no-3d">
+                                    <i class="fas fa-cube"></i>
+                                    <span>No 3D Model Available</span>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <div class="model-card-content">
+                                <div class="model-card-category"><?= htmlspecialchars($row['category_name']) ?></div>
+                                <h3 class="model-card-title"><?= htmlspecialchars($row['name']) ?></h3>
+                                <p class="model-card-description"><?= htmlspecialchars($row['description'] ?? 'No description available') ?></p>
+                                
+                                <?php if (!empty($row['model_path']) || !empty($row['model_url'])): ?>
+                                    <span class="has-model-badge"><i class="fas fa-check-circle"></i> Has 3D Model</span>
+                                <?php else: ?>
+                                    <span class="no-model-badge"><i class="fas fa-times-circle"></i> No 3D Model</span>
+                                <?php endif; ?>
+
+                                <div class="model-card-details">
+                                    <div class="model-card-price">₱<?= number_format($row['price'], 2) ?></div>
+                                    <div class="model-card-stock">
+                                        <span class="status <?= getStockStatus($row['stock_quantity']) ?>">
+                                            <?= $row['stock_quantity'] ?> <?= htmlspecialchars($row['unit']) ?>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="model-card-actions">
+                                    <?php if (!empty($row['model_path']) || !empty($row['model_url'])): ?>
+                                        <button class="btn btn-success" onclick="window.location.href='3dmodel.php?product_id=<?= $row['product_id'] ?>'">
+                                            <i class="fas fa-cube"></i> View 3D
+                                        </button>
+                                    <?php else: ?>
+                                        <button class="btn btn-info" onclick="window.location.href='3dmodel.php?product_id=<?= $row['product_id'] ?>'">
+                                            <i class="fas fa-plus"></i> Add 3D
+                                        </button>
+                                    <?php endif; ?>
+                                    <button class="btn btn-warning edit-btn" data-id="<?= $row['product_id'] ?>">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn-danger archive-btn" 
+                                            data-id="<?= $row['product_id'] ?>" 
+                                            data-name="<?= htmlspecialchars($row['name']) ?>">
+                                        <i class="fas fa-archive"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php 
+                        endwhile;
+                    else: 
+                    ?>
+                        <p>No products found.</p>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <?php if ($page > 1): ?>
+                        <a href="?page=<?= $page-1 ?>&category=<?= urlencode($category_filter) ?>&search=<?= urlencode($search_term) ?>&view=<?= urlencode($view_mode) ?>" class="page-btn">Prev</a>
+                    <?php endif; ?>
+
+                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                        <a href="?page=<?= $i ?>&category=<?= urlencode($category_filter) ?>&search=<?= urlencode($search_term) ?>&view=<?= urlencode($view_mode) ?>" 
+                        class="page-btn <?= ($i == $page) ? 'active' : '' ?>"><?= $i ?></a>
+                    <?php endfor; ?>
+
+                    <?php if ($page < $total_pages): ?>
+                        <a href="?page=<?= $page+1 ?>&category=<?= urlencode($category_filter) ?>&search=<?= urlencode($search_term) ?>&view=<?= urlencode($view_mode) ?>" class="page-btn">Next</a>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1005,11 +1279,23 @@ $result = $conn->query($sql);
 <script>
     // JavaScript code for handling UI interactions
     document.addEventListener('DOMContentLoaded', function() {
+        // View toggle buttons
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const view = btn.dataset.view;
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('view', view);
+                window.location.href = currentUrl.toString();
+            });
+        });
+
         // Category filter buttons
         document.querySelectorAll('.category-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const category = btn.dataset.category;
-                window.location.href = `inventory.php?category=${category}`;
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('category', category);
+                window.location.href = currentUrl.toString();
             });
         });
 
@@ -1072,7 +1358,7 @@ $result = $conn->query($sql);
                                     stock < 50 ? 'Low Stock' : 'In Stock';
                         document.getElementById("editProductStatus").value = status;
 
-                        // 🔹 Show existing product image
+                        // Show existing product image
                         const previewImg = document.getElementById("editPreviewImage");
                         if (data.product.image_path && data.product.image_path !== "") {
                             previewImg.src = `../${data.product.image_path}`;
@@ -1109,7 +1395,7 @@ $result = $conn->query($sql);
         }
 
         /* -------------------------------
-           ARCHIVE MODAL (untouched)
+           ARCHIVE MODAL
         ------------------------------- */
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('archive-btn') || e.target.closest('.archive-btn')) {
@@ -1170,10 +1456,9 @@ $result = $conn->query($sql);
 
         if (!file) {
             preview.style.display = "none";
-            return true; // no file selected, skip validation
+            return true;
         }
 
-        // Allowed file types
         const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
         if (!allowedTypes.includes(file.type)) {
             Swal.fire({
@@ -1186,7 +1471,6 @@ $result = $conn->query($sql);
             return false;
         }
 
-        // Max size 2MB
         const maxSize = 2 * 1024 * 1024; 
         if (file.size > maxSize) {
             Swal.fire({
@@ -1199,7 +1483,6 @@ $result = $conn->query($sql);
             return false;
         }
 
-        // Preview image
         const reader = new FileReader();
         reader.onload = function(e) {
             preview.src = e.target.result;
@@ -1210,48 +1493,12 @@ $result = $conn->query($sql);
         return true;
     }
 
-    // Attach validation to Add Product image input
     document.getElementById("addProductImage").addEventListener("change", function() {
         validateImage(this, "addPreviewImage");
     });
 
-    // Attach validation to Edit Product image input
     document.getElementById("editProductImage").addEventListener("change", function() {
         validateImage(this, "editPreviewImage");
-    });
-
-    // Existing image validation for old single form (kept as is if still used somewhere)
-    document.getElementById("productImage")?.addEventListener("change", function(event) {
-        const file = event.target.files[0];
-        const errorMsg = document.getElementById("fileError");
-        const preview = document.getElementById("previewImage");
-
-        errorMsg.style.display = "none";
-        preview.style.display = "none";
-
-        if (file) {
-            const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-            if (!allowedTypes.includes(file.type)) {
-                errorMsg.textContent = "Invalid file type. Only JPG, PNG, GIF, and WebP allowed.";
-                errorMsg.style.display = "block";
-                event.target.value = "";
-                return;
-            }
-
-            if (file.size > 5 * 1024 * 1024) {
-                errorMsg.textContent = "File too large. Max size is 5MB.";
-                errorMsg.style.display = "block";
-                event.target.value = "";
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                preview.src = e.target.result;
-                preview.style.display = "block";
-            };
-            reader.readAsDataURL(file);
-        }
     });
 </script>
 
@@ -1296,7 +1543,7 @@ $result = $conn->query($sql);
 
         if (editForm) {
             editForm.addEventListener("submit", function(e) {
-                e.preventDefault(); // stop auto-submit
+                e.preventDefault();
 
                 Swal.fire({
                     title: 'Are you sure?',
@@ -1316,24 +1563,6 @@ $result = $conn->query($sql);
         }
     });
     </script>
-
-<?php if (isset($_GET['error'])): ?>
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: '<?= htmlspecialchars($_GET['error']) ?>',
-        timer: 3000,
-        timerProgressBar: true,
-        showConfirmButton: false
-      }).then(() => {
-        window.history.replaceState({}, document.title, "inventory.php");
-      });
-    });
-  </script>
-<?php endif; ?>
-
 
 </body>
 </html>

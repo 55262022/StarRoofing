@@ -9,7 +9,7 @@ $page = $_GET['page'] ?? 1;
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
-// Build query for clients - FIXED to join with user_addresses
+// Build query for clients
 $query = "SELECT 
             up.id,
             up.first_name,
@@ -79,173 +79,11 @@ $stmt->execute();
 $result = $stmt->get_result();
 $clients = $result->fetch_all(MYSQLI_ASSOC);
 
-// Handle form submissions
+// Handle ban/unban action
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     
-    if ($action === 'add_client') {
-        // Add new client
-        $first_name = $_POST['first_name'];
-        $last_name = $_POST['last_name'];
-        $middle_name = $_POST['middle_name'] ?? null;
-        $birthdate = $_POST['birthdate'];
-        $contact_number = $_POST['contact_number'] ?? null;
-        $gender = $_POST['gender'];
-        $region_code = $_POST['region_code'];
-        $region_name = $_POST['region_name'];
-        $province_code = $_POST['province_code'];
-        $province_name = $_POST['province_name'];
-        $city_code = $_POST['city_code'];
-        $city_name = $_POST['city_name'];
-        $barangay_code = $_POST['barangay_code'];
-        $barangay_name = $_POST['barangay_name'];
-        $street = $_POST['street'];
-        $email = $_POST['email'];
-        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-        $account_status = $_POST['account_status'];
-        
-        // Start transaction
-        $conn->begin_transaction();
-        
-        try {
-            // Insert into accounts table - FIXED role_id to 2 for clients
-            $account_query = "INSERT INTO accounts (email, password, role_id, account_status) VALUES (?, ?, 2, ?)";
-            $stmt_account = $conn->prepare($account_query);
-            $stmt_account->bind_param("sss", $email, $password, $account_status);
-            $stmt_account->execute();
-            $account_id = $conn->insert_id;
-            
-            // Insert into user_profiles table - REMOVED address fields
-            $profile_query = "INSERT INTO user_profiles (account_id, first_name, last_name, middle_name, birthdate, contact_number, gender) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            $stmt_profile = $conn->prepare($profile_query);
-            $stmt_profile->bind_param("issssss", $account_id, $first_name, $last_name, $middle_name, $birthdate, $contact_number, $gender);
-            $stmt_profile->execute();
-            
-            // Insert into user_addresses table - NEW
-            $address_query = "INSERT INTO user_addresses (account_id, address_label, street, barangay_code, barangay_name, city_code, city_name, province_code, province_name, region_code, region_name, is_default) VALUES (?, 'Home', ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
-            $stmt_address = $conn->prepare($address_query);
-            $stmt_address->bind_param("isssssssss", $account_id, $street, $barangay_code, $barangay_name, $city_code, $city_name, $province_code, $province_name, $region_code, $region_name);
-            $stmt_address->execute();
-            
-            // Commit transaction
-            $conn->commit();
-            
-            $_SESSION['message'] = "Client added successfully!";
-            $_SESSION['message_type'] = "success";
-        } catch (Exception $e) {
-            // Rollback transaction on error
-            $conn->rollback();
-            $_SESSION['message'] = "Error adding client: " . $e->getMessage();
-            $_SESSION['message_type'] = "error";
-        }
-        
-        header("Location: clients.php");
-        exit();
-    }
-    
-    if ($action === 'edit_client') {
-        $client_id = $_POST['client_id'];
-        $first_name = $_POST['first_name'];
-        $last_name = $_POST['last_name'];
-        $middle_name = $_POST['middle_name'];
-        $birthdate = $_POST['birthdate'];
-        $contact_number = $_POST['contact_number'];
-        $gender = $_POST['gender'];
-        $email = $_POST['email'];
-        $account_status = $_POST['account_status'];
-        
-        // Address fields
-        $street = $_POST['street'];
-        $barangay_code = $_POST['barangay_code'];
-        $barangay_name = $_POST['barangay_name'];
-        $city_code = $_POST['city_code'];
-        $city_name = $_POST['city_name'];
-        $province_code = $_POST['province_code'];
-        $province_name = $_POST['province_name'];
-        $region_code = $_POST['region_code'];
-        $region_name = $_POST['region_name'];
-
-        $conn->begin_transaction();
-        
-        try {
-            // Update accounts and user_profiles - REMOVED address fields from user_profiles
-            $update_query = "UPDATE accounts a 
-                            INNER JOIN user_profiles up ON a.id = up.account_id 
-                            SET a.email=?, a.account_status=?, 
-                                up.first_name=?, up.last_name=?, up.middle_name=?, 
-                                up.birthdate=?, up.contact_number=?, up.gender=?
-                            WHERE up.id=?";
-            
-            $stmt = $conn->prepare($update_query);
-            $stmt->bind_param("ssssssssi", 
-                $email, $account_status, 
-                $first_name, $last_name, $middle_name, 
-                $birthdate, $contact_number, $gender,
-                $client_id
-            );
-            $stmt->execute();
-            
-            // Get account_id from user_profiles
-            $get_account_query = "SELECT account_id FROM user_profiles WHERE id = ?";
-            $stmt_get = $conn->prepare($get_account_query);
-            $stmt_get->bind_param("i", $client_id);
-            $stmt_get->execute();
-            $result_get = $stmt_get->get_result();
-            $account_data = $result_get->fetch_assoc();
-            $account_id = $account_data['account_id'];
-            
-            // Update or Insert address in user_addresses
-            $check_address = "SELECT id FROM user_addresses WHERE account_id = ? AND is_default = 1";
-            $stmt_check = $conn->prepare($check_address);
-            $stmt_check->bind_param("i", $account_id);
-            $stmt_check->execute();
-            $result_check = $stmt_check->get_result();
-            
-            if ($result_check->num_rows > 0) {
-                // Update existing address
-                $update_address = "UPDATE user_addresses 
-                                  SET street=?, barangay_code=?, barangay_name=?, 
-                                      city_code=?, city_name=?, province_code=?, 
-                                      province_name=?, region_code=?, region_name=?
-                                  WHERE account_id=? AND is_default=1";
-                $stmt_address = $conn->prepare($update_address);
-                $stmt_address->bind_param("sssssssssi", 
-                    $street, $barangay_code, $barangay_name,
-                    $city_code, $city_name, $province_code,
-                    $province_name, $region_code, $region_name,
-                    $account_id
-                );
-            } else {
-                // Insert new address
-                $insert_address = "INSERT INTO user_addresses 
-                                  (account_id, address_label, street, barangay_code, barangay_name, 
-                                   city_code, city_name, province_code, province_name, 
-                                   region_code, region_name, is_default) 
-                                  VALUES (?, 'Home', ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
-                $stmt_address = $conn->prepare($insert_address);
-                $stmt_address->bind_param("isssssssss", 
-                    $account_id, $street, $barangay_code, $barangay_name,
-                    $city_code, $city_name, $province_code,
-                    $province_name, $region_code, $region_name
-                );
-            }
-            $stmt_address->execute();
-            
-            $conn->commit();
-            
-            $_SESSION['message'] = "Client updated successfully!";
-            $_SESSION['message_type'] = "success";
-        } catch (Exception $e) {
-            $conn->rollback();
-            $_SESSION['message'] = "Error updating client: " . $e->getMessage();
-            $_SESSION['message_type'] = "error";
-        }
-
-        header("Location: clients.php");
-        exit();
-    }
-    
-    if ($action === 'update_status') {
+    if ($action === 'ban_account') {
         $client_id = $_POST['client_id'];
         $new_status = $_POST['account_status'];
         
@@ -264,36 +102,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("si", $new_status, $account_id);
         
         if ($stmt->execute()) {
-            $_SESSION['message'] = "Client status updated successfully!";
+            $action_text = $new_status === 'suspended' ? 'banned' : 'unbanned';
+            $_SESSION['message'] = "Client account has been {$action_text} successfully!";
             $_SESSION['message_type'] = "success";
         } else {
-            $_SESSION['message'] = "Error updating status: " . $conn->error;
+            $_SESSION['message'] = "Error updating account status: " . $conn->error;
             $_SESSION['message_type'] = "error";
         }
         
         header("Location: clients.php");
         exit();
     }
-}
-
-// Email check for AJAX
-if (isset($_POST['check_email'])) {
-    $email = $_POST['email'] ?? '';
-    
-    if (!empty($email)) {
-        $query = "SELECT id FROM accounts WHERE email = ?";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        if ($result->num_rows > 0) {
-            echo "exists";
-        } else {
-            echo "available";
-        }
-    }
-    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -357,15 +176,6 @@ if (isset($_POST['check_email'])) {
             background-color: #2980b9;
         }
 
-        .btn-warning {
-            background-color: #dce73cff;
-            color: black;
-        }
-        
-        .btn-warning:hover {
-            background-color: #b9c331ff;
-        }
-
         .btn-outline {
             background-color: transparent;
             border: 1px solid #bdc3c7;
@@ -383,6 +193,24 @@ if (isset($_POST['check_email'])) {
         
         .btn-danger:hover {
             background-color: #c0392b;
+        }
+
+        .btn-warning {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #229954;
         }
 
         /* Search Form */
@@ -539,6 +367,11 @@ if (isset($_POST['check_email'])) {
             background-color: #fdedec;
             color: #e74c3c;
         }
+
+        .status.suspended {
+            background-color: #fff3cd;
+            color: #856404;
+        }
         
         .modal {
             display: none;
@@ -561,7 +394,7 @@ if (isset($_POST['check_email'])) {
             background-color: white;
             border-radius: 12px;
             width: 90%;
-            max-width: 800px;
+            max-width: 500px;
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
@@ -599,43 +432,6 @@ if (isset($_POST['check_email'])) {
             padding: 25px;
         }
         
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #34495e;
-        }
-        
-        input, select, textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 15px;
-            transition: border-color 0.3s;
-            font-family: 'Montserrat', sans-serif;
-        }
-        
-        input:focus, select:focus, textarea:focus {
-            border-color: #3498db;
-            outline: none;
-        }
-        
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
         .modal-footer {
             padding: 20px 25px;
             border-top: 1px solid #eee;
@@ -645,10 +441,6 @@ if (isset($_POST['check_email'])) {
         }
         
         @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
             .page-header {
                 flex-direction: column;
                 align-items: flex-start;
@@ -681,22 +473,6 @@ if (isset($_POST['check_email'])) {
             background: white;
             border-radius: 10px;
         }
-        
-        .section-title {
-            color: #2c3e50;
-            margin: 30px 0 20px 0;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-        
-        .address-group {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
     </style>
 </head>
 <body>
@@ -706,11 +482,8 @@ if (isset($_POST['check_email'])) {
                 <div class="page-header">
                     <div>
                         <h1 class="page-title">Clients Information</h1>
-                        <p class="page-description">Manage your clients and their information</p>
+                        <p class="page-description">View and manage client accounts</p>
                     </div>
-                    <button class="btn btn-primary" id="addClientBtn">
-                        <i class="fas fa-plus"></i> Add New Client
-                    </button>
                 </div>
 
                 <!-- Display Messages -->
@@ -739,6 +512,7 @@ if (isset($_POST['check_email'])) {
                     <button class="status-btn <?= $status_filter === 'all' ? 'active' : '' ?>" data-status="all">All Clients</button>
                     <button class="status-btn <?= $status_filter === 'active' ? 'active' : '' ?>" data-status="active">Active</button>
                     <button class="status-btn <?= $status_filter === 'inactive' ? 'active' : '' ?>" data-status="inactive">Inactive</button>
+                    <button class="status-btn <?= $status_filter === 'suspended' ? 'active' : '' ?>" data-status="suspended">Banned</button>
                 </div>
                 
                 <!-- Client Table -->
@@ -782,39 +556,23 @@ if (isset($_POST['check_email'])) {
                                             <td><?= date('M j, Y', strtotime($client['created_at'])) ?></td>
                                             <td>
                                                 <span class="status <?= $client['account_status'] ?>">
-                                                    <?= ucfirst($client['account_status']) ?>
+                                                    <?= $client['account_status'] === 'suspended' ? 'Banned' : ucfirst($client['account_status']) ?>
                                                 </span>
                                             </td>
                                             <td>
-                                                <div style="display:flex; gap:5px; flex-wrap: wrap;">
-                                                    <button class="btn btn-warning edit-btn"
-                                                        data-id="<?= $client['id'] ?>"
-                                                        data-firstname="<?= htmlspecialchars($client['first_name']) ?>"
-                                                        data-lastname="<?= htmlspecialchars($client['last_name']) ?>"
-                                                        data-middlename="<?= htmlspecialchars($client['middle_name'] ?? '') ?>"
-                                                        data-birthdate="<?= htmlspecialchars($client['birthdate'] ?? '') ?>"
-                                                        data-contact="<?= htmlspecialchars($client['contact_number'] ?? '') ?>"
-                                                        data-gender="<?= htmlspecialchars($client['gender'] ?? '') ?>"
-                                                        data-email="<?= htmlspecialchars($client['email']) ?>"
-                                                        data-status="<?= htmlspecialchars($client['account_status']) ?>"
-                                                        data-street="<?= htmlspecialchars($client['street'] ?? '') ?>"
-                                                        data-barangay="<?= htmlspecialchars($client['barangay_name'] ?? '') ?>"
-                                                        data-city="<?= htmlspecialchars($client['city_name'] ?? '') ?>"
-                                                        data-province="<?= htmlspecialchars($client['province_name'] ?? '') ?>"
-                                                        data-region="<?= htmlspecialchars($client['region_name'] ?? '') ?>">
-                                                        <i class="fas fa-edit"></i> Edit
-                                                    </button>
-                                                    <button class="btn btn-danger status-toggle-btn" 
+                                                <?php if ($client['account_status'] !== 'suspended'): ?>
+                                                    <button class="btn btn-danger ban-btn" 
                                                             data-id="<?= $client['id'] ?>" 
-                                                            data-name="<?= htmlspecialchars($client['first_name'] . ' ' . $client['last_name']) ?>"
-                                                            data-status="<?= $client['account_status'] ?>">
-                                                        <?php if ($client['account_status'] === 'active'): ?>
-                                                            <i class="fas fa-user-times"></i> Deactivate
-                                                        <?php else: ?>
-                                                            <i class="fas fa-user-check"></i> Activate
-                                                        <?php endif; ?>
+                                                            data-name="<?= htmlspecialchars($client['first_name'] . ' ' . $client['last_name']) ?>">
+                                                        <i class="fas fa-ban"></i> Ban Account
                                                     </button>
-                                                </div>
+                                                <?php else: ?>
+                                                    <button class="btn btn-success unban-btn" 
+                                                            data-id="<?= $client['id'] ?>" 
+                                                            data-name="<?= htmlspecialchars($client['first_name'] . ' ' . $client['last_name']) ?>">
+                                                        <i class="fas fa-check-circle"></i> Unban Account
+                                                    </button>
+                                                <?php endif; ?>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -838,7 +596,7 @@ if (isset($_POST['check_email'])) {
                             </div>
                         <?php else: ?>
                             <div class="no-clients">
-                                <p>No clients found. Add your first client to get started.</p>
+                                <p>No clients found.</p>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -847,279 +605,28 @@ if (isset($_POST['check_email'])) {
         </div>
     </div>
 
-    <!-- Add Client Modal -->
-    <div class="modal" id="addClientModal">
+    <!-- Ban Confirmation Modal -->
+    <div class="modal" id="banModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Add New Client</h2>
-                <button class="modal-close" id="closeAddModal">&times;</button>
-            </div>
-            <form id="addClientForm" action="clients.php" method="POST">
-                <div class="modal-body">
-                    <input type="hidden" name="action" value="add_client">
-                    
-                    <div class="section-title">Personal Information</div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="firstName">First Name *</label>
-                            <input type="text" id="firstName" name="first_name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="lastName">Last Name *</label>
-                            <input type="text" id="lastName" name="last_name" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="middleName">Middle Initial</label>
-                            <input type="text" id="middleName" name="middle_name" maxlength="4" placeholder="e.g., A.">
-                        </div>
-                        <div class="form-group">
-                            <label for="birthdate">Date of Birth *</label>
-                            <input type="date" id="birthdate" name="birthdate" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="gender">Gender *</label>
-                            <select id="gender" name="gender" required>
-                                <option value="" disabled selected>Select Gender</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="contactNumber">Contact Number</label>
-                            <input type="tel" id="contactNumber" name="contact_number" maxlength="11" placeholder="09XXXXXXXXX" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                        </div>
-                    </div>
-                    
-                    <div class="section-title">Address Information</div>
-                    
-                    <div class="address-group">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="region">Region *</label>
-                                <select id="region" name="region_code" required>
-                                    <option value="">Select Region</option>
-                                </select>
-                                <input type="hidden" id="region_name" name="region_name">
-                            </div>
-                            <div class="form-group">
-                                <label for="province">Province *</label>
-                                <select id="province" name="province_code" required disabled>
-                                    <option value="">Select Province</option>
-                                </select>
-                                <input type="hidden" id="province_name" name="province_name">
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="city">City *</label>
-                                <select id="city" name="city_code" required disabled>
-                                    <option value="">Select City</option>
-                                </select>
-                                <input type="hidden" id="city_name" name="city_name">
-                            </div>
-                            <div class="form-group">
-                                <label for="barangay">Barangay *</label>
-                                <select id="barangay" name="barangay_code" required disabled>
-                                    <option value="">Select Barangay</option>
-                                </select>
-                                <input type="hidden" id="barangay_name" name="barangay_name">
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="street">Street Address *</label>
-                            <textarea id="street" name="street" placeholder="House No., Street Name, Subdivision, etc." required></textarea>
-                        </div>
-                    </div>
-                    
-                    <div class="section-title">Account Information</div>
-                    
-                    <div class="form-group">
-                        <label for="email">Email Address *</label>
-                        <input type="email" id="email" name="email" required>
-                        <div id="emailFeedback" style="font-size: 12px; margin-top: 5px;"></div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="password">Password *</label>
-                            <input type="password" id="password" name="password" required minlength="6">
-                        </div>
-                        <div class="form-group">
-                            <label for="confirmPassword">Confirm Password *</label>
-                            <input type="password" id="confirmPassword" name="confirm_password" required>
-                            <div id="passwordFeedback" style="font-size: 12px; margin-top: 5px;"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="account_status">Account Status *</label>
-                        <select id="account_status" name="account_status" required>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" id="cancelAddBtn">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="saveClientBtn">
-                        Save Client
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Edit Client Modal -->
-    <div class="modal" id="editClientModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Edit Client</h2>
-                <button class="modal-close" id="closeEditModal">&times;</button>
-            </div>
-            <form id="editClientForm" action="clients.php" method="POST">
-                <div class="modal-body">
-                    <input type="hidden" name="action" value="edit_client">
-                    <input type="hidden" name="client_id" id="editClientId">
-
-                    <div class="section-title">Personal Information</div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editFirstName">First Name *</label>
-                            <input type="text" id="editFirstName" name="first_name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="editLastName">Last Name *</label>
-                            <input type="text" id="editLastName" name="last_name" required>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editMiddleName">Middle Name</label>
-                            <input type="text" id="editMiddleName" name="middle_name">
-                        </div>
-                        <div class="form-group">
-                            <label for="editBirthdate">Birthdate *</label>
-                            <input type="date" id="editBirthdate" name="birthdate" required>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editContact">Contact Number</label>
-                            <input type="text" id="editContact" name="contact_number">
-                        </div>
-                        <div class="form-group">
-                            <label for="editGender">Gender *</label>
-                            <select id="editGender" name="gender" required>
-                                <option value="">Select</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="section-title">Address Information</div>
-                    
-                    <div class="address-group">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="editRegion">Region</label>
-                                <select id="editRegion" name="region_code" required>
-                                    <option value="">Select Region</option>
-                                </select>
-                                <input type="hidden" id="editRegionName" name="region_name">
-                            </div>
-                            <div class="form-group">
-                                <label for="editProvince">Province</label>
-                                <select id="editProvince" name="province_code" required disabled>
-                                    <option value="">Select Province</option>
-                                </select>
-                                <input type="hidden" id="editProvinceName" name="province_name">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="editCity">City/Municipality</label>
-                                <select id="editCity" name="city_code" required disabled>
-                                    <option value="">Select City</option>
-                                </select>
-                                <input type="hidden" id="editCityName" name="city_name">
-                            </div>
-                            <div class="form-group">
-                                <label for="editBarangay">Barangay</label>
-                                <select id="editBarangay" name="barangay_code" required disabled>
-                                    <option value="">Select Barangay</option>
-                                </select>
-                                <input type="hidden" id="editBarangayName" name="barangay_name">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="editStreet">Street Address</label>
-                            <input type="text" id="editStreet" name="street">
-                        </div>
-                    </div>
-
-                    <div class="section-title">Account Information</div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editEmail">Email *</label>
-                            <input type="email" id="editEmail" name="email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="editStatus">Account Status</label>
-                            <select id="editStatus" name="account_status">
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" id="cancelEditBtn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Status Confirmation Modal -->
-    <div class="modal" id="statusModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" id="statusModalTitle">Confirm Status Change</h2>
-                <button class="modal-close" id="closeStatusModal">&times;</button>
+                <h2 class="modal-title" id="banModalTitle">Confirm Ban Account</h2>
+                <button class="modal-close" id="closeBanModal">&times;</button>
             </div>
             <div class="modal-body">
-                <p id="statusModalMessage"></p>
-                <form id="statusForm" method="POST" action="clients.php">
-                    <input type="hidden" name="action" value="update_status">
-                    <input type="hidden" name="client_id" id="statusClientId">
-                    <input type="hidden" name="account_status" id="statusValue">
+                <p id="banModalMessage"></p>
+                <form id="banForm" method="POST" action="clients.php">
+                    <input type="hidden" name="action" value="ban_account">
+                    <input type="hidden" name="client_id" id="banClientId">
+                    <input type="hidden" name="account_status" id="banStatusValue">
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" id="cancelStatusBtn">Cancel</button>
-                <button type="submit" form="statusForm" class="btn btn-primary" id="confirmStatusBtn">Confirm</button>
+                <button class="btn btn-outline" id="cancelBanBtn">Cancel</button>
+                <button type="submit" form="banForm" class="btn btn-danger" id="confirmBanBtn">Confirm</button>
             </div>
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="../javascript/register-address-selector.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // Status filter buttons
@@ -1130,363 +637,74 @@ if (isset($_POST['check_email'])) {
                 });
             });
 
-            /* -- ADD CLIENT MODAL -- */
-            const addClientBtn   = document.getElementById("addClientBtn");
-            const addClientModal = document.getElementById("addClientModal");
-            const closeAddModal   = document.getElementById("closeAddModal");
-            const cancelAddBtn    = document.getElementById("cancelAddBtn");
+            /* -- BAN/UNBAN MODAL -- */
+            const banModal = document.getElementById("banModal");
+            const closeBanModal = document.getElementById("closeBanModal");
+            const cancelBanBtn = document.getElementById("cancelBanBtn");
 
-            if (addClientBtn) {
-                addClientBtn.addEventListener("click", () => {
-                    document.getElementById("addClientForm").reset();
-                    document.getElementById("birthdate").valueAsDate = new Date();
-                    document.getElementById("account_status").value = "active";
-                    addClientModal.classList.add("active");
-                    
-                    // Initialize the PH address selector for ADD modal
-                    $('#region').on('change', my_handlers.fill_provinces);
-                    $('#province').on('change', my_handlers.fill_cities);
-                    $('#city').on('change', my_handlers.fill_barangays);
-                    $('#barangay').on('change', my_handlers.onchange_barangay);
-                });
-            }
-
-            if (closeAddModal) {
-                closeAddModal.addEventListener("click", () => {
-                    addClientModal.classList.remove("active");
-                });
-            }
-
-            if (cancelAddBtn) {
-                cancelAddBtn.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    addClientModal.classList.remove("active");
-                });
-            }
-
-            /* -- EDIT CLIENT MODAL -- */
-            const editClientModal = document.getElementById("editClientModal");
-            const closeEditModal   = document.getElementById("closeEditModal");
-            const cancelEditBtn    = document.getElementById("cancelEditBtn");
-
-            // Attach click event to all Edit buttons
-            document.querySelectorAll(".edit-btn").forEach(button => {
-                button.addEventListener("click", function () {
-                    // Fill in the edit form fields
-                    document.getElementById("editClientId").value = this.dataset.id;
-                    document.getElementById("editFirstName").value = this.dataset.firstname;
-                    document.getElementById("editLastName").value = this.dataset.lastname;
-                    document.getElementById("editMiddleName").value = this.dataset.middlename || '';
-                    document.getElementById("editBirthdate").value = this.dataset.birthdate;
-                    document.getElementById("editContact").value = this.dataset.contact || '';
-                    document.getElementById("editGender").value = this.dataset.gender;
-                    document.getElementById("editEmail").value = this.dataset.email;
-                    document.getElementById("editStatus").value = this.dataset.status;
-                    document.getElementById("editStreet").value = this.dataset.street || '';
-
-                    // Set address names in hidden fields
-                    document.getElementById("editRegionName").value = this.dataset.region || '';
-                    document.getElementById("editProvinceName").value = this.dataset.province || '';
-                    document.getElementById("editCityName").value = this.dataset.city || '';
-                    document.getElementById("editBarangayName").value = this.dataset.barangay || '';
-
-                    // Initialize address selector for edit modal
-                    initializeEditAddressSelector(this.dataset);
-
-                    // Show modal
-                    editClientModal.classList.add("active");
-                });
-            });
-
-            if (closeEditModal) {
-                closeEditModal.addEventListener("click", () => {
-                    editClientModal.classList.remove("active");
-                });
-            }
-
-            if (cancelEditBtn) {
-                cancelEditBtn.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    editClientModal.classList.remove("active");
-                });
-            }
-
-            /* -- STATUS CHANGE MODAL -- */
-            const statusModal = document.getElementById("statusModal");
-            const closeStatusModal = document.getElementById("closeStatusModal");
-            const cancelStatusBtn = document.getElementById("cancelStatusBtn");
-
+            // Ban Account
             document.addEventListener('click', (e) => {
-                if (e.target.classList.contains('status-toggle-btn') || e.target.closest('.status-toggle-btn')) {
-                    const btn = e.target.classList.contains('status-toggle-btn') ? e.target : e.target.closest('.status-toggle-btn');
+                if (e.target.classList.contains('ban-btn') || e.target.closest('.ban-btn')) {
+                    const btn = e.target.classList.contains('ban-btn') ? e.target : e.target.closest('.ban-btn');
                     const clientId = btn.dataset.id;
                     const clientName = btn.dataset.name;
-                    const currentStatus = btn.dataset.status;
-                    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-                    const actionText = currentStatus === 'active' ? 'deactivate' : 'activate';
                     
-                    document.getElementById('statusModalTitle').textContent = `Confirm ${actionText.charAt(0).toUpperCase() + actionText.slice(1)}`;
-                    document.getElementById('statusModalMessage').textContent = `Are you sure you want to ${actionText} ${clientName}?`;
-                    document.getElementById('statusClientId').value = clientId;
-                    document.getElementById('statusValue').value = newStatus;
-                    statusModal.classList.add('active');
+                    document.getElementById('banModalTitle').textContent = 'Confirm Ban Account';
+                    document.getElementById('banModalMessage').textContent = `Are you sure you want to ban ${clientName}? This will suspend their account and prevent them from accessing the system.`;
+                    document.getElementById('banClientId').value = clientId;
+                    document.getElementById('banStatusValue').value = 'suspended';
+                    document.getElementById('confirmBanBtn').textContent = 'Ban Account';
+                    document.getElementById('confirmBanBtn').className = 'btn btn-danger';
+                    banModal.classList.add('active');
+                }
+
+                // Unban Account
+                if (e.target.classList.contains('unban-btn') || e.target.closest('.unban-btn')) {
+                    const btn = e.target.classList.contains('unban-btn') ? e.target : e.target.closest('.unban-btn');
+                    const clientId = btn.dataset.id;
+                    const clientName = btn.dataset.name;
+                    
+                    document.getElementById('banModalTitle').textContent = 'Confirm Unban Account';
+                    document.getElementById('banModalMessage').textContent = `Are you sure you want to unban ${clientName}? This will reactivate their account.`;
+                    document.getElementById('banClientId').value = clientId;
+                    document.getElementById('banStatusValue').value = 'active';
+                    document.getElementById('confirmBanBtn').textContent = 'Unban Account';
+                    document.getElementById('confirmBanBtn').className = 'btn btn-success';
+                    banModal.classList.add('active');
                 }
             });
 
-            if (closeStatusModal) {
-                closeStatusModal.addEventListener('click', () => {
-                    statusModal.classList.remove('active');
+            if (closeBanModal) {
+                closeBanModal.addEventListener('click', () => {
+                    banModal.classList.remove('active');
                 });
             }
 
-            if (cancelStatusBtn) {
-                cancelStatusBtn.addEventListener('click', () => {
-                    statusModal.classList.remove('active');
+            if (cancelBanBtn) {
+                cancelBanBtn.addEventListener('click', () => {
+                    banModal.classList.remove('active');
                 });
             }
 
-            // Function to initialize address selector for edit modal
-            function initializeEditAddressSelector(clientData) {
-                $('#editRegion').empty().append('<option value="">Select Region</option>');
-                $('#editProvince').empty().append('<option value="">Select Province</option>').prop('disabled', true);
-                $('#editCity').empty().append('<option value="">Select City</option>').prop('disabled', true);
-                $('#editBarangay').empty().append('<option value="">Select Barangay</option>').prop('disabled', true);
-
-                const url = '../ph-json/region.json';
-                $.getJSON(url, function(data) {
-                    $.each(data, function(key, entry) {
-                        $('#editRegion').append($('<option></option>').attr('value', entry.region_code).text(entry.region_name));
-                    });
-                    
-                    if (clientData.region) {
-                        const region = data.find(r => r.region_name === clientData.region);
-                        if (region) {
-                            $('#editRegion').val(region.region_code).trigger('change');
-                            
-                            setTimeout(() => {
-                                if (clientData.province) {
-                                    const provinceSelect = $('#editProvince');
-                                    const provinceOption = provinceSelect.find('option').filter(function() {
-                                        return $(this).text() === clientData.province;
-                                    });
-                                    if (provinceOption.length) {
-                                        provinceSelect.val(provinceOption.val()).trigger('change');
-                                        
-                                        setTimeout(() => {
-                                            if (clientData.city) {
-                                                const citySelect = $('#editCity');
-                                                const cityOption = citySelect.find('option').filter(function() {
-                                                    return $(this).text() === clientData.city;
-                                                });
-                                                if (cityOption.length) {
-                                                    citySelect.val(cityOption.val()).trigger('change');
-                                                    
-                                                    setTimeout(() => {
-                                                        if (clientData.barangay) {
-                                                            const barangaySelect = $('#editBarangay');
-                                                            const barangayOption = barangaySelect.find('option').filter(function() {
-                                                                return $(this).text() === clientData.barangay;
-                                                            });
-                                                            if (barangayOption.length) {
-                                                                barangaySelect.val(barangayOption.val());
-                                                            }
-                                                        }
-                                                    }, 500);
-                                                }
-                                            }
-                                        }, 500);
-                                    }
-                                }
-                            }, 500);
-                        }
-                    }
-                });
-
-                $('#editRegion').off('change').on('change', function() {
-                    const regionCode = $(this).val();
-                    const regionName = $(this).find('option:selected').text();
-                    $('#editRegionName').val(regionName);
-                    
-                    $('#editProvince').empty().append('<option value="">Select Province</option>').prop('disabled', true);
-                    $('#editCity').empty().append('<option value="">Select City</option>').prop('disabled', true);
-                    $('#editBarangay').empty().append('<option value="">Select Barangay</option>').prop('disabled', true);
-                    
-                    if (regionCode) {
-                        $.getJSON('../ph-json/province.json', function(data) {
-                            const provinces = data.filter(p => p.region_code === regionCode);
-                            provinces.sort((a, b) => a.province_name.localeCompare(b.province_name));
-                            
-                            provinces.forEach(province => {
-                                $('#editProvince').append($('<option></option>').attr('value', province.province_code).text(province.province_name));
-                            });
-                            $('#editProvince').prop('disabled', false);
-                        });
-                    }
-                });
-
-                $('#editProvince').off('change').on('change', function() {
-                    const provinceCode = $(this).val();
-                    const provinceName = $(this).find('option:selected').text();
-                    $('#editProvinceName').val(provinceName);
-                    
-                    $('#editCity').empty().append('<option value="">Select City</option>').prop('disabled', true);
-                    $('#editBarangay').empty().append('<option value="">Select Barangay</option>').prop('disabled', true);
-                    
-                    if (provinceCode) {
-                        $.getJSON('../ph-json/city.json', function(data) {
-                            const cities = data.filter(c => c.province_code === provinceCode);
-                            cities.sort((a, b) => a.city_name.localeCompare(b.city_name));
-                            
-                            cities.forEach(city => {
-                                $('#editCity').append($('<option></option>').attr('value', city.city_code).text(city.city_name));
-                            });
-                            $('#editCity').prop('disabled', false);
-                        });
-                    }
-                });
-
-                $('#editCity').off('change').on('change', function() {
-                    const cityCode = $(this).val();
-                    const cityName = $(this).find('option:selected').text();
-                    $('#editCityName').val(cityName);
-                    
-                    $('#editBarangay').empty().append('<option value="">Select Barangay</option>').prop('disabled', true);
-                    
-                    if (cityCode) {
-                        $.getJSON('../ph-json/barangay.json', function(data) {
-                            const barangays = data.filter(b => b.city_code === cityCode);
-                            barangays.sort((a, b) => a.brgy_name.localeCompare(b.brgy_name));
-                            
-                            barangays.forEach(barangay => {
-                                $('#editBarangay').append($('<option></option>').attr('value', barangay.brgy_code).text(barangay.brgy_name));
-                            });
-                            $('#editBarangay').prop('disabled', false);
-                        });
-                    }
-                });
-
-                $('#editBarangay').off('change').on('change', function() {
-                    const barangayName = $(this).find('option:selected').text();
-                    $('#editBarangayName').val(barangayName);
-                });
-            }
-
-            // Password confirmation validation
-            document.getElementById('confirmPassword').addEventListener('input', function() {
-                const password = document.getElementById('password').value;
-                const confirmPassword = this.value;
-                const feedback = document.getElementById('passwordFeedback');
-                
-                if (confirmPassword.length > 0) {
-                    if (password !== confirmPassword) {
-                        feedback.innerHTML = '<span style="color:#e74c3c;">Passwords do not match</span>';
-                        document.getElementById('saveClientBtn').disabled = true;
-                    } else {
-                        feedback.innerHTML = '<span style="color:#27ae60;">Passwords match</span>';
-                        document.getElementById('saveClientBtn').disabled = false;
-                    }
-                } else {
-                    feedback.innerHTML = '';
-                }
-            });
-            
-            // Email availability check
-            document.getElementById('email').addEventListener('blur', function() {
-                const email = this.value.trim();
-                const feedback = document.getElementById('emailFeedback');
-                
-                if (email.length > 0) {
-                    feedback.innerHTML = '<span style="color:#3498db;">Checking email availability...</span>';
-                    
-                    fetch('clients.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: 'check_email=1&email=' + encodeURIComponent(email)
-                    })
-                    .then(response => response.text())
-                    .then(data => {
-                        if (data === 'exists') {
-                            feedback.innerHTML = '<span style="color:#e74c3c;">Email already exists</span>';
-                            document.getElementById('saveClientBtn').disabled = true;
-                        } else {
-                            feedback.innerHTML = '<span style="color:#27ae60;">Email is available</span>';
-                            document.getElementById('saveClientBtn').disabled = false;
-                        }
-                    })
-                    .catch(error => {
-                        feedback.innerHTML = '<span style="color:#e74c3c;">Error checking email</span>';
-                    });
-                }
-            });
-
-            // Form validation for add client
-            document.getElementById("addClientForm").addEventListener("submit", function(e) {
-                const password = document.getElementById("password").value;
-                const confirmPassword = document.getElementById("confirmPassword").value;
-                
-                if (password !== confirmPassword) {
-                    e.preventDefault();
-                    Swal.fire({
-                        icon: "error",
-                        title: "Password Mismatch",
-                        text: "Please make sure your passwords match."
-                    });
-                    return false;
-                }
-                
+            // Ban form confirmation
+            document.getElementById("banForm").addEventListener("submit", function(e) {
                 e.preventDefault();
+                const status = document.getElementById('banStatusValue').value;
+                const action = status === 'suspended' ? 'ban' : 'unban';
+                
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: "Do you want to add this client?",
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3498db',
-                    cancelButtonColor: '#e74c3c',
-                    confirmButtonText: 'Yes, add it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        this.submit();
-                    }
-                });
-            });
-
-            // Form validation for edit client
-            document.getElementById("editClientForm").addEventListener("submit", function(e) {
-                e.preventDefault();
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "Do you want to update this client?",
+                    text: `Do you want to ${action} this account?`,
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#3498db',
-                    cancelButtonColor: '#e74c3c',
-                    confirmButtonText: 'Yes, update it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        this.submit();
-                    }
-                });
-            });
-
-            // Status form confirmation
-            document.getElementById("statusForm").addEventListener("submit", function(e) {
-                e.preventDefault();
-                const status = document.getElementById('statusValue').value;
-                const action = status === 'active' ? 'activate' : 'deactivate';
-                
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: `Do you want to ${action} this client?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3498db',
-                    cancelButtonColor: '#e74c3c',
+                    confirmButtonColor: status === 'suspended' ? '#e74c3c' : '#27ae60',
+                    cancelButtonColor: '#95a5a6',
                     confirmButtonText: `Yes, ${action} it!`
                 }).then((result) => {
                     if (result.isConfirmed) {
                         this.submit();
+                    } else {
+                        banModal.classList.remove('active');
                     }
                 });
             });

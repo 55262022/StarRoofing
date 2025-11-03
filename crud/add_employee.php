@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = trim($_POST['phone'] ?? '');
     $department = trim($_POST['department']);
     $hire_date = $_POST['hire_date'];
-    $password = $_POST['password'] ?? 'star123'; // Default password
+    $password = 'star123'; // Default password
 
     // Validate required fields
     if (empty($first_name) || empty($last_name) || empty($email) || 
@@ -38,6 +38,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Email already exists in the system");
         }
 
+        // Check if email already exists in employees table
+        $check_emp = $conn->prepare("SELECT employee_id FROM employees WHERE email = ?");
+        $check_emp->bind_param("s", $email);
+        $check_emp->execute();
+        $emp_result = $check_emp->get_result();
+
+        if ($emp_result->num_rows > 0) {
+            throw new Exception("Email already exists in employees");
+        }
+
         // Hash the password
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         $employee_role_id = 3; // Employee role
@@ -60,6 +70,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 mkdir($upload_dir, 0777, true);
             }
 
+            $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+            $file_type = $_FILES['image_file']['type'];
+            
+            if (!in_array($file_type, $allowed_types)) {
+                throw new Exception("Invalid file type. Only JPG, PNG, and GIF allowed");
+            }
+
+            if ($_FILES['image_file']['size'] > 104857600) { // 100MB
+                throw new Exception("File too large. Maximum size is 100MB");
+            }
+
             $file_extension = pathinfo($_FILES['image_file']['name'], PATHINFO_EXTENSION);
             $filename = uniqid() . '.' . $file_extension;
             $target_path = $upload_dir . $filename;
@@ -69,12 +90,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // 2. Create employee record with account_id (removed position, salary, status)
+        // 2. Create employee record with account_id
+        // Match exact database fields: account_id, first_name, last_name, email, password, phone, department, hire_date, image_path
         $employee_stmt = $conn->prepare("INSERT INTO employees 
-            (account_id, first_name, last_name, phone, department, hire_date, image_path) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $employee_stmt->bind_param("issssss", $account_id, $first_name, $last_name, $phone, 
-                          $department, $hire_date, $image_path);
+            (account_id, first_name, last_name, email, password, phone, department, hire_date, image_path) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $employee_stmt->bind_param("issssssss", 
+            $account_id, 
+            $first_name, 
+            $last_name, 
+            $email,
+            $hashed_password,
+            $phone, 
+            $department, 
+            $hire_date, 
+            $image_path
+        );
 
         if (!$employee_stmt->execute()) {
             throw new Exception("Error creating employee: " . $conn->error);
@@ -87,6 +118,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Exception $e) {
         // Rollback transaction on error
         $conn->rollback();
+        
+        // Delete uploaded file if exists
+        if (isset($image_path) && file_exists('../' . $image_path)) {
+            unlink('../' . $image_path);
+        }
+        
         header("Location: ../admin/employees.php?error=" . urlencode($e->getMessage()));
     }
 

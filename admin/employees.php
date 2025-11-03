@@ -478,11 +478,10 @@ if ($result && $result->num_rows > 0) {
 
                 <div class="department-filter">
                     <button class="department-btn <?= $department_filter === '' ? 'active' : '' ?>" data-department="">All Departments</button>
-                    <button class="department-btn <?= $department_filter === 'Construction' ? 'active' : '' ?>" data-department="Construction">Construction</button>
-                    <button class="department-btn <?= $department_filter === 'Roofing' ? 'active' : '' ?>" data-department="Roofing">Roofing</button>
                     <button class="department-btn <?= $department_filter === 'Administration' ? 'active' : '' ?>" data-department="Administration">Administration</button>
-                    <button class="department-btn <?= $department_filter === 'Sales' ? 'active' : '' ?>" data-department="Sales">Sales</button>
-                    <button class="department-btn <?= $department_filter === 'Management' ? 'active' : '' ?>" data-department="Management">Management</button>
+                    <button class="department-btn <?= $department_filter === 'Sales Manager' ? 'active' : '' ?>" data-department="Sales Manager">Sales Manager</button>
+                    <button class="department-btn <?= $department_filter === 'Operational Manager' ? 'active' : '' ?>" data-department="Operational Manager">Operational Manager</button>
+                    <button class="department-btn <?= $department_filter === 'Logistics and Services' ? 'active' : '' ?>" data-department="Logistics and Services">Logistics and Services</button>
                 </div>
                 
                 <div class="employee-container">
@@ -595,7 +594,7 @@ if ($result && $result->num_rows > 0) {
                         
                         <div class="form-group">
                             <label for="addPhone">Phone Number</label>
-                            <input type="tel" id="addPhone" name="phone" placeholder="Enter phone number">
+                            <input type="tel" id="addPhone" name="phone" placeholder="Enter phone number"  maxlength="11">
                         </div>
                     </div>
                     
@@ -604,11 +603,10 @@ if ($result && $result->num_rows > 0) {
                             <label for="addDepartment">Department *</label>
                             <select id="addDepartment" name="department" required>
                                 <option value="">Select Department</option>
-                                <option value="Construction">Construction</option>
-                                <option value="Roofing">Roofing</option>
                                 <option value="Administration">Administration</option>
-                                <option value="Sales">Sales</option>
-                                <option value="Management">Management</option>
+                                <option value="Sales Manager">Sales Manager</option>
+                                <option value="Operational Manager">Operational Manager</option>
+                                <option value="Logistics and Services">Logistics and Services</option>
                             </select>
                         </div>
                         
@@ -667,18 +665,17 @@ if ($result && $result->num_rows > 0) {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="editPhone">Phone Number</label>
-                            <input type="tel" id="editPhone" name="phone">
+                            <input type="tel" id="editPhone" name="phone" maxlength="11">
                         </div>
                         
                         <div class="form-group">
                             <label for="editDepartment">Department *</label>
                             <select id="editDepartment" name="department" required>
-                                <option value="">Select Department</option>
-                                <option value="Construction">Construction</option>
-                                <option value="Roofing">Roofing</option>
+                                <option value="" disabled selected>Select Department</option>
                                 <option value="Administration">Administration</option>
-                                <option value="Sales">Sales</option>
-                                <option value="Management">Management</option>
+                                <option value="Sales Manager">Sales Manager</option>
+                                <option value="Operational Manager">Operational Manager</option>
+                                <option value="Logistics and Services">Logistics and Services</option>
                             </select>
                         </div>
                     </div>
@@ -724,6 +721,18 @@ if ($result && $result->num_rows > 0) {
             </div>
         </div>
     </div>
+    <!-- Phone number validation -->
+    <script>
+        // Add Employee - Allow only numbers and max 11 digits
+        document.getElementById('addPhone').addEventListener('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, ''); // Remove non-numeric
+        });
+
+        // Edit Employee - Same logic
+        document.getElementById('editPhone').addEventListener('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

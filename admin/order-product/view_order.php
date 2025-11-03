@@ -58,9 +58,10 @@ $history = $history_stmt->get_result();
 $history_stmt->close();
 
 // Get active employees for assignment
+// Get LOGISTICS employees only for assignment
 $emp_sql = "SELECT employee_id, first_name, last_name, department 
             FROM employees 
-            WHERE is_archived = 0
+            WHERE is_archived = 0 AND department = 'Logistics and Services'
             ORDER BY first_name, last_name";
 $emp_result = $conn->query($emp_sql);
 ?>
@@ -900,7 +901,8 @@ $emp_result = $conn->query($emp_sql);
 
                     <div class="action-buttons">
                         <?php 
-                        if (in_array($order['order_status'], ['pending', 'confirmed'])): 
+                        // Only show update status for pending
+                        if ($order['order_status'] === 'pending'): 
                         ?>
                         <button class="btn btn-update" onclick="updateOrderStatus(<?= $order['order_id'] ?>, '<?= $order['order_status'] ?>')">
                             <i class="fas fa-edit"></i> Update Status
@@ -908,7 +910,8 @@ $emp_result = $conn->query($emp_sql);
                         <?php endif; ?>
                         
                         <?php 
-                        if ($order['order_status'] === 'processing'): 
+                        // MOVED: Assign employee now available at CONFIRMED status
+                        if ($order['order_status'] === 'confirmed'): 
                         ?>
                         <button class="btn btn-assign" onclick="openAssignModal()">
                             <i class="fas fa-user-plus"></i> 
@@ -917,14 +920,17 @@ $emp_result = $conn->query($emp_sql);
                         <?php endif; ?>
                         
                         <?php 
-                        if ($order['order_status'] === 'shipped'): 
+                        if ($order['order_status'] === 'to_ship'): 
                         ?>
-                        <div style="background: rgba(14, 165, 233, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #0ea5e9;">
+                        <button class="btn btn-assign" onclick="openAssignModal()">
+                            <i class="fas fa-user-plus"></i> Reassign Employee
+                        </button>
+                        <div style="background: rgba(14, 165, 233, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #0ea5e9; margin-top: 10px;">
                             <p style="color: #0ea5e9; font-weight: 600; margin: 0;">
-                                <i class="fas fa-truck"></i> Order is out for delivery
+                                <i class="fas fa-box"></i> Ready to Ship
                             </p>
                             <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0 0 0;">
-                                Waiting for delivery employee to mark as delivered
+                                Assigned employee will be deliver this order
                             </p>
                         </div>
                         <?php endif; ?>
@@ -984,11 +990,11 @@ $emp_result = $conn->query($emp_sql);
                             </span>
                         </div>
                         <?php endif; ?>
-                        <?php if ($order['shipped_at']): ?>
+                        <?php if (!empty($order['assigned_at'])): ?>
                         <div class="info-row">
-                            <span class="info-label">Shipped</span>
+                            <span class="info-label">Assigned to Employee</span>
                             <span class="info-value">
-                                <?= date('M j, Y - g:i A', strtotime($order['shipped_at'])) ?>
+                                <?= date('M j, Y - g:i A', strtotime($order['assigned_at'])) ?>
                             </span>
                         </div>
                         <?php endif; ?>
@@ -1166,7 +1172,7 @@ $emp_result = $conn->query($emp_sql);
         function updateOrderStatus(orderId, currentStatus) {
             const statusOptions = {
                 'pending': ['confirmed', 'cancelled'],
-                'confirmed': ['processing', 'cancelled']
+                'confirmed': ['cancelled']
             };
 
             const nextStatuses = statusOptions[currentStatus];
@@ -1174,8 +1180,8 @@ $emp_result = $conn->query($emp_sql);
             if (!nextStatuses || nextStatuses.length === 0) {
                 Swal.fire({
                     icon: 'info',
-                    title: 'No Actions Available',
-                    text: 'This order cannot be updated further.',
+                    title: 'No Status Updates Available',
+                    text: 'To ship this order, please use the "Assign Employee & Ship" button.',
                     confirmButtonColor: '#e9b949'
                 });
                 return;
