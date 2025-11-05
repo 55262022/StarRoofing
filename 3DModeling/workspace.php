@@ -714,7 +714,11 @@ function openPartSelector(partName, baseName, meshes, designs) {
           const hasModel = card.getAttribute('data-has-model') === 'true';
           const hasTexture = card.getAttribute('data-has-texture') === 'true';
           
-          if (hasModel && modelURL) {
+          if (partName === "Roof" && hasModel && modelURL) {
+            // For roofs with 3D models, place actual models
+            placeModelsOnRoof(meshes, modelURL, partName);
+          } else if (hasModel && modelURL) {
+            // For other parts, convert to texture
             convertModelToTexture(modelURL, (texture) => {
               if (texture) {
                 applyTextureToPart(meshes, texture, partName, true);
@@ -901,6 +905,547 @@ function convertModelToTexture(modelURL, callback) {
   });
 }
 
+// Place 3D models on roof surface (for corrugated sheets, tiles, etc.)
+// Advanced roof surface analysis and model placement
+function placeModelsOnRoof(roofMeshes, modelURL, partName) {
+  Swal.fire({ 
+    title: 'Analyzing Roof Surface...', 
+    html: '<p>Calculating roof geometry and placement...</p>',
+    didOpen: () => Swal.showLoading(), 
+    allowOutsideClick: false 
+  });
+
+  loader.load(modelURL, (gltf) => {
+    try {
+      const templateModel = gltf.scene;
+      
+      // Remove existing roof models
+      const existingGroup = scene.getObjectByName('roof_models_group');
+      if (existingGroup) {
+        scene.remove(existingGroup);
+        existingGroup.traverse(obj => {
+          if (obj.geometry) obj.geometry.dispose();
+          if (obj.material) {
+            if (Array.isArray(obj.material)) {
+              obj.material.forEach(mat => mat.dispose());
+            } else {
+              obj.material.dispose();
+            }
+          }
+        });
+      }
+      
+      console.log('%c═══════════════════════════════════════', 'color: #e9b949; font-weight: bold');
+      console.log('%c🏠 ROOF ANALYSIS STARTED', 'color: #e9b949; font-weight: bold; font-size: 14px');
+      console.log('%c═══════════════════════════════════════', 'color: #e9b949; font-weight: bold');
+      
+      // STEP 1: Analyze roof geometry
+      const roofAnalysis = analyzeRoofGeometry(roofMeshes);
+      console.log('%c📐 Roof Dimensions:', 'color: #3b82f6; font-weight: bold');
+      console.log(`   Width (X): ${roofAnalysis.dimensions.x.toFixed(3)}m`);
+      console.log(`   Height (Y): ${roofAnalysis.dimensions.y.toFixed(3)}m`);
+      console.log(`   Depth (Z): ${roofAnalysis.dimensions.z.toFixed(3)}m`);
+      console.log(`   Angle: ${roofAnalysis.angle.toFixed(2)}° from horizontal`);
+      console.log(`   Normal: (${roofAnalysis.normal.x.toFixed(3)}, ${roofAnalysis.normal.y.toFixed(3)}, ${roofAnalysis.normal.z.toFixed(3)})`);
+      
+      // STEP 2: Calculate model scale
+      const modelBox = new THREE.Box3().setFromObject(templateModel);
+      const originalModelSize = new THREE.Vector3();
+      modelBox.getSize(originalModelSize);
+      
+      console.log('%c🔷 Original Model Size:', 'color: #8b5cf6; font-weight: bold');
+      console.log(`   ${originalModelSize.x.toFixed(3)} × ${originalModelSize.y.toFixed(3)} × ${originalModelSize.z.toFixed(3)}`);
+      
+      // Calculate optimal scale based on roof surface area
+      const roofSurfaceWidth = Math.max(roofAnalysis.dimensions.x, roofAnalysis.dimensions.z);
+      const targetTileCount = 10; // Aim for 10 tiles across the width
+      const targetTileSize = roofSurfaceWidth / targetTileCount;
+      const modelMaxDim = Math.max(originalModelSize.x, originalModelSize.z);
+      const scaleFactor = targetTileSize / modelMaxDim;
+      
+      templateModel.scale.set(scaleFactor, scaleFactor, scaleFactor);
+      templateModel.updateMatrixWorld(true);
+      
+      const scaledModelBox = new THREE.Box3().setFromObject(templateModel);
+      const modelSize = new THREE.Vector3();
+      scaledModelBox.getSize(modelSize);
+      
+      console.log('%c✨ Scaled Model Size:', 'color: #22c55e; font-weight: bold');
+      console.log(`   ${modelSize.x.toFixed(3)} × ${modelSize.y.toFixed(3)} × ${modelSize.z.toFixed(3)}`);
+      console.log(`   Scale Factor: ${(scaleFactor * 100).toFixed(2)}%`);
+      
+      // STEP 3: Calculate tile grid
+      const tileSpacingX = modelSize.x * 0.99; // 1% overlap
+      const tileSpacingZ = modelSize.z * 0.99;
+      
+      // Adjust grid based on roof orientation
+      const isWideRoof = roofAnalysis.dimensions.x > roofAnalysis.dimensions.z;
+      const tilesX = Math.ceil((isWideRoof ? roofAnalysis.dimensions.x : roofAnalysis.dimensions.z) / tileSpacingX);
+      const tilesZ = Math.ceil((isWideRoof ? roofAnalysis.dimensions.z : roofAnalysis.dimensions.x) / tileSpacingZ);
+      
+      console.log('%c📊 Tile Grid Layout:', 'color: #f59e0b; font-weight: bold');
+      console.log(`   Grid: ${tilesX} × ${tilesZ} = ${tilesX * tilesZ} tiles`);
+      console.log(`   Spacing: ${tileSpacingX.toFixed(3)}m × ${tileSpacingZ.toFixed(3)}m`);
+      console.log(`   Orientation: ${isWideRoof ? 'Wide (X-dominant)' : 'Deep (Z-dominant)'}`);
+      
+      // STEP 4: Create placement group
+      const roofGroup = new THREE.Group();
+      roofGroup.name = 'roof_models_group';
+      
+      const roofCenter = new THREE.Vector3();
+      roofAnalysis.boundingBox.getCenter(roofCenter);
+      
+      // Calculate rotation quaternion from roof normal
+      const upVector = new THREE.Vector3(0, 1, 0);
+      const rotationQuaternion = new THREE.Quaternion().setFromUnitVectors(upVector, roofAnalysis.normal);
+      
+      let placedCount = 0;
+      const placementData = [];
+      
+      // STEP 5: Use advanced surface mapping for precise placement
+      console.log('%c🎯 PRECISE TILE PLACEMENT', 'color: #ec4899; font-weight: bold; font-size: 12px');
+      
+      // Tag roof faces with plane indices
+      roofAnalysis.roofPlanes.forEach((plane, planeIdx) => {
+        plane.faces.forEach(face => {
+          face.planeIndex = planeIdx;
+        });
+      });
+      
+      // Place tiles on each roof plane separately
+      roofAnalysis.roofPlanes.forEach((plane, planeIdx) => {
+        console.log(`   🏔️ Processing Plane ${planeIdx + 1}/${roofAnalysis.roofPlanes.length}`);
+        
+        const planeBBox = plane.boundingBox;
+        const planeSize = new THREE.Vector3();
+        planeBBox.getSize(planeSize);
+        
+        // Calculate tile grid for this plane
+        const planeTilesX = Math.ceil(planeSize.x / tileSpacingX);
+        const planeTilesZ = Math.ceil(planeSize.z / tileSpacingZ);
+        
+        console.log(`      Grid: ${planeTilesX} × ${planeTilesZ} tiles`);
+        
+        // Place tiles on this plane
+        for (let ix = 0; ix < planeTilesX; ix++) {
+          for (let iz = 0; iz < planeTilesZ; iz++) {
+            const modelClone = templateModel.clone();
+            
+            // Calculate position within plane bounds
+            const localX = planeBBox.min.x + (ix + 0.5) * tileSpacingX;
+            const localZ = planeBBox.min.z + (iz + 0.5) * tileSpacingZ;
+            
+            // Find exact surface point using ray-triangle intersection
+            const rayOrigin = new THREE.Vector3(localX, planeBBox.max.y + 10, localZ);
+            const surfacePoint = findClosestRoofPoint(rayOrigin, plane.faces);
+            
+            if (surfacePoint) {
+              // Position model on surface
+              modelClone.position.copy(surfacePoint.position);
+              
+              // Align model to surface normal using quaternion
+              const upVector = new THREE.Vector3(0, 1, 0);
+              const modelRotation = new THREE.Quaternion().setFromUnitVectors(
+                upVector,
+                surfacePoint.normal
+              );
+              
+              modelClone.quaternion.copy(modelRotation);
+              
+              // Calculate proper vertical offset based on model's local bounds
+              const modelLocalBBox = new THREE.Box3().setFromObject(modelClone);
+              const modelLocalSize = new THREE.Vector3();
+              modelLocalBBox.getSize(modelLocalSize);
+              
+              // Offset slightly above surface
+              const offset = surfacePoint.normal.clone().multiplyScalar(modelLocalSize.y * 0.02);
+              modelClone.position.add(offset);
+              
+              roofGroup.add(modelClone);
+              placedCount++;
+              
+              placementData.push({
+                position: surfacePoint.position.clone(),
+                normal: surfacePoint.normal.clone(),
+                gridCoords: { x: ix, z: iz },
+                planeIndex: planeIdx
+              });
+            } else {
+              console.warn(`      ⚠️ No surface found at grid position (${ix}, ${iz})`);
+            }
+          }
+        }
+        
+        console.log(`      ✅ Placed ${placedCount} tiles on plane ${planeIdx + 1}`);
+      });
+      
+      scene.add(roofGroup);
+      
+      console.log('%c═══════════════════════════════════════', 'color: #22c55e; font-weight: bold');
+      console.log(`%c✅ PLACEMENT COMPLETE: ${placedCount}/${tilesX * tilesZ} tiles`, 'color: #22c55e; font-weight: bold; font-size: 14px');
+      console.log('%c═══════════════════════════════════════', 'color: #22c55e; font-weight: bold');
+      
+      // Store metadata
+      if (!replacedParts['roof']) replacedParts['roof'] = [];
+      replacedParts['roof'].push({
+        type: '3d_models',
+        modelURL: modelURL,
+        groupName: 'roof_models_group',
+        count: placedCount,
+        grid: { x: tilesX, z: tilesZ },
+        analysis: roofAnalysis,
+        scaleFactor: scaleFactor,
+        placementData: placementData
+      });
+      
+      Swal.close();
+      Swal.fire({
+        icon: 'success',
+        title: 'Roof Models Placed Successfully!',
+        html: `
+          <div style="text-align: left; padding: 10px;">
+            <strong>📊 Placement Summary:</strong><br>
+            • Tiles Placed: <strong>${placedCount}</strong><br>
+            • Grid Layout: <strong>${tilesX} × ${tilesZ}</strong><br>
+            • Roof Angle: <strong>${roofAnalysis.angle.toFixed(1)}°</strong><br>
+            • Scale Factor: <strong>${(scaleFactor * 100).toFixed(1)}%</strong><br>
+            • Coverage: <strong>${((placedCount / (tilesX * tilesZ)) * 100).toFixed(1)}%</strong>
+          </div>
+        `,
+        timer: 4000,
+        showConfirmButton: true,
+        confirmButtonText: 'OK'
+      });
+      
+    } catch (error) {
+      console.error('%c❌ ERROR:', 'color: #ef4444; font-weight: bold', error);
+      Swal.close();
+      Swal.fire('Error', 'Failed to place roof models: ' + error.message, 'error');
+    }
+  }, 
+  (progress) => {
+    if (progress.lengthComputable && Swal.isVisible()) {
+      const percent = (progress.loaded / progress.total) * 100;
+      Swal.update({ html: `<p>Loading model... ${Math.round(percent)}%</p>` });
+    }
+  },
+  (error) => {
+    console.error('Model loading error:', error);
+    Swal.close();
+    Swal.fire('Error', 'Failed to load roof model: ' + error.message, 'error');
+  });
+}
+
+// Advanced roof geometry analysis with surface mapping
+function analyzeRoofGeometry(roofMeshes) {
+  const boundingBox = calculateBoundingBox(roofMeshes);
+  const dimensions = new THREE.Vector3();
+  boundingBox.getSize(dimensions);
+  
+  console.log('%c🔬 DETAILED ROOF SURFACE ANALYSIS', 'color: #8b5cf6; font-weight: bold; font-size: 12px');
+  
+  // Collect all vertices and normals from roof surfaces
+  const surfacePoints = [];
+  const surfaceNormals = [];
+  const roofFaces = [];
+  
+  roofMeshes.forEach(mesh => {
+    if (mesh.geometry) {
+      mesh.updateMatrixWorld(true);
+      const geometry = mesh.geometry;
+      const positions = geometry.attributes.position;
+      const normals = geometry.attributes.normal;
+      
+      if (positions && normals) {
+        // Extract all face data
+        const vertexCount = positions.count;
+        
+        for (let i = 0; i < vertexCount; i += 3) {
+          // Get triangle vertices
+          const v1 = new THREE.Vector3(
+            positions.getX(i),
+            positions.getY(i),
+            positions.getZ(i)
+          ).applyMatrix4(mesh.matrixWorld);
+          
+          const v2 = new THREE.Vector3(
+            positions.getX(i + 1),
+            positions.getY(i + 1),
+            positions.getZ(i + 1)
+          ).applyMatrix4(mesh.matrixWorld);
+          
+          const v3 = new THREE.Vector3(
+            positions.getX(i + 2),
+            positions.getY(i + 2),
+            positions.getZ(i + 2)
+          ).applyMatrix4(mesh.matrixWorld);
+          
+          // Get face normal
+          const n1 = new THREE.Vector3(
+            normals.getX(i),
+            normals.getY(i),
+            normals.getZ(i)
+          ).transformDirection(mesh.matrixWorld).normalize();
+          
+          // Calculate face center
+          const center = new THREE.Vector3()
+            .add(v1).add(v2).add(v3)
+            .divideScalar(3);
+          
+          // Calculate face area
+          const edge1 = new THREE.Vector3().subVectors(v2, v1);
+          const edge2 = new THREE.Vector3().subVectors(v3, v1);
+          const area = edge1.cross(edge2).length() / 2;
+          
+          // Only include upward-facing surfaces (roof tops)
+          if (n1.y > 0.3) { // Filter for roof surfaces
+            roofFaces.push({
+              vertices: [v1, v2, v3],
+              center: center,
+              normal: n1,
+              area: area,
+              mesh: mesh
+            });
+            
+            surfacePoints.push(center);
+            surfaceNormals.push(n1);
+          }
+        }
+      }
+    }
+  });
+  
+  console.log(`   📍 Detected ${roofFaces.length} roof surface faces`);
+  console.log(`   📊 Surface points: ${surfacePoints.length}`);
+  
+  // Calculate weighted average normal (by face area)
+  let totalArea = 0;
+  let weightedNormal = new THREE.Vector3(0, 0, 0);
+  
+  roofFaces.forEach(face => {
+    weightedNormal.add(face.normal.clone().multiplyScalar(face.area));
+    totalArea += face.area;
+  });
+  
+  if (totalArea > 0) {
+    weightedNormal.divideScalar(totalArea).normalize();
+  } else {
+    weightedNormal.set(0, 1, 0);
+  }
+  
+  // Detect roof planes (for multi-slope roofs)
+  const roofPlanes = detectRoofPlanes(roofFaces);
+  
+  console.log(`   🏔️ Detected ${roofPlanes.length} roof plane(s)`);
+  roofPlanes.forEach((plane, idx) => {
+    const angle = Math.acos(plane.normal.y) * (180 / Math.PI);
+    console.log(`      Plane ${idx + 1}: Angle ${angle.toFixed(2)}°, Area ${plane.totalArea.toFixed(3)}m², Faces: ${plane.faces.length}`);
+  });
+  
+  // Calculate overall roof angle
+  const angle = Math.acos(weightedNormal.y) * (180 / Math.PI);
+  
+  // Find min/max heights for each plane
+  const planeHeights = roofPlanes.map(plane => {
+    const heights = plane.faces.flatMap(face => 
+      face.vertices.map(v => v.y)
+    );
+    return {
+      min: Math.min(...heights),
+      max: Math.max(...heights),
+      avg: heights.reduce((a, b) => a + b, 0) / heights.length
+    };
+  });
+  
+  return {
+    boundingBox: boundingBox,
+    dimensions: dimensions,
+    normal: weightedNormal,
+    angle: angle,
+    isSloped: angle > 5,
+    surfacePoints: surfacePoints,
+    surfaceNormals: surfaceNormals,
+    roofFaces: roofFaces,
+    roofPlanes: roofPlanes,
+    planeHeights: planeHeights,
+    totalArea: totalArea
+  };
+}
+
+// Detect distinct roof planes (for gabled, hipped, or complex roofs)
+function detectRoofPlanes(faces) {
+  if (faces.length === 0) return [];
+  
+  const planes = [];
+  const normalThreshold = 0.95; // Cosine similarity threshold (about 18 degrees)
+  const usedFaces = new Set();
+  
+  faces.forEach((face, faceIdx) => {
+    if (usedFaces.has(faceIdx)) return;
+    
+    // Start a new plane
+    const plane = {
+      normal: face.normal.clone(),
+      faces: [face],
+      totalArea: face.area,
+      center: face.center.clone()
+    };
+    
+    usedFaces.add(faceIdx);
+    
+    // Find all faces with similar normals
+    faces.forEach((otherFace, otherIdx) => {
+      if (usedFaces.has(otherIdx)) return;
+      
+      const similarity = face.normal.dot(otherFace.normal);
+      
+      if (similarity > normalThreshold) {
+        plane.faces.push(otherFace);
+        plane.totalArea += otherFace.area;
+        usedFaces.add(otherIdx);
+        
+        // Update weighted normal
+        plane.normal.add(otherFace.normal.clone().multiplyScalar(otherFace.area));
+      }
+    });
+    
+    // Normalize the plane normal
+    plane.normal.normalize();
+    
+    // Calculate plane bounding box
+    const planeBox = new THREE.Box3();
+    plane.faces.forEach(face => {
+      face.vertices.forEach(v => planeBox.expandByPoint(v));
+    });
+    plane.boundingBox = planeBox;
+    
+    // Calculate plane center (weighted by area)
+    plane.center.set(0, 0, 0);
+    plane.faces.forEach(face => {
+      plane.center.add(face.center.clone().multiplyScalar(face.area));
+    });
+    plane.center.divideScalar(plane.totalArea);
+    
+    planes.push(plane);
+  });
+  
+  // Sort planes by area (largest first)
+  planes.sort((a, b) => b.totalArea - a.totalArea);
+  
+  return planes;
+}
+
+// Create a surface sampling grid for precise tile placement
+function createRoofSurfaceGrid(roofAnalysis, tileSize) {
+  const gridPoints = [];
+  const bbox = roofAnalysis.boundingBox;
+  const gridResolution = Math.max(tileSize.x, tileSize.z) * 0.5; // Half tile size for precision
+  
+  console.log('%c🗺️ CREATING SURFACE GRID', 'color: #10b981; font-weight: bold; font-size: 12px');
+  console.log(`   Grid resolution: ${gridResolution.toFixed(3)}m`);
+  
+  // Create a 2D grid over the bounding box
+  const startX = bbox.min.x;
+  const endX = bbox.max.x;
+  const startZ = bbox.min.z;
+  const endZ = bbox.max.z;
+  
+  const stepsX = Math.ceil((endX - startX) / gridResolution);
+  const stepsZ = Math.ceil((endZ - startZ) / gridResolution);
+  
+  console.log(`   Grid dimensions: ${stepsX} × ${stepsZ} = ${stepsX * stepsZ} sample points`);
+  
+  // Sample each grid point
+  for (let ix = 0; ix <= stepsX; ix++) {
+    for (let iz = 0; iz <= stepsZ; iz++) {
+      const x = startX + (ix / stepsX) * (endX - startX);
+      const z = startZ + (iz / stepsZ) * (endZ - startZ);
+      
+      // Cast ray down to find roof surface
+      const rayOrigin = new THREE.Vector3(x, bbox.max.y + 10, z);
+      const closestPoint = findClosestRoofPoint(rayOrigin, roofAnalysis.roofFaces);
+      
+      if (closestPoint) {
+        gridPoints.push({
+          position: closestPoint.position,
+          normal: closestPoint.normal,
+          gridCoords: { x: ix, z: iz },
+          planeIndex: closestPoint.planeIndex
+        });
+      }
+    }
+  }
+  
+  console.log(`   ✅ Generated ${gridPoints.length} valid surface points`);
+  
+  return gridPoints;
+}
+
+// Find closest roof surface point using raycasting
+function findClosestRoofPoint(rayOrigin, roofFaces) {
+  const rayDirection = new THREE.Vector3(0, -1, 0);
+  let closestDistance = Infinity;
+  let closestPoint = null;
+  
+  roofFaces.forEach(face => {
+    // Ray-triangle intersection
+    const intersection = rayIntersectsTriangle(
+      rayOrigin,
+      rayDirection,
+      face.vertices[0],
+      face.vertices[1],
+      face.vertices[2]
+    );
+    
+    if (intersection) {
+      const distance = rayOrigin.distanceTo(intersection);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestPoint = {
+          position: intersection,
+          normal: face.normal.clone(),
+          planeIndex: face.planeIndex || 0
+        };
+      }
+    }
+  });
+  
+  return closestPoint;
+}
+
+// Ray-triangle intersection (Möller–Trumbore algorithm)
+function rayIntersectsTriangle(rayOrigin, rayDirection, v0, v1, v2) {
+  const EPSILON = 0.0000001;
+  const edge1 = new THREE.Vector3().subVectors(v1, v0);
+  const edge2 = new THREE.Vector3().subVectors(v2, v0);
+  const h = new THREE.Vector3().crossVectors(rayDirection, edge2);
+  const a = edge1.dot(h);
+  
+  if (a > -EPSILON && a < EPSILON) return null; // Ray parallel to triangle
+  
+  const f = 1.0 / a;
+  const s = new THREE.Vector3().subVectors(rayOrigin, v0);
+  const u = f * s.dot(h);
+  
+  if (u < 0.0 || u > 1.0) return null;
+  
+  const q = new THREE.Vector3().crossVectors(s, edge1);
+  const v = f * rayDirection.dot(q);
+  
+  if (v < 0.0 || u + v > 1.0) return null;
+  
+  const t = f * edge2.dot(q);
+  
+  if (t > EPSILON) {
+    return new THREE.Vector3().addVectors(
+      rayOrigin,
+      rayDirection.clone().multiplyScalar(t)
+    );
+  }
+  
+  return null;
+}
+
 // Apply texture to part
 function applyTextureToPart(meshes, textureSource, partName, isGeneratedTexture = false) {
   Swal.fire({ 
@@ -943,8 +1488,8 @@ function applyTextureToMeshes(meshes, texture, partName) {
   let repeatX, repeatY;
   
   if (partName === "Roof") {
-    repeatX = Math.max(1, Math.ceil(size.x / 1.5));
-    repeatY = Math.max(1, Math.ceil(size.z / 1.5));
+    repeatX = Math.max(1, Math.ceil(size.x / 16));
+    repeatY = Math.max(1, Math.ceil(size.z / 16));
     console.log(`Roof size: ${size.x.toFixed(2)} x ${size.z.toFixed(2)}`);
     console.log(`Applying texture repeat: ${repeatX} x ${repeatY}`);
   } else if (partName === "Window" || partName === "Door") {
