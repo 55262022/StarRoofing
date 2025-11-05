@@ -348,7 +348,7 @@ foreach ($deliveries as $delivery) {
             text-transform: capitalize;
         }
 
-        .status-badge.shipped {
+        .status-badge.to_ship {
             background: #3b82f6;
             color: #fff;
         }
@@ -428,9 +428,19 @@ foreach ($deliveries as $delivery) {
             transition: all 0.3s;
         }
 
-        .upload-btn:hover {
+        .upload-btn:hover:not(:disabled) {
             background: #d4a437;
             transform: translateY(-2px);
+        }
+
+        .upload-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .upload-btn.uploading {
+            background: #9ca3af;
+            cursor: wait;
         }
 
         .proof-image {
@@ -440,6 +450,12 @@ foreach ($deliveries as $delivery) {
             border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .proof-image:hover {
+            transform: scale(1.02);
         }
 
         .completed-badge {
@@ -482,6 +498,22 @@ foreach ($deliveries as $delivery) {
 
         .hidden {
             display: none !important;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: #22c55e;
+            width: 0%;
+            transition: width 0.3s;
         }
 
         @media (max-width: 768px) {
@@ -538,7 +570,7 @@ foreach ($deliveries as $delivery) {
                     <span class="stat-label">Active Deliveries</span>
                     <div class="stat-icon blue"><i class="fas fa-shipping-fast"></i></div>
                 </div>
-                <div class="stat-value"><?= $active_count ?></div>
+                <div class="stat-value" id="activeCount"><?= $active_count ?></div>
             </div>
 
             <div class="stat-card">
@@ -546,7 +578,7 @@ foreach ($deliveries as $delivery) {
                     <span class="stat-label">Completed Today</span>
                     <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
                 </div>
-                <div class="stat-value"><?= $completed_today ?></div>
+                <div class="stat-value" id="completedCount"><?= $completed_today ?></div>
             </div>
 
             <div class="stat-card">
@@ -554,24 +586,24 @@ foreach ($deliveries as $delivery) {
                     <span class="stat-label">Total Assigned</span>
                     <div class="stat-icon gold"><i class="fas fa-box"></i></div>
                 </div>
-                <div class="stat-value"><?= $total_count ?></div>
+                <div class="stat-value" id="totalCount"><?= $total_count ?></div>
             </div>
         </div>
 
         <div class="filter-tabs">
             <button class="filter-btn active" data-filter="all">All</button>
             <button class="filter-btn" data-filter="to_ship">
-                To Ship <span class="filter-count"><?= $active_count ?></span>
+                To Ship <span class="filter-count" id="toShipCount"><?= $active_count ?></span>
             </button>
             <button class="filter-btn" data-filter="delivered">
-                Delivered <span class="filter-count"><?= $total_count - $active_count ?></span>
+                Delivered <span class="filter-count" id="deliveredCount"><?= $total_count - $active_count ?></span>
             </button>
         </div>
 
         <div class="deliveries-grid" id="deliveriesContainer">
             <?php if (count($deliveries) > 0): ?>
                 <?php foreach ($deliveries as $delivery): ?>
-                    <div class="delivery-card" data-status="<?= htmlspecialchars($delivery['order_status']) ?>">
+                    <div class="delivery-card" data-status="<?= htmlspecialchars($delivery['order_status']) ?>" data-order-id="<?= $delivery['order_id'] ?>">
                         <div class="delivery-header">
                             <div>
                                 <div class="delivery-id">#<?= htmlspecialchars($delivery['order_number']) ?></div>
@@ -580,8 +612,8 @@ foreach ($deliveries as $delivery) {
                                 </div>
                             </div>
                             <span class="status-badge <?= htmlspecialchars($delivery['order_status']) ?>">
-                                <i class="fas fa-<?= $delivery['order_status'] === 'shipped' ? 'truck' : 'check-circle' ?>"></i>
-                                <?= ucfirst($delivery['order_status']) ?>
+                                <i class="fas fa-<?= $delivery['order_status'] === 'to_ship' ? 'truck' : 'check-circle' ?>"></i>
+                                <?= $delivery['order_status'] === 'to_ship' ? 'To Ship' : 'Delivered' ?>
                             </span>
                         </div>
 
@@ -633,18 +665,21 @@ foreach ($deliveries as $delivery) {
 
                         <?php if ($delivery['order_status'] === 'to_ship'): ?>
                             <div class="delivery-actions">
-                                <form action="../employee/upload_delivery_proof.php" method="POST" enctype="multipart/form-data" class="upload-form">
-                                    <input type="hidden" name="order_id" value="<?= $delivery['order_id'] ?>">
-                                    <input type="file" name="proof_image" id="proof-<?= $delivery['order_id'] ?>" accept="image/*" style="display: none;" required>
-                                    <button type="button" class="upload-btn" onclick="document.getElementById('proof-<?= $delivery['order_id'] ?>').click()">
-                                        <i class="fas fa-camera"></i> Upload Proof & Mark Delivered
-                                    </button>
-                                </form>
+                                <input type="file" id="proof-<?= $delivery['order_id'] ?>" accept="image/*" style="display: none;">
+                                <button type="button" class="upload-btn" onclick="selectFile(<?= $delivery['order_id'] ?>)">
+                                    <i class="fas fa-camera"></i> Upload Proof & Mark Delivered
+                                </button>
+                                <div class="progress-bar hidden" id="progress-<?= $delivery['order_id'] ?>">
+                                    <div class="progress-bar-fill"></div>
+                                </div>
                             </div>
                         <?php elseif ($delivery['order_status'] === 'delivered' && !empty($delivery['delivery_proof'])): ?>
                             <div class="delivery-actions">
                                 <p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); margin-bottom: 0.5rem;">Proof of Delivery</p>
-                                <img src="/STARROOFING/uploads/delivery_proofs/<?= htmlspecialchars($delivery['delivery_proof']) ?>" alt="Proof of delivery" class="proof-image">
+                                <img src="/STARROOFING/uploads/delivery_proofs/<?= htmlspecialchars($delivery['delivery_proof']) ?>" 
+                                     alt="Proof of delivery" 
+                                     class="proof-image"
+                                     onclick="viewImage(this.src)">
                                 <div class="completed-badge">
                                     <i class="fas fa-check-circle"></i>
                                     <span>Delivery Completed - <?= date('M j, Y', strtotime($delivery['delivered_at'])) ?></span>
@@ -683,30 +718,262 @@ foreach ($deliveries as $delivery) {
             });
         });
 
-        // Handle file input change to auto-submit
+        // File selection
+        function selectFile(orderId) {
+            document.getElementById(`proof-${orderId}`).click();
+        }
+
+        // Handle file input change
         document.querySelectorAll('input[type="file"]').forEach(input => {
             input.addEventListener('change', function() {
                 if (this.files.length > 0) {
-                    const form = this.closest('form');
+                    const orderId = this.id.replace('proof-', '');
+                    const file = this.files[0];
                     
-                    Swal.fire({
-                        title: 'Confirm Delivery',
-                        text: 'Are you sure you want to mark this order as delivered?',
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#22c55e',
-                        cancelButtonColor: '#ef4444',
-                        confirmButtonText: 'Yes, mark as delivered'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        } else {
-                            input.value = '';
-                        }
-                    });
+                    // Validate file
+                    if (!validateFile(file)) {
+                        this.value = '';
+                        return;
+                    }
+                    
+                    confirmAndUpload(orderId, file);
                 }
             });
         });
+
+        // Validate file
+        function validateFile(file) {
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+
+            if (!allowedTypes.includes(file.type)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid File Type',
+                    text: 'Please upload a JPG, PNG, or GIF image.',
+                    confirmButtonColor: '#e9b949'
+                });
+                return false;
+            }
+
+            if (file.size > maxSize) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'File Too Large',
+                    text: 'Maximum file size is 5MB.',
+                    confirmButtonColor: '#e9b949'
+                });
+                return false;
+            }
+
+            return true;
+        }
+
+        // Confirm and upload
+        function confirmAndUpload(orderId, file) {
+            Swal.fire({
+                title: 'Confirm Delivery',
+                text: 'Are you sure you want to mark this order as delivered?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#22c55e',
+                cancelButtonColor: '#ef4444',
+                confirmButtonText: 'Yes, mark as delivered',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    uploadProof(orderId, file);
+                } else {
+                    document.getElementById(`proof-${orderId}`).value = '';
+                }
+            });
+        }
+
+        // Upload proof with AJAX
+        function uploadProof(orderId, file) {
+            const formData = new FormData();
+            formData.append('order_id', orderId);
+            formData.append('proof_image', file);
+
+            const button = document.querySelector(`button[onclick="selectFile(${orderId})"]`);
+            const progressBar = document.getElementById(`progress-${orderId}`);
+            const progressFill = progressBar.querySelector('.progress-bar-fill');
+
+            // Update button state
+            button.disabled = true;
+            button.classList.add('uploading');
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+            progressBar.classList.remove('hidden');
+
+            const xhr = new XMLHttpRequest();
+
+            // Progress tracking
+            xhr.upload.addEventListener('progress', (e) => {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    progressFill.style.width = percentComplete + '%';
+                }
+            });
+
+            // Upload complete
+            xhr.addEventListener('load', () => {
+                if (xhr.status === 200) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: response.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                // Update the card UI
+                                updateCardToDelivered(orderId, response.data);
+                            });
+                        } else {
+                            throw new Error(response.message || 'Upload failed');
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: error.message || 'An error occurred while processing the upload.',
+                            confirmButtonColor: '#e9b949'
+                        });
+                        resetUploadButton(orderId);
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Upload Failed',
+                        text: 'Server error occurred. Please try again.',
+                        confirmButtonColor: '#e9b949'
+                    });
+                    resetUploadButton(orderId);
+                }
+            });
+
+            // Upload error
+            xhr.addEventListener('error', () => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Network Error',
+                    text: 'Please check your internet connection and try again.',
+                    confirmButtonColor: '#e9b949'
+                });
+                resetUploadButton(orderId);
+            });
+
+            // Send request
+            xhr.open('POST', '../employee/upload_delivery_proof_ajax.php');
+            xhr.send(formData);
+        }
+
+        // Reset upload button
+        function resetUploadButton(orderId) {
+            const button = document.querySelector(`button[onclick="selectFile(${orderId})"]`);
+            const progressBar = document.getElementById(`progress-${orderId}`);
+            const fileInput = document.getElementById(`proof-${orderId}`);
+
+            button.disabled = false;
+            button.classList.remove('uploading');
+            button.innerHTML = '<i class="fas fa-camera"></i> Upload Proof & Mark Delivered';
+            progressBar.classList.add('hidden');
+            progressBar.querySelector('.progress-bar-fill').style.width = '0%';
+            fileInput.value = '';
+        }
+
+        // Update card to delivered state
+        function updateCardToDelivered(orderId, data) {
+            const card = document.querySelector(`[data-order-id="${orderId}"]`);
+            if (!card) return;
+
+            // Update card status attribute
+            card.setAttribute('data-status', 'delivered');
+
+            // Update status badge
+            const statusBadge = card.querySelector('.status-badge');
+            statusBadge.className = 'status-badge delivered';
+            statusBadge.innerHTML = '<i class="fas fa-check-circle"></i> Delivered';
+
+            // Update delivery actions section
+            const actionsSection = card.querySelector('.delivery-actions');
+            actionsSection.innerHTML = `
+                <p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); margin-bottom: 0.5rem;">Proof of Delivery</p>
+                <img src="${data.proof_url}" 
+                     alt="Proof of delivery" 
+                     class="proof-image"
+                     onclick="viewImage('${data.proof_url}')">
+                <div class="completed-badge">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Delivery Completed - ${data.delivered_date}</span>
+                </div>
+            `;
+
+            // Update statistics
+            updateStatistics();
+
+            // If filtered to "To Ship", hide the card
+            const activeFilter = document.querySelector('.filter-btn.active');
+            if (activeFilter && activeFilter.dataset.filter === 'to_ship') {
+                card.style.display = 'none';
+            }
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const allCards = document.querySelectorAll('.delivery-card');
+            let activeCount = 0;
+            let deliveredCount = 0;
+            let completedToday = 0;
+            const today = new Date().toISOString().split('T')[0];
+
+            allCards.forEach(card => {
+                const status = card.getAttribute('data-status');
+                if (status === 'to_ship') {
+                    activeCount++;
+                } else if (status === 'delivered') {
+                    deliveredCount++;
+                    
+                    // Check if completed today
+                    const completedBadge = card.querySelector('.completed-badge span');
+                    if (completedBadge) {
+                        const badgeText = completedBadge.textContent;
+                        const deliveredDate = new Date().toISOString().split('T')[0];
+                        if (badgeText.includes(new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }))) {
+                            completedToday++;
+                        }
+                    }
+                }
+            });
+
+            // Update stat displays
+            document.getElementById('activeCount').textContent = activeCount;
+            document.getElementById('completedCount').textContent = completedToday;
+            document.getElementById('totalCount').textContent = allCards.length;
+
+            // Update filter counts
+            document.getElementById('toShipCount').textContent = activeCount;
+            document.getElementById('deliveredCount').textContent = deliveredCount;
+        }
+
+        // View image in modal
+        function viewImage(imageSrc) {
+            Swal.fire({
+                imageUrl: imageSrc,
+                imageAlt: 'Proof of Delivery',
+                showConfirmButton: false,
+                showCloseButton: true,
+                width: 'auto',
+                padding: '1rem',
+                background: 'rgba(26, 26, 46, 0.95)',
+                customClass: {
+                    image: 'swal-large-image'
+                }
+            });
+        }
 
         // Logout function
         function logout() {
@@ -717,7 +984,8 @@ foreach ($deliveries as $delivery) {
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, logout'
+                confirmButtonText: 'Yes, logout',
+                cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = '../public/logout.php';
@@ -725,6 +993,7 @@ foreach ($deliveries as $delivery) {
             });
         }
 
+        // Show session messages
         <?php if (isset($_SESSION['success'])): ?>
             Swal.fire({
                 icon: 'success',
@@ -746,6 +1015,17 @@ foreach ($deliveries as $delivery) {
             });
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
+
+        // Add custom styles for image modal
+        const style = document.createElement('style');
+        style.textContent = `
+            .swal-large-image {
+                max-width: 90vw !important;
+                max-height: 90vh !important;
+                object-fit: contain;
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>

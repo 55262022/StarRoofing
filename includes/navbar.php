@@ -23,6 +23,9 @@
             <a href="../client/pages/my_basket.php" class="icon-btn" title="Basket">
                 <i class="fa-solid fa-bag-shopping"></i>
             </a>
+            <a href="../client/pages/my_orders.php" class="icon-btn" title="My Orders">
+                <i class="fa-solid fa-clipboard-list"></i>
+            </a>
         </div>
     </div>
 </header>
@@ -34,7 +37,8 @@
         <li><a href="#" onclick="showSection('about')"><i class="fas fa-info-circle"></i> <span>About</span></a></li>
         <li><a href="#" onclick="showSection('products')"><i class="fas fa-building"></i> <span>Products</span></a></li>
         <li><a href="#" onclick="showSection('services')"><i class="fas fa-tools"></i> <span>Services</span></a></li>
-        <li><a href="#" onclick="showSection('contact')"><i class="fas fa-envelope"></i> <span>Contact</span></a></li>
+        <li><a href="#" onclick="showSection('3d-modeling')"><i class="fas fa-tools"></i> <span>3D Modeling</span></a></li>
+        <!-- <li><a href="#" onclick="showSection('contact')"><i class="fas fa-envelope"></i> <span>Contact</span></a></li> -->
         
         <?php if (isset($_SESSION['account_id']) && $_SESSION['role_id'] == 2): ?>
             <!-- Show My Profile for logged-in clients -->
@@ -54,14 +58,10 @@ const toggleBtn = document.getElementById('sidebar-toggle');
 
 // Toggle sidebar function
 toggleBtn.addEventListener('click', function() {
-    // Check if we're on mobile or desktop
     if (window.innerWidth <= 768) {
-        // Mobile: toggle 'show' class
-        sidebar.classList.toggle('show');
+        sidebar.classList.toggle('show'); // Mobile
     } else {
-        // Desktop: toggle 'hide' class
-        sidebar.classList.toggle('hide');
-        // Also toggle body class for margin adjustment
+        sidebar.classList.toggle('hide'); // Desktop
         document.body.classList.toggle('sidebar-collapsed');
     }
 });
@@ -69,24 +69,32 @@ toggleBtn.addEventListener('click', function() {
 function showSection(section) {
     const allSections = document.querySelectorAll('section');
     const productsIframe = document.getElementById('products-section');
+    const modelingIframe = document.getElementById('3d-modeling-section');
     const loginIframe = document.getElementById('login-section');
 
-    // Case 1: If user clicks "Products"
+    // Hide all iframe sections first
+    if (productsIframe) productsIframe.classList.add('hidden');
+    if (modelingIframe) modelingIframe.classList.add('hidden');
+    if (loginIframe) loginIframe.classList.add('hidden');
+
+    // Case: Products section
     if (section === 'products') {
-        allSections.forEach(sec => {
-            if (sec.id !== 'products-section') {
-                sec.classList.add('hidden');
-            }
-        });
-        if (productsIframe) {
-            productsIframe.classList.remove('hidden');
-        }
+        allSections.forEach(sec => sec.classList.add('hidden'));
+        if (productsIframe) productsIframe.classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    } 
-    // Case 3: If user clicks anything else (Home, About, Services, Contact)
+    }
+
+    // Case: 3D Modeling section
+    else if (section === '3d-modeling') {
+        allSections.forEach(sec => sec.classList.add('hidden'));
+        if (modelingIframe) modelingIframe.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Case: other normal sections (Home, About, Services)
     else {
         allSections.forEach(sec => {
-            if (sec.id === 'products-section' || sec.id === 'login-section') {
+            if (['products-section', 'login-section', '3d-modeling-section'].includes(sec.id)) {
                 sec.classList.add('hidden');
             } else {
                 sec.classList.remove('hidden');
@@ -95,16 +103,10 @@ function showSection(section) {
 
         // Scroll to the right section anchor
         if (section !== 'home') {
-            const targetId = section === 'about' ? 'about' : 
-                        section === 'services' ? 'services' : 
-                        section === 'contact' ? 'contact' : null;
-            
-            if (targetId) {
+            const target = document.getElementById(section);
+            if (target) {
                 setTimeout(() => {
-                    const target = document.getElementById(targetId);
-                    if (target) {
-                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 100);
             }
         } else {
@@ -116,8 +118,8 @@ function showSection(section) {
     document.querySelectorAll('.sidebar-menu li a').forEach(link => link.classList.remove('active'));
     const activeLink = document.querySelector(`.sidebar-menu li a[onclick*="showSection('${section}')"]`);
     if (activeLink) activeLink.classList.add('active');
-    
-    // Close sidebar on mobile after clicking a link
+
+    // Close sidebar on mobile
     if (window.innerWidth <= 768) {
         sidebar.classList.remove('show');
     }
@@ -125,11 +127,16 @@ function showSection(section) {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    const iframeSection = document.getElementById('products-section');
-    if (iframeSection && !window.location.hash.includes('products')) {
-        iframeSection.classList.add('hidden');
+    const productsSection = document.getElementById('products-section');
+    const modelingSection = document.getElementById('3d-modeling-section');
+
+    if (productsSection && !window.location.hash.includes('products')) {
+        productsSection.classList.add('hidden');
     }
-    
+    if (modelingSection && !window.location.hash.includes('3d-modeling')) {
+        modelingSection.classList.add('hidden');
+    }
+
     // Set home as active by default
     const homeLink = document.querySelector(`.sidebar-menu li a[onclick*="showSection('home')"]`);
     if (homeLink) homeLink.classList.add('active');
@@ -137,7 +144,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Handle window resize
 window.addEventListener('resize', function() {
-    // Remove mobile class if resizing to desktop
     if (window.innerWidth > 768) {
         sidebar.classList.remove('show');
     }

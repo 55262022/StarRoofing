@@ -1,0 +1,82 @@
+Exception: PayMongo Error: The source_type passed paymaya is invalid.
+
+SourceResponse:
+Array
+(
+    [data] => Array
+        (
+            [id] => src_5uaFttbyRPXXW7P1mvuNnTEE
+            [type] => source
+            [attributes] => Array
+                (
+                    [amount] => 1500000
+                    [billing] => 
+                    [currency] => PHP
+                    [description] => 
+                    [livemode] => 
+                    [redirect] => Array
+                        (
+                            [checkout_url] => https://secure-authentication.paymongo.com/sources?id=src_5uaFttbyRPXXW7P1mvuNnTEE
+                            [failed] => https://seymour-nonvacillating-zainab.ngrok-free.dev/STARROOFING/client/pages/payment-return.php?order_number=ORD202511030008?status=failed
+                            [success] => https://seymour-nonvacillating-zainab.ngrok-free.dev/STARROOFING/client/pages/payment-return.php?order_number=ORD202511030008?status=success
+                        )
+
+                    [statement_descriptor] => 
+                    [status] => pending
+                    [type] => gcash
+                    [metadata] => Array
+                        (
+                            [customer_email] => ajmacaraig19@gmail.com
+                            [customer_name] => aj lin
+                            [order_number] => ORD202511030008
+                        )
+
+                    [created_at] => 1762182525
+                    [updated_at] => 1762182525
+                )
+
+        )
+
+)
+
+
+SourceResponse:
+Array
+(
+    [data] => Array
+        (
+            [id] => src_fUANFKQ4owButisZEsWZ5M5T
+            [type] => source
+            [attributes] => Array
+                (
+                    [amount] => 6500000
+                    [billing] => 
+                    [currency] => PHP
+                    [description] => 
+                    [livemode] => 
+                    [redirect] => Array
+                        (
+                            [checkout_url] => https://secure-authentication.paymongo.com/sources?id=src_fUANFKQ4owButisZEsWZ5M5T
+                            [failed] => https://seymour-nonvacillating-zainab.ngrok-free.dev/STARROOFING/client/pages/payment-return.php?order_number=ORD202511030008?status=failed
+                            [success] => https://seymour-nonvacillating-zainab.ngrok-free.dev/STARROOFING/client/pages/payment-return.php?order_number=ORD202511030008?status=success
+                        )
+
+                    [statement_descriptor] => 
+                    [status] => pending
+                    [type] => gcash
+                    [metadata] => Array
+                        (
+                            [order_number] => ORD202511030008
+                            [customer_email] => ajmacaraig19@gmail.com
+                            [customer_name] => aj lin
+                        )
+
+                    [created_at] => 1762183379
+                    [updated_at] => 1762183379
+                )
+
+        )
+
+)
+
+

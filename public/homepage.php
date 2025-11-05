@@ -169,7 +169,7 @@ session_start();
         </div>
     </section>
 
-    <section class="contact-modern" id="contact">
+    <!-- <section class="contact-modern" id="contact">
         <div class="container">
                         <div class="contact-split">
                 <div class="contact-info-side" data-aos="fade-right">
@@ -232,10 +232,15 @@ session_start();
                 </div>
             </div>
         </div>
-    </section>
+    </section> -->
 
     <section id="products-section" class="section hidden">
         <iframe src="../client/category-page.php"></iframe>
+    </section>
+    <section id="3d-modeling-section" class="section hidden">
+        <iframe src="../3DModeling/workspace.php" width="100%"
+        height="1000"
+        style="border:none;"></iframe>
     </section>
 
     <?php include '../includes/footer.php'?>

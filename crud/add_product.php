@@ -1,4 +1,11 @@
 <?php
+// Increase PHP limits for large uploads
+ini_set('upload_max_filesize', '100M');
+ini_set('post_max_size', '100M');
+ini_set('max_execution_time', '300');
+ini_set('max_input_time', '300');
+ini_set('memory_limit', '256M');
+
 require_once '../authentication/auth.php';
 require_once '../database/starroofing_db.php';
 
@@ -34,19 +41,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
 
     $image_path = null;
 
-    // Handle image upload
+    // Handle image upload with 100MB limit
     if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
+        $file_size = $_FILES['image_file']['size'];
+        $max_size = 100 * 1024 * 1024; // 100MB in bytes
+        
+        // Validate file size
+        if ($file_size > $max_size) {
+            header("Location: ../admin/inventory.php?error=Image size must be less than 100MB");
+            exit();
+        }
+        
+        // Validate file type
+        $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        $file_type = $_FILES['image_file']['type'];
+        
+        if (!in_array($file_type, $allowed_types)) {
+            header("Location: ../admin/inventory.php?error=Invalid file type. Only JPG, PNG, GIF, and WEBP are allowed.");
+            exit();
+        }
+        
         $upload_dir = "../uploads/products/";
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0777, true);
         }
 
-        $filename    = time() . "_" . basename($_FILES['image_file']['name']);
+        // Generate unique filename
+        $file_extension = pathinfo($_FILES['image_file']['name'], PATHINFO_EXTENSION);
+        $filename = time() . "_" . uniqid() . "." . $file_extension;
         $target_file = $upload_dir . $filename;
 
         if (move_uploaded_file($_FILES['image_file']['tmp_name'], $target_file)) {
             $image_path = "uploads/products/" . $filename;
+        } else {
+            header("Location: ../admin/inventory.php?error=Failed to upload image");
+            exit();
         }
+    } else if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] !== UPLOAD_ERR_NO_FILE) {
+        // Handle upload errors
+        $error_message = "Upload failed: ";
+        switch ($_FILES['image_file']['error']) {
+            case UPLOAD_ERR_INI_SIZE:
+            case UPLOAD_ERR_FORM_SIZE:
+                $error_message .= "File is too large (max 100MB)";
+                break;
+            case UPLOAD_ERR_PARTIAL:
+                $error_message .= "File was only partially uploaded";
+                break;
+            default:
+                $error_message .= "Unknown error occurred";
+        }
+        header("Location: ../admin/inventory.php?error=" . urlencode($error_message));
+        exit();
     }
 
     // Check if product already exists
@@ -105,15 +151,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
         }
 
         $insert_stmt->bind_param(
-            "issdissi",        // 8 type specifiers
-            $category_id,      // i - integer
-            $name,             // s - string
-            $description,      // s - string
-            $price,            // d - decimal
-            $stock_quantity,   // i - integer
-            $unit,             // s - string
-            $image_path,       // s - string
-            $created_by        // i - integer
+            "issdissi",
+            $category_id,
+            $name,
+            $description,
+            $price,
+            $stock_quantity,
+            $unit,
+            $image_path,
+            $created_by
         );
 
         error_log("Executing insert with created_by: $created_by");

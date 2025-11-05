@@ -20,20 +20,6 @@ $cart_stmt->bind_param("i", $account_id);
 $cart_stmt->execute();
 $cart_items = $cart_stmt->get_result();
 $cart_stmt->close();
-
-// 📦 Get previous orders
-$order_query = "
-    SELECT o.order_number, o.product_name, o.quantity, o.total_amount, o.order_status, o.created_at, p.image_path
-    FROM orders o
-    LEFT JOIN products p ON o.product_id = p.product_id
-    WHERE o.account_id = ?
-    ORDER BY o.created_at DESC
-";
-$order_stmt = $conn->prepare($order_query);
-$order_stmt->bind_param("i", $account_id);
-$order_stmt->execute();
-$order_items = $order_stmt->get_result();
-$order_stmt->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -77,7 +63,6 @@ $order_stmt->close();
         }
     }
 
-    /* Back Link */
     .back-link {
         display: inline-flex;
         align-items: center;
@@ -102,7 +87,6 @@ $order_stmt->close();
         transform: translateX(-5px);
     }
 
-    /* Page Title */
     h1 {
         font-size: clamp(2rem, 4vw, 3rem);
         font-weight: 700;
@@ -117,7 +101,6 @@ $order_stmt->close();
         color: #e9b949;
     }
 
-    /* Section Styling */
     .section {
         margin-bottom: 60px;
     }
@@ -149,17 +132,15 @@ $order_stmt->close();
         text-transform: uppercase;
     }
 
-    /* Item List */
     .item-list {
         display: grid;
         gap: 20px;
         margin-bottom: 40px;
     }
 
-    /* Item Cards */
     .item-card {
         display: grid;
-        grid-template-columns: 120px 1fr auto;
+        grid-template-columns: auto 120px 1fr auto;
         align-items: center;
         gap: 25px;
         background: rgba(255, 255, 255, 0.03);
@@ -194,65 +175,11 @@ $order_stmt->close();
         transform: scaleX(1);
     }
 
-    /* Clickable order card */
-    .order-card-clickable {
+    .item-checkbox {
+        width: 24px;
+        height: 24px;
         cursor: pointer;
-        text-decoration: none;
-        color: inherit;
-        display: grid;
-        grid-template-columns: 120px 1fr;
-        align-items: center;
-        gap: 25px;
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        padding: 25px;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .order-card-clickable::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, #e9b949, transparent);
-        transform: scaleX(0);
-        transition: transform 0.3s ease;
-    }
-
-    .order-card-clickable::after {
-        content: '\f061';
-        font-family: 'Font Awesome 6 Free';
-        font-weight: 900;
-        position: absolute;
-        right: 25px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #e9b949;
-        font-size: 1.5rem;
-        opacity: 0;
-        transition: all 0.3s ease;
-    }
-
-    .order-card-clickable:hover {
-        background: rgba(233, 185, 73, 0.05);
-        border-color: rgba(233, 185, 73, 0.3);
-        transform: translateY(-5px);
-        padding-right: 70px;
-    }
-
-    .order-card-clickable:hover::before {
-        transform: scaleX(1);
-    }
-
-    .order-card-clickable:hover::after {
-        opacity: 1;
-        right: 30px;
+        accent-color: #e9b949;
     }
 
     .item-image {
@@ -264,7 +191,7 @@ $order_stmt->close();
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .item-card img, .order-card-clickable img {
+    .item-card img {
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -330,7 +257,6 @@ $order_stmt->close();
         margin-top: 8px;
     }
 
-    /* Item Actions */
     .item-actions {
         display: flex;
         flex-direction: column;
@@ -389,10 +315,14 @@ $order_stmt->close();
     .btn-checkout:hover {
         background: transparent;
         color: #e9b949;
-        box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3);
+        box-shadow: 0 10px 30px rgba(233, 185, 73, 0.3);
     }
 
-    /* Empty State */
+    .btn-checkout:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
     .empty-text {
         text-align: center;
         color: rgba(255, 255, 255, 0.5);
@@ -411,7 +341,6 @@ $order_stmt->close();
         margin-bottom: 20px;
     }
 
-    /* Cart Summary */
     .cart-summary {
         background: rgba(233, 185, 73, 0.05);
         backdrop-filter: blur(10px);
@@ -444,21 +373,46 @@ $order_stmt->close();
         border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* Click to view hint */
-    .view-hint {
-        display: inline-flex;
+    .selection-info {
+        display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 0.85rem;
-        color: rgba(233, 185, 73, 0.7);
-        margin-top: 10px;
-        font-style: italic;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding: 15px 20px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* Responsive Design */
+    .select-all-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+    }
+
+    .select-all-container input {
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        accent-color: #e9b949;
+    }
+
+    .select-all-container label {
+        font-weight: 600;
+        color: #e9b949;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .selected-count {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+    }
+
     @media (max-width: 968px) {
         .item-card {
-            grid-template-columns: 100px 1fr;
+            grid-template-columns: auto 100px 1fr;
             gap: 20px;
         }
 
@@ -471,10 +425,6 @@ $order_stmt->close();
         .item-actions .btn {
             flex: 1;
         }
-
-        .order-card-clickable {
-            grid-template-columns: 100px 1fr;
-        }
     }
 
     @media (max-width: 768px) {
@@ -482,31 +432,14 @@ $order_stmt->close();
             padding: 40px 15px;
         }
 
-        .basket-container {
-            padding: 0;
-        }
-
         h1 {
             font-size: 2rem;
             margin-bottom: 30px;
         }
 
-        .item-card, .order-card-clickable {
-            grid-template-columns: 80px 1fr;
+        .item-card {
+            grid-template-columns: auto 80px 1fr;
             padding: 20px;
-        }
-
-        .order-card-clickable:hover {
-            padding-right: 20px;
-        }
-
-        .order-card-clickable::after {
-            font-size: 1.2rem;
-            right: 20px;
-        }
-
-        .order-card-clickable:hover::after {
-            right: 20px;
         }
 
         .item-image {
@@ -514,30 +447,24 @@ $order_stmt->close();
             height: 80px;
         }
 
-        .item-info h3 {
-            font-size: 1rem;
-        }
-
-        .price {
-            font-size: 1.2rem;
-        }
-
         .cart-summary {
             flex-direction: column;
             gap: 15px;
             text-align: center;
         }
-
-        .cart-summary .total-amount {
-            font-size: 2rem;
-        }
     }
 
     @media (max-width: 480px) {
-        .item-card, .order-card-clickable {
+        .item-card {
             grid-template-columns: 1fr;
             text-align: center;
             padding: 20px;
+        }
+
+        .item-checkbox {
+            position: absolute;
+            top: 20px;
+            left: 20px;
         }
 
         .item-image {
@@ -552,22 +479,6 @@ $order_stmt->close();
 
         .item-info {
             align-items: center;
-        }
-
-        .item-info > p {
-            justify-content: center;
-        }
-
-        .checkout-actions {
-            text-align: center;
-        }
-
-        .btn-checkout {
-            width: 100%;
-        }
-
-        .empty-text {
-            padding: 40px 20px;
         }
     }
 </style>
@@ -588,17 +499,32 @@ $order_stmt->close();
                 <i class="fas fa-cart-plus"></i> Items in Cart
             </div>
             <?php if ($cart_items->num_rows > 0): ?>
+                <div class="selection-info">
+                    <div class="select-all-container" onclick="toggleSelectAll()">
+                        <input type="checkbox" id="selectAll">
+                        <label for="selectAll">Select All</label>
+                    </div>
+                    <span class="selected-count">
+                        <span id="selectedCount">0</span> item(s) selected
+                    </span>
+                </div>
+
                 <div class="item-list">
                     <?php 
-                    $total = 0;
                     while ($item = $cart_items->fetch_assoc()): 
                         $itemTotal = $item['price'] * $item['quantity'];
-                        $total += $itemTotal;
                     ?>
                         <div class="item-card">
+                            <input type="checkbox" 
+                                   class="item-checkbox select-item" 
+                                   value="<?= $item['cart_id'] ?>"
+                                   data-price="<?= $itemTotal ?>"
+                                   onchange="updateTotal()">
+                            
                             <div class="item-image">
                                 <img src="/STARROOFING/<?= htmlspecialchars($item['image_path']) ?>" alt="<?= htmlspecialchars($item['product_name']) ?>">
                             </div>
+                            
                             <div class="item-info">
                                 <h3><?= htmlspecialchars($item['product_name']) ?></h3>
                                 <p><i class="fas fa-tag"></i> <?= htmlspecialchars($item['category_name'] ?? 'Uncategorized') ?></p>
@@ -637,14 +563,14 @@ $order_stmt->close();
                 </div>
 
                 <div class="cart-summary">
-                    <span class="total-label">Cart Total:</span>
-                    <span class="total-amount">₱<?= number_format($total, 2) ?></span>
+                    <span class="total-label">Selected Items Total:</span>
+                    <span class="total-amount" id="totalAmount">₱0.00</span>
                 </div>
 
                 <div class="checkout-actions">
-                    <a href="../checkout.php" class="btn btn-checkout">
+                    <button id="checkoutBtn" class="btn btn-checkout">
                         <i class="fas fa-credit-card"></i> Proceed to Checkout
-                    </a>
+                    </button>
                 </div>
 
             <?php else: ?>
@@ -654,50 +580,63 @@ $order_stmt->close();
                 </div>
             <?php endif; ?>
         </div>
-
-        <div class="section">
-            <div class="section-title">
-                <i class="fas fa-box-open"></i> My Orders
-            </div>
-            <?php if ($order_items->num_rows > 0): ?>
-                <div class="item-list">
-                    <?php while ($order = $order_items->fetch_assoc()): ?>
-                        <a href="track-order.php?order_number=<?= urlencode($order['order_number']) ?>" class="order-card-clickable">
-                            <div class="item-image">
-                                <img src="/STARROOFING/<?= htmlspecialchars($order['image_path']) ?>" alt="<?= htmlspecialchars($order['product_name']) ?>">
-                            </div>
-                            <div class="item-info">
-                                <h3><?= htmlspecialchars($order['product_name']) ?></h3>
-                                <p><i class="fas fa-receipt"></i> Order #: <?= htmlspecialchars($order['order_number']) ?></p>
-                                
-                                <div class="item-meta">
-                                    <span class="meta-badge">
-                                        <i class="fas fa-boxes"></i> Qty: <?= (int)$order['quantity'] ?>
-                                    </span>
-                                    <span class="meta-badge" style="border-color: <?= $order['order_status'] === 'pending' ? '#f39c12' : ($order['order_status'] === 'delivered' ? '#2ecc71' : ($order['order_status'] === 'cancelled' ? '#e74c3c' : '#3b82f6')) ?>; color: <?= $order['order_status'] === 'pending' ? '#f39c12' : ($order['order_status'] === 'delivered' ? '#2ecc71' : ($order['order_status'] === 'cancelled' ? '#e74c3c' : '#3b82f6')) ?>;">
-                                        <i class="fas fa-info-circle"></i> <?= ucfirst($order['order_status']) ?>
-                                    </span>
-                                </div>
-                                
-                                <p><i class="far fa-calendar-alt"></i> <?= date('F j, Y - g:i A', strtotime($order['created_at'])) ?></p>
-                                <p class="price">₱<?= number_format($order['total_amount'], 2) ?></p>
-                                
-                                <span class="view-hint">
-                                    <i class="fas fa-mouse-pointer"></i> Click to view order details
-                                </span>
-                            </div>
-                        </a>
-                    <?php endwhile; ?>
-                </div>
-            <?php else: ?>
-                <div class="empty-text">
-                    <i class="fas fa-box"></i>
-                    No previous orders yet.
-                </div>
-            <?php endif; ?>
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    // Update total based on selected items
+    function updateTotal() {
+        const checkboxes = document.querySelectorAll('.select-item:checked');
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const totalCheckboxes = document.querySelectorAll('.select-item');
+        
+        let total = 0;
+        checkboxes.forEach(cb => {
+            total += parseFloat(cb.dataset.price);
+        });
+        
+        document.getElementById('totalAmount').textContent = '₱' + total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        document.getElementById('selectedCount').textContent = checkboxes.length;
+        
+        // Update select all checkbox state
+        selectAllCheckbox.checked = checkboxes.length === totalCheckboxes.length && totalCheckboxes.length > 0;
+    }
+
+    // Toggle select all
+    function toggleSelectAll() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.select-item');
+        
+        checkboxes.forEach(cb => {
+            cb.checked = selectAllCheckbox.checked;
+        });
+        
+        updateTotal();
+    }
+
+    // Proceed to checkout
+    document.getElementById('checkoutBtn').addEventListener('click', function() {
+        const selected = Array.from(document.querySelectorAll('.select-item:checked')).map(cb => cb.value);
+
+        if (selected.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No items selected',
+                text: 'Please select at least one item to proceed to checkout.',
+                confirmButtonColor: '#e9b949'
+            });
+            return;
+        }
+
+        // Redirect to checkout with selected cart IDs
+        window.location.href = `checkout.php?cart_ids=${selected.join(',')}`;
+    });
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateTotal();
+    });
+    </script>
+
 </body>
 </html>

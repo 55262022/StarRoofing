@@ -418,9 +418,11 @@ if ($result->num_rows > 0) {
 <body>
     <!-- Hero Section -->
     <div class="materials-hero">
+        <h1><b>papalitan yung 'piece' na word sa stocks</b></h1>
         <a href="category-page.php" class="back-button">
             <i class="fa fa-arrow-left"></i> Back
         </a>
+        
         <h1><i class="fa fa-boxes"></i> Our Products</h1>
         <p>Premium Quality Roofing & Construction Materials</p>
     </div>

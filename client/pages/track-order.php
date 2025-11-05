@@ -231,6 +231,24 @@ if (isset($_GET['order_number'])) {
         font-size: 0.95rem;
     }
 
+    .proof-box {
+        background: rgba(255,255,255,0.05);
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .proof-box img {
+        max-width: 100%;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+
+    .proof-box small {
+        color: rgba(255,255,255,0.6);
+    }
+
     .order-details-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -365,6 +383,15 @@ if (isset($_GET['order_number'])) {
                             </div>
                         <?php endforeach; ?>
                     </div>
+                    <?php if ($order['order_status'] === 'delivered' && !empty($order['delivery_proof'])): ?>
+                        <div class="proof-box">
+                            <h3 style="color: #e9b949; margin-bottom: 15px;">
+                                <i class="fas fa-image"></i> Proof of Delivery
+                            </h3>
+                            <img src="/STARROOFING/uploads/delivery_proofs/<?= htmlspecialchars($order['delivery_proof']) ?>" alt="Proof of Delivery">
+                            <small>Delivery completed successfully.</small>
+                        </div>
+                    <?php endif; ?>
                 </div>
             <?php else: ?>
                 <div class="order-card">

@@ -30,8 +30,21 @@ const state = {
   productName: typeof PRODUCT_NAME !== 'undefined' ? PRODUCT_NAME : null,
   existingModelPath: typeof EXISTING_MODEL_PATH !== 'undefined' ? EXISTING_MODEL_PATH : null,
   hasModel: typeof HAS_MODEL !== 'undefined' ? HAS_MODEL : false,
-  modelLoaded: false // Track if a model is currently loaded
+  modelLoaded: false
 };
+
+// Progress bar elements
+const loadingOverlay = $('#loadingOverlay');
+const progressBarFill = $('#progressBarFill');
+const progressPercentage = $('#progressPercentage');
+const progressStatus = $('#progressStatus');
+
+// Stage elements
+const stage1 = $('#stage1');
+const stage2 = $('#stage2');
+const stage3 = $('#stage3');
+const stage4 = $('#stage4');
+const stage5 = $('#stage5');
 
 function updateStatus(txt, isError = false) {
   const statusEl = $('#statusText');
@@ -39,6 +52,175 @@ function updateStatus(txt, isError = false) {
   statusEl.style.color = isError ? '#dc3545' : '';
   log(txt);
 }
+
+// ==================== PROGRESS BAR FUNCTIONS ====================
+
+function showLoading() {
+  if (loadingOverlay) {
+    loadingOverlay.classList.add('active');
+    updateProgress(0, 'Initializing...');
+    log('Loading overlay shown');
+  }
+}
+
+function hideLoading() {
+  if (loadingOverlay) {
+    loadingOverlay.classList.remove('active');
+    resetProgress();
+    log('Loading overlay hidden');
+  }
+}
+
+function updateProgress(percentage, message = '') {
+  if (progressBarFill) {
+    progressBarFill.style.width = percentage + '%';
+  }
+  if (progressPercentage) {
+    progressPercentage.textContent = percentage + '%';
+  }
+  if (message && progressStatus) {
+    progressStatus.textContent = message;
+  }
+  
+  // Update stages based on progress
+  updateStages(percentage);
+  
+  // Also update status bar
+  updateStatus(`Processing: ${percentage}%`);
+}
+
+function updateStages(progress) {
+  if (!stage1 || !stage2 || !stage3 || !stage4 || !stage5) return;
+  
+  // Reset all stages
+  [stage1, stage2, stage3, stage4, stage5].forEach(stage => {
+    stage.classList.remove('active', 'completed');
+    const icon = stage.querySelector('.stage-icon');
+    if (icon) {
+      icon.classList.remove('active', 'completed');
+      icon.classList.add('pending');
+    }
+  });
+  
+  if (progress >= 0 && progress < 20) {
+    // Stage 1: Uploading
+    stage1.classList.add('active');
+    const icon1 = stage1.querySelector('.stage-icon');
+    if (icon1) {
+      icon1.classList.remove('pending');
+      icon1.classList.add('active');
+    }
+  } else if (progress >= 20 && progress < 40) {
+    // Stage 2: AI Processing
+    stage1.classList.add('completed');
+    const icon1 = stage1.querySelector('.stage-icon');
+    if (icon1) {
+      icon1.classList.remove('pending');
+      icon1.classList.add('completed');
+    }
+    
+    stage2.classList.add('active');
+    const icon2 = stage2.querySelector('.stage-icon');
+    if (icon2) {
+      icon2.classList.remove('pending');
+      icon2.classList.add('active');
+    }
+  } else if (progress >= 40 && progress < 60) {
+    // Stage 3: Generating Geometry
+    stage1.classList.add('completed');
+    const icon1 = stage1.querySelector('.stage-icon');
+    if (icon1) {
+      icon1.classList.remove('pending');
+      icon1.classList.add('completed');
+    }
+    
+    stage2.classList.add('completed');
+    const icon2 = stage2.querySelector('.stage-icon');
+    if (icon2) {
+      icon2.classList.remove('pending');
+      icon2.classList.add('completed');
+    }
+    
+    stage3.classList.add('active');
+    const icon3 = stage3.querySelector('.stage-icon');
+    if (icon3) {
+      icon3.classList.remove('pending');
+      icon3.classList.add('active');
+    }
+  } else if (progress >= 60 && progress < 85) {
+    // Stage 4: Applying Textures
+    [stage1, stage2, stage3].forEach(stage => {
+      stage.classList.add('completed');
+      const icon = stage.querySelector('.stage-icon');
+      if (icon) {
+        icon.classList.remove('pending');
+        icon.classList.add('completed');
+      }
+    });
+    
+    stage4.classList.add('active');
+    const icon4 = stage4.querySelector('.stage-icon');
+    if (icon4) {
+      icon4.classList.remove('pending');
+      icon4.classList.add('active');
+    }
+  } else if (progress >= 85) {
+    // Stage 5: Finalizing
+    [stage1, stage2, stage3, stage4].forEach(stage => {
+      stage.classList.add('completed');
+      const icon = stage.querySelector('.stage-icon');
+      if (icon) {
+        icon.classList.remove('pending');
+        icon.classList.add('completed');
+      }
+    });
+    
+    stage5.classList.add('active');
+    const icon5 = stage5.querySelector('.stage-icon');
+    if (icon5) {
+      icon5.classList.remove('pending');
+      icon5.classList.add('active');
+    }
+  }
+  
+  if (progress === 100) {
+    // All stages completed
+    [stage1, stage2, stage3, stage4, stage5].forEach(stage => {
+      stage.classList.add('completed');
+      const icon = stage.querySelector('.stage-icon');
+      if (icon) {
+        icon.classList.remove('pending', 'active');
+        icon.classList.add('completed');
+      }
+    });
+  }
+}
+
+function resetProgress() {
+  if (progressBarFill) {
+    progressBarFill.style.width = '0%';
+  }
+  if (progressPercentage) {
+    progressPercentage.textContent = '0%';
+  }
+  if (progressStatus) {
+    progressStatus.textContent = 'Initializing...';
+  }
+  
+  // Reset all stages
+  [stage1, stage2, stage3, stage4, stage5].forEach(stage => {
+    if (stage) {
+      stage.classList.remove('active', 'completed');
+      const icon = stage.querySelector('.stage-icon');
+      if (icon) {
+        icon.classList.remove('active', 'completed');
+        icon.classList.add('pending');
+      }
+    }
+  });
+}
+
+// ==================== THREE.JS INITIALIZATION ====================
 
 function initThree() {
   const container = $('#threeViewport');
@@ -149,20 +331,36 @@ function clearModel() {
   $('#modelInfo').textContent = '';
 }
 
+// FIXED: Load model with correct path handling
 async function loadModel(url) {
   updateStatus('Loading model...');
   
   try {
     clearModel();
     
+    // FIXED: Build correct absolute URL from project root
+    let modelUrl = url;
+    
+    // Clean path - remove leading '../' and '/'
+    let cleanPath = url.replace(/^\.\.\//, '').replace(/^\//, '');
+    
+    // If path doesn't start with http and doesn't have protocol
+    if (!cleanPath.startsWith('http') && !cleanPath.startsWith('blob:')) {
+      // Build absolute URL from current location
+      const baseUrl = window.location.origin + window.location.pathname.replace(/admin\/.*$/, '');
+      modelUrl = baseUrl + cleanPath;
+    }
+    
+    log(`Loading from: ${modelUrl}`);
+    
     const loader = new GLTFLoader();
     
     await new Promise((resolve, reject) => {
       loader.load(
-        url,
+        modelUrl,
         (gltf) => {
           state.loadedModel = gltf.scene;
-          state.modelLoaded = true; // Set model loaded state
+          state.modelLoaded = true;
           
           state.loadedModel.traverse(child => {
             if (child.isMesh) {
@@ -190,6 +388,7 @@ async function loadModel(url) {
             `Model: ${size.x.toFixed(2)} × ${size.y.toFixed(2)} × ${size.z.toFixed(2)} units`;
           
           updateStatus('Model loaded successfully');
+          log('Model loaded successfully');
           resolve();
         },
         (xhr) => {
@@ -199,39 +398,38 @@ async function loadModel(url) {
           }
         },
         (error) => {
+          console.error('Load error:', error);
           reject(error);
         }
       );
     });
   } catch (err) {
     console.error('Load error:', err);
+    log(`Failed to load model: ${err.message}`);
     updateStatus('Failed to load model', true);
-    Swal.fire('Error', 'Unable to load model: ' + err.message, 'error');
+    
+    Swal.fire({
+      icon: 'error',
+      title: 'Load Failed',
+      html: `Unable to load model.<br><small>${err.message}</small>`,
+      confirmButtonColor: '#e74c3c'
+    });
   }
 }
 
 // Load existing model from product
 async function loadExistingModel() {
-  if (!state.existingModelPath) {
-    log('No existing model path');
+  if (!state.existingModelPath || !state.hasModel) {
+    log('No existing model available');
     return;
   }
   
   updateStatus('Loading existing 3D model...');
-  log('Model path from DB: ' + state.existingModelPath);
-  
-  // Clean the path
-  let modelPath = state.existingModelPath;
-  
-  // If path doesn't start with ../, add it
-  if (!modelPath.startsWith('../')) {
-    modelPath = '../' + modelPath;
-  }
-  
-  log('Final model path: ' + modelPath);
+  log('Loading existing model: ' + state.existingModelPath);
   
   try {
-    await loadModel(modelPath);
+    // FIXED: Use loadModel which now handles path correctly
+    await loadModel(state.existingModelPath);
     
     Swal.fire({
       icon: 'success',
@@ -283,10 +481,12 @@ function exportModel() {
       URL.revokeObjectURL(url);
       
       updateStatus('Export complete');
+      log('Model exported successfully');
     },
     (error) => {
       console.error('Export error:', error);
       updateStatus('Export failed', true);
+      log('Export failed: ' + error.message);
     },
     { binary: false }
   );
@@ -560,13 +760,12 @@ function handleFiles(files) {
   log(`Added ${images.length} image(s)`);
 }
 
+// ==================== GENERATION FUNCTIONS WITH PROGRESS ====================
+
 async function generateFromProductImage() {
-  Swal.fire({
-    title: 'Generating 3D Model',
-    html: `Processing ${state.productName}...<br><small>This may take a few minutes</small>`,
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading()
-  });
+  // Show loading overlay with progress bar
+  showLoading();
+  updateProgress(5, 'Preparing upload...');
 
   updateStatus('Uploading product image to Meshy API...');
 
@@ -575,6 +774,9 @@ async function generateFromProductImage() {
   formData.append('image_path', state.productImagePath);
 
   try {
+    updateProgress(10, 'Uploading image...');
+    
+    // FIXED: Correct path - meshy folder is directly in admin
     const response = await fetch('meshy/meshy_upload.php', {
       method: 'POST',
       body: formData
@@ -599,34 +801,42 @@ async function generateFromProductImage() {
     log('Upload response: ' + JSON.stringify(json));
 
     if (json.status === 'success') {
-      if (json.existing) {
-        Swal.fire({
-          icon: 'info',
-          title: 'Already Converted',
-          text: 'This product was already converted to 3D!',
-          timer: 2000
-        });
-      } else {
-        Swal.fire({
-          icon: 'success',
-          title: 'Model Ready!',
-          timer: 2000,
-          showConfirmButton: false
-        });
-      }
+      updateProgress(100, 'Complete!');
+      
+      setTimeout(async () => {
+        hideLoading();
+        
+        if (json.existing) {
+          Swal.fire({
+            icon: 'info',
+            title: 'Already Converted',
+            text: 'This product was already converted to 3D!',
+            timer: 2000
+          });
+        } else {
+          Swal.fire({
+            icon: 'success',
+            title: 'Model Ready!',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
 
-      await loadModel(json.model_url);
-      updateStatus('Model loaded successfully');
+        // FIXED: Use model_path instead of model_url
+        await loadModel(json.model_path || json.model_url);
+        updateStatus('Model loaded successfully');
+      }, 500);
 
     } else if (json.status === 'pending') {
-      showLoadingWithTaskStatus(json.task_id, json.existing);
-      pollTaskStatus(json.task_id);
+      updateProgress(15, 'Task created, starting processing...');
+      pollTaskStatusWithProgress(json.task_id);
 
     } else {
       throw new Error(json.message || 'Unknown error from API');
     }
 
   } catch (err) {
+    hideLoading();
     Swal.fire({
       icon: 'error',
       title: 'Upload Failed',
@@ -638,19 +848,19 @@ async function generateFromProductImage() {
 }
 
 async function generateFromUploadedFiles() {
-  Swal.fire({
-    title: 'Generating 3D Model',
-    html: 'Uploading image to Meshy AI...<br><small>This may take a few minutes</small>',
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading()
-  });
+  // Show loading overlay with progress bar
+  showLoading();
+  updateProgress(5, 'Preparing upload...');
 
   updateStatus('Uploading to Meshy API...');
 
   const formData = new FormData();
-  formData.append('images[]', state.uploadFiles[0]);
+  formData.append('images', state.uploadFiles[0]);
 
   try {
+    updateProgress(10, 'Uploading image...');
+    
+    // Using correct path in admin/meshy folder
     const response = await fetch('meshy/meshy_upload.php', {
       method: 'POST',
       body: formData
@@ -673,35 +883,43 @@ async function generateFromUploadedFiles() {
     }
 
     if (json.status === 'success') {
-      if (json.existing) {
-        Swal.fire({
-          icon: 'info',
-          title: 'Already Converted',
-          text: 'This image was already converted to 3D!',
-          timer: 2000
-        });
-      } else {
-        Swal.fire({
-          icon: 'success',
-          title: 'Model Ready!',
-          timer: 2000,
-          showConfirmButton: false
-        });
-      }
+      updateProgress(100, 'Complete!');
+      
+      setTimeout(async () => {
+        hideLoading();
+        
+        if (json.existing) {
+          Swal.fire({
+            icon: 'info',
+            title: 'Already Converted',
+            text: 'This image was already converted to 3D!',
+            timer: 2000
+          });
+        } else {
+          Swal.fire({
+            icon: 'success',
+            title: 'Model Ready!',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
 
-      await loadModel(json.model_url);
-      state.uploadFiles = [];
-      updateStatus('Model loaded successfully');
+        // FIXED: Use model_path
+        await loadModel(json.model_path || json.model_url);
+        state.uploadFiles = [];
+        updateStatus('Model loaded successfully');
+      }, 500);
 
     } else if (json.status === 'pending') {
-      showLoadingWithTaskStatus(json.task_id, json.existing);
-      pollTaskStatus(json.task_id);
+      updateProgress(15, 'Task created, starting processing...');
+      pollTaskStatusWithProgress(json.task_id);
 
     } else {
       throw new Error(json.message || 'Unknown error from API');
     }
 
   } catch (err) {
+    hideLoading();
     Swal.fire({
       icon: 'error',
       title: 'Upload Failed',
@@ -712,89 +930,92 @@ async function generateFromUploadedFiles() {
   }
 }
 
-function showLoadingWithTaskStatus(taskId, isExisting) {
-  const title = isExisting ? 'Already Processing' : 'Processing...';
-  
-  fetch('../includes/loader.php')
-    .then(response => response.text())
-    .then(loaderHTML => {
-      Swal.fire({
-        title: title,
-        html: `${loaderHTML}<br><div style="margin-top: 20px;">Task ID: ${taskId}</div><div style="margin-top: 10px; font-size: 14px; color: #666;">Checking status every 10 seconds...</div>`,
-        showConfirmButton: false,
-        allowOutsideClick: false
-      });
-    })
-    .catch(() => {
-      Swal.fire({
-        icon: 'info',
-        title: title,
-        html: `Task ID: ${taskId}<br><br>Checking status every 10 seconds...`,
-        showConfirmButton: false,
-        allowOutsideClick: false
-      });
-    });
-}
-
-async function pollTaskStatus(taskId) {
-  const maxAttempts = 60;
+async function pollTaskStatusWithProgress(taskId) {
+  const maxAttempts = 120; // 10 minutes max (120 * 5 seconds)
   let attempts = 0;
 
   const checkStatus = async () => {
     attempts++;
+    
     try {
+      // Using correct path in admin/meshy folder
       const response = await fetch(`meshy/meshy_check_status.php?task_id=${taskId}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
       const json = await response.json();
       
-      log(`Status check ${attempts}: ${json.status}`);
+      log(`Status check ${attempts}: ${json.status} - Progress: ${json.progress || 0}%`);
 
       if (json.status === 'succeeded') {
-        Swal.fire({
-          icon: 'success',
-          title: 'Model Generated!',
-          text: 'Loading 3D model...',
-          timer: 2000,
-          showConfirmButton: false
-        });
-
-        await loadModel(json.model_url);
-        updateStatus('Model loaded successfully');
+        // Complete!
+        updateProgress(100, 'Model generated successfully!');
         
-        // Redirect back to inventory if this was a product
-        if (state.productId) {
-          setTimeout(() => {
-            window.location.href = `inventory.php?success=3D model generated successfully for ${state.productName}`;
-          }, 2000);
-        }
+        setTimeout(async () => {
+          hideLoading();
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Model Generated!',
+            text: 'Loading 3D model...',
+            timer: 2000,
+            showConfirmButton: false
+          });
+
+          // FIXED: Use model_path for loading
+          await loadModel(json.model_path || json.model_url);
+          updateStatus('Model loaded successfully');
+          
+          // Redirect back to inventory if this was a product
+          if (state.productId) {
+            setTimeout(() => {
+              window.location.href = `inventory.php?success=3D model generated successfully for ${state.productName}`;
+            }, 2000);
+          }
+        }, 1000);
 
       } else if (json.status === 'pending') {
+        // Update progress from API
         const progress = json.progress || 0;
-        updateStatus(`Processing: ${progress}% (${attempts}/${maxAttempts})`);
+        const message = json.message || 'Processing...';
+        
+        updateProgress(progress, message);
+        log(`Progress: ${progress}% - ${message}`);
 
         if (attempts < maxAttempts) {
-          setTimeout(checkStatus, 10000);
+          // Continue polling every 5 seconds
+          setTimeout(checkStatus, 5000);
         } else {
-          throw new Error('Timeout: Model generation took too long');
+          throw new Error('Timeout: Model generation took too long (10 minutes)');
         }
 
       } else if (json.status === 'failed') {
-        throw new Error('Model generation failed');
+        hideLoading();
+        throw new Error('Model generation failed on Meshy server');
         
       } else {
+        hideLoading();
         throw new Error(json.message || 'Unknown status: ' + json.status);
       }
 
     } catch (err) {
+      hideLoading();
+      log('Error during status check: ' + err.message);
+      
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: err.message
+        text: err.message,
+        confirmButtonText: 'OK'
       });
       updateStatus('Error: ' + err.message, true);
     }
   };
 
-  checkStatus();
+  // Start polling after 3 seconds
+  setTimeout(checkStatus, 3000);
 }
 
 // Check URL for existing model to load
@@ -806,18 +1027,11 @@ function checkURLForModel() {
     log('Loading model from URL parameter: ' + modelPath);
     
     let decodedPath = decodeURIComponent(modelPath);
-    let finalPath = decodedPath;
     
-    if (decodedPath.startsWith('uploads/')) {
-      finalPath = '../' + decodedPath;
-    } else if (!decodedPath.includes('/')) {
-      finalPath = '../uploads/3dmodels/' + decodedPath;
-    }
-    
-    log('Resolved path: ' + finalPath);
+    log('Decoded path: ' + decodedPath);
     
     setTimeout(() => {
-      loadModel(finalPath);
+      loadModel(decodedPath);
     }, 500);
   }
 }
