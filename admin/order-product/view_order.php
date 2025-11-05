@@ -57,7 +57,6 @@ $history_stmt->execute();
 $history = $history_stmt->get_result();
 $history_stmt->close();
 
-// Get active employees for assignment
 // Get LOGISTICS employees only for assignment
 $emp_sql = "SELECT employee_id, first_name, last_name, department 
             FROM employees 
@@ -168,8 +167,7 @@ $emp_result = $conn->query($emp_sql);
 
     .status-pending { background: rgba(234, 179, 8, 0.2); color: #eab308; }
     .status-confirmed { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
-    .status-processing { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
-    .status-shipped { background: rgba(14, 165, 233, 0.2); color: #0ea5e9; }
+    .status-to_ship { background: rgba(14, 165, 233, 0.2); color: #0ea5e9; }
     .status-delivered { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
     .status-cancelled { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
 
@@ -279,108 +277,6 @@ $emp_result = $conn->query($emp_sql);
         margin-top: 10px;
     }
 
-    .timeline {
-        position: relative;
-        padding-left: 30px;
-    }
-
-    .timeline-item {
-        position: relative;
-        padding: 15px 0;
-        padding-left: 25px;
-        border-left: 2px solid rgba(255,255,255,0.1);
-    }
-
-    .timeline-item:last-child {
-        border-left-color: transparent;
-    }
-
-    .timeline-item::before {
-        content: '';
-        position: absolute;
-        left: -6px;
-        top: 20px;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #e9b949;
-    }
-
-    .timeline-status {
-        font-weight: 700;
-        color: #e9b949;
-        margin-bottom: 5px;
-        text-transform: capitalize;
-    }
-
-    .timeline-date {
-        font-size: 0.85rem;
-        color: rgba(255,255,255,0.6);
-        margin-bottom: 5px;
-    }
-
-    .timeline-notes {
-        font-size: 0.9rem;
-        color: rgba(255,255,255,0.8);
-        font-style: italic;
-    }
-
-    .timeline-admin {
-        font-size: 0.85rem;
-        color: rgba(255,255,255,0.5);
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .btn {
-        padding: 12px 24px;
-        border-radius: 10px;
-        border: none;
-        font-weight: 700;
-        cursor: pointer;
-        transition: 0.3s;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 0.95rem;
-    }
-
-    .btn-update {
-        background: rgba(168, 85, 247, 0.2);
-        color: #a855f7;
-        border: 1px solid rgba(168, 85, 247, 0.3);
-    }
-
-    .btn-update:hover {
-        background: rgba(168, 85, 247, 0.3);
-    }
-
-    .btn-assign {
-        background: rgba(34, 197, 94, 0.2);
-        color: #22c55e;
-        border: 1px solid rgba(34, 197, 94, 0.3);
-    }
-
-    .btn-assign:hover {
-        background: rgba(34, 197, 94, 0.3);
-    }
-
-    .btn-print {
-        background: rgba(59, 130, 246, 0.2);
-        color: #3b82f6;
-        border: 1px solid rgba(59, 130, 246, 0.3);
-    }
-
-    .btn-print:hover {
-        background: rgba(59, 130, 246, 0.3);
-    }
-
-    /* Payment Proof Styles - Enhanced */
     .payment-proof-section {
         margin-top: 25px;
         padding: 20px;
@@ -424,7 +320,6 @@ $emp_result = $conn->query($emp_sql);
         margin-top: 15px;
     }
 
-    /* Image Modal for Full View */
     .image-modal {
         display: none;
         position: fixed;
@@ -469,13 +364,68 @@ $emp_result = $conn->query($emp_sql);
         color: #e9b949;
     }
 
-    .empty-history {
-        text-align: center;
-        padding: 40px;
-        color: rgba(255,255,255,0.5);
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
     }
 
-    /* Modal Styles */
+    .btn {
+        padding: 12px 24px;
+        border-radius: 10px;
+        border: none;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+    }
+
+    .btn-confirm {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .btn-confirm:hover {
+        background: rgba(34, 197, 94, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .btn-decline {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-decline:hover {
+        background: rgba(239, 68, 68, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .btn-assign {
+        background: rgba(59, 130, 246, 0.2);
+        color: #3b82f6;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-assign:hover {
+        background: rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-print {
+        background: rgba(168, 85, 247, 0.2);
+        color: #a855f7;
+        border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .btn-print:hover {
+        background: rgba(168, 85, 247, 0.3);
+    }
+
     .modal {
         display: none;
         position: fixed;
@@ -576,12 +526,7 @@ $emp_result = $conn->query($emp_sql);
     }
 
     .form-group input:focus,
-    .form-group textarea:focus {
-        outline: none;
-        border-color: #e9b949;
-        box-shadow: 0 0 0 3px rgba(233,185,73,0.15);
-    }
-
+    .form-group textarea:focus,
     .form-group select:focus {
         outline: none;
         border-color: #e9b949;
@@ -597,14 +542,6 @@ $emp_result = $conn->query($emp_sql);
         background: #1a1a2e;
         color: #fff;
         padding: 10px;
-    }
-
-    .form-group select option:hover {
-        background: #2a2a4e;
-    }
-
-    .form-group select option[value=""] {
-        color: rgba(255,255,255,0.5);
     }
 
     .btn-outline {
@@ -624,6 +561,34 @@ $emp_result = $conn->query($emp_sql);
 
     .btn-primary:hover {
         background: #d4a847;
+    }
+
+    .status-info-box {
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 10px;
+        display: flex;
+        align-items: start;
+        gap: 12px;
+    }
+
+    .status-info-box i {
+        font-size: 1.2rem;
+        margin-top: 2px;
+    }
+
+    .status-info-box p {
+        margin: 0;
+    }
+
+    .status-info-box p:first-of-type {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .status-info-box p:last-of-type {
+        font-size: 0.9rem;
+        opacity: 0.8;
     }
 
     @media (max-width: 1024px) {
@@ -707,7 +672,7 @@ $emp_result = $conn->query($emp_sql);
                             <i class="fas fa-info-circle"></i> Order Information
                         </h2>
                         <div class="order-status status-<?= $order['order_status'] ?>">
-                            <?= ucfirst($order['order_status']) ?>
+                            <?= ucfirst(str_replace('_', ' ', $order['order_status'])) ?>
                         </div>
                     </div>
 
@@ -761,16 +726,6 @@ $emp_result = $conn->query($emp_sql);
                         <p style="margin-top: 10px; font-size: 0.85rem; color: rgba(255,255,255,0.6);">
                             <i class="fas fa-info-circle"></i> Click image to view full size
                         </p>
-                    </div>
-                    <?php elseif (in_array($order['order_status'], ['delivered'])): ?>
-                    <div class="no-payment-proof">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <p style="margin-top: 10px;">Delivery proof not uploaded yet</p>
-                    </div>
-                    <?php elseif (in_array($order['order_status'], ['shipped'])): ?>
-                    <div class="no-payment-proof" style="background: rgba(14, 165, 233, 0.1); border-color: rgba(14, 165, 233, 0.2);">
-                        <i class="fas fa-truck"></i>
-                        <p style="margin-top: 10px; color: #0ea5e9;">Order is out for delivery - waiting for proof</p>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -900,70 +855,79 @@ $emp_result = $conn->query($emp_sql);
                     </div>
 
                     <div class="action-buttons">
-                        <?php 
-                        // Only show update status for pending
-                        if ($order['order_status'] === 'pending'): 
-                        ?>
-                        <button class="btn btn-update" onclick="updateOrderStatus(<?= $order['order_id'] ?>, '<?= $order['order_status'] ?>')">
-                            <i class="fas fa-edit"></i> Update Status
+                        <?php if ($order['order_status'] === 'pending'): ?>
+                        <button class="btn btn-confirm" onclick="confirmOrder(<?= $order['order_id'] ?>)">
+                            <i class="fas fa-check-circle"></i> Confirm Order
+                        </button>
+                        <button class="btn btn-decline" onclick="declineOrder(<?= $order['order_id'] ?>)">
+                            <i class="fas fa-times-circle"></i> Decline Order
                         </button>
                         <?php endif; ?>
                         
-                        <?php 
-                        // MOVED: Assign employee now available at CONFIRMED status
-                        if ($order['order_status'] === 'confirmed'): 
-                        ?>
+                        <?php if ($order['order_status'] === 'confirmed'): ?>
                         <button class="btn btn-assign" onclick="openAssignModal()">
                             <i class="fas fa-user-plus"></i> 
                             <?= empty($order['assigned_employee_name']) ? 'Assign Employee & Ship' : 'Reassign Employee' ?>
                         </button>
+                        <div class="status-info-box" style="background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; color: #3b82f6;">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <p>Order Confirmed</p>
+                                <p>Assign a delivery employee to proceed with shipping</p>
+                            </div>
+                        </div>
                         <?php endif; ?>
                         
-                        <?php 
-                        if ($order['order_status'] === 'to_ship'): 
-                        ?>
+                        <?php if ($order['order_status'] === 'to_ship'): ?>
                         <button class="btn btn-assign" onclick="openAssignModal()">
                             <i class="fas fa-user-plus"></i> Reassign Employee
                         </button>
-                        <div style="background: rgba(14, 165, 233, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #0ea5e9; margin-top: 10px;">
-                            <p style="color: #0ea5e9; font-weight: 600; margin: 0;">
-                                <i class="fas fa-box"></i> Ready to Ship
-                            </p>
-                            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0 0 0;">
-                                Assigned employee will be deliver this order
-                            </p>
+                        <button class="btn btn-confirm" onclick="openDeliveryDateModal()">
+                            <i class="fas fa-calendar-alt"></i> Set Delivery Date
+                        </button>
+                        <div class="status-info-box" style="background: rgba(14, 165, 233, 0.1); border-left: 3px solid #0ea5e9; color: #0ea5e9;">
+                            <i class="fas fa-box"></i>
+                            <div>
+                                <p>Ready to Ship</p>
+                                <p>Assigned employee will deliver this order</p>
+                                <?php if (!empty($order['expected_delivery_date'])): ?>
+                                <p style="margin-top: 8px; font-weight: 600;">
+                                    <i class="fas fa-truck"></i> Expected Delivery: <?= date('F j, Y', strtotime($order['expected_delivery_date'])) ?>
+                                </p>
+                                <?php else: ?>
+                                <p style="margin-top: 8px; color: rgba(255,255,255,0.5);">
+                                    <i class="fas fa-exclamation-circle"></i> No delivery date set yet
+                                </p>
+                                <?php endif; ?>
+                            </div>
                         </div>
                         <?php endif; ?>
                         
-                        <?php 
-                        if ($order['order_status'] === 'delivered'): 
-                        ?>
-                        <div style="background: rgba(34, 197, 94, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #22c55e;">
-                            <p style="color: #22c55e; font-weight: 600; margin: 0;">
-                                <i class="fas fa-check-circle"></i> Order Completed
-                            </p>
-                            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0 0 0;">
-                                This order has been successfully delivered
-                            </p>
+                        <?php if ($order['order_status'] === 'delivered'): ?>
+                        <div class="status-info-box" style="background: rgba(34, 197, 94, 0.1); border-left: 3px solid #22c55e; color: #22c55e;">
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <p>Order Completed</p>
+                                <p>This order has been successfully delivered</p>
+                            </div>
                         </div>
                         <?php endif; ?>
                         
-                        <?php 
-                        if ($order['order_status'] === 'cancelled'): 
-                        ?>
-                        <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #ef4444;">
-                            <p style="color: #ef4444; font-weight: 600; margin: 0;">
-                                <i class="fas fa-times-circle"></i> Order Cancelled
-                            </p>
-                            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0 0 0;">
-                                This order has been cancelled
-                            </p>
+                        <?php if ($order['order_status'] === 'cancelled'): ?>
+                        <div class="status-info-box" style="background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; color: #ef4444;">
+                            <i class="fas fa-times-circle"></i>
+                            <div>
+                                <p>Order Cancelled</p>
+                                <p>This order has been cancelled</p>
+                            </div>
                         </div>
                         <?php endif; ?>
                         
+                        <?php if (in_array($order['order_status'], ['delivered', 'cancelled'])): ?>
                         <button class="btn btn-print" onclick="window.print()">
                             <i class="fas fa-print"></i> Print Order
                         </button>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -998,6 +962,14 @@ $emp_result = $conn->query($emp_sql);
                             </span>
                         </div>
                         <?php endif; ?>
+                        <?php if (!empty($order['expected_delivery_date'])): ?>
+                        <div class="info-row">
+                            <span class="info-label">Expected Delivery</span>
+                            <span class="info-value" style="color: #0ea5e9;">
+                                <?= date('F j, Y', strtotime($order['expected_delivery_date'])) ?>
+                            </span>
+                        </div>
+                        <?php endif; ?>
                         <?php if ($order['delivered_at']): ?>
                         <div class="info-row">
                             <span class="info-label">Delivered</span>
@@ -1021,7 +993,7 @@ $emp_result = $conn->query($emp_sql);
     <!-- Image Modal for Full View -->
     <div class="image-modal" id="imageModal">
         <button class="image-modal-close" onclick="closeImageModal()">&times;</button>
-        <img src="" alt="Payment Proof Full View" class="image-modal-content" id="modalImage">
+        <img src="" alt="Delivery Proof Full View" class="image-modal-content" id="modalImage">
     </div>
 
     <!-- Assign Employee Modal -->
@@ -1073,6 +1045,51 @@ $emp_result = $conn->query($emp_sql);
         </div>
     </div>
 
+    <!-- Delivery Date Modal -->
+    <div class="modal" id="deliveryDateModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Set Expected Delivery Date</h2>
+                <button class="modal-close" onclick="closeDeliveryDateModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="deliveryDateForm">
+                    <input type="hidden" name="order_id" value="<?= $order_id ?>">
+                    
+                    <div class="form-group">
+                        <label>Order Number</label>
+                        <input type="text" value="#<?= htmlspecialchars($order['order_number']) ?>" readonly style="background: rgba(255,255,255,0.03);">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expected_delivery_date">Expected Delivery Date *</label>
+                        <input type="date" 
+                               id="expected_delivery_date" 
+                               name="expected_delivery_date" 
+                               class="filter-input"
+                               value="<?= htmlspecialchars($order['expected_delivery_date'] ?? '') ?>"
+                               min="<?= date('Y-m-d') ?>"
+                               required>
+                        <small style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-top: 5px; display: block;">
+                            <i class="fas fa-info-circle"></i> Set the expected date when this order will be delivered
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="delivery_notes">Additional Notes (Optional)</label>
+                        <textarea id="delivery_notes" name="delivery_notes" rows="3" placeholder="Add any notes about the delivery schedule..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeDeliveryDateModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitDeliveryDate()">
+                    <i class="fas fa-calendar-check"></i> Set Date
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Image Modal Functions
@@ -1085,18 +1102,35 @@ $emp_result = $conn->query($emp_sql);
             document.getElementById('imageModal').classList.remove('active');
         }
 
-        // Close image modal when clicking outside
+        // Close modals when clicking outside
         document.getElementById('imageModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeImageModal();
             }
         });
 
-        // Close image modal with Escape key
+        document.getElementById('assignEmployeeModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAssignModal();
+            }
+        });
+
+        if (document.getElementById('deliveryDateModal')) {
+            document.getElementById('deliveryDateModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeDeliveryDateModal();
+                }
+            });
+        }
+
+        // Close modals with Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeImageModal();
                 closeAssignModal();
+                if (document.getElementById('deliveryDateModal')) {
+                    closeDeliveryDateModal();
+                }
             }
         });
 
@@ -1107,6 +1141,75 @@ $emp_result = $conn->query($emp_sql);
         function closeAssignModal() {
             document.getElementById('assignEmployeeModal').classList.remove('active');
             document.getElementById('assignEmployeeForm').reset();
+        }
+
+        function openDeliveryDateModal() {
+            document.getElementById('deliveryDateModal').classList.add('active');
+        }
+
+        function closeDeliveryDateModal() {
+            document.getElementById('deliveryDateModal').classList.remove('active');
+            document.getElementById('deliveryDateForm').reset();
+        }
+
+        function submitDeliveryDate() {
+            const form = document.getElementById('deliveryDateForm');
+            const formData = new FormData(form);
+            
+            if (!formData.get('expected_delivery_date')) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please select a delivery date',
+                    confirmButtonColor: '#e9b949'
+                });
+                return;
+            }
+            
+            Swal.fire({
+                title: 'Setting Delivery Date...',
+                text: 'Please wait',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            fetch('set_delivery_date.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Delivery Date Set!',
+                        text: data.message,
+                        confirmButtonColor: '#e9b949'
+                    }).then(() => {
+                        closeDeliveryDateModal();
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Failed to set delivery date.',
+                        confirmButtonColor: '#e9b949'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while setting the delivery date.',
+                    confirmButtonColor: '#e9b949'
+                });
+            });
         }
 
         function submitAssignment() {
@@ -1169,57 +1272,124 @@ $emp_result = $conn->query($emp_sql);
             });
         }
 
-        function updateOrderStatus(orderId, currentStatus) {
-            const statusOptions = {
-                'pending': ['confirmed', 'cancelled'],
-                'confirmed': ['cancelled']
-            };
+        function openDeliveryDateModal() {
+            document.getElementById('deliveryDateModal').classList.add('active');
+        }
 
-            const nextStatuses = statusOptions[currentStatus];
+        function closeDeliveryDateModal() {
+            document.getElementById('deliveryDateModal').classList.remove('active');
+            document.getElementById('deliveryDateForm').reset();
+        }
+
+        function submitDeliveryDate() {
+            const form = document.getElementById('deliveryDateForm');
+            const formData = new FormData(form);
             
-            if (!nextStatuses || nextStatuses.length === 0) {
+            if (!formData.get('expected_delivery_date')) {
                 Swal.fire({
-                    icon: 'info',
-                    title: 'No Status Updates Available',
-                    text: 'To ship this order, please use the "Assign Employee & Ship" button.',
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please select a delivery date',
                     confirmButtonColor: '#e9b949'
                 });
                 return;
             }
-
-            const inputOptions = {};
-            nextStatuses.forEach(status => {
-                inputOptions[status] = status.charAt(0).toUpperCase() + status.slice(1);
-            });
-
+            
             Swal.fire({
-                title: 'Update Order Status',
-                input: 'select',
-                inputOptions: inputOptions,
-                inputPlaceholder: 'Select new status',
-                showCancelButton: true,
-                confirmButtonColor: '#e9b949',
-                confirmButtonText: 'Update',
-                cancelButtonText: 'Cancel',
-                inputValidator: (value) => {
-                    if (!value) {
-                        return 'Please select a status!';
-                    }
+                title: 'Setting Delivery Date...',
+                text: 'Please wait',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
                 }
+            });
+            
+            fetch('set_delivery_date.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Delivery Date Set!',
+                        text: data.message,
+                        confirmButtonColor: '#e9b949'
+                    }).then(() => {
+                        closeDeliveryDateModal();
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Failed to set delivery date.',
+                        confirmButtonColor: '#e9b949'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while setting the delivery date.',
+                    confirmButtonColor: '#e9b949'
+                });
+            });
+        }
+
+        function confirmOrder(orderId) {
+            Swal.fire({
+                title: 'Confirm Order?',
+                text: "This will confirm the order and allow it to proceed to shipping.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#22c55e',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-check"></i> Yes, Confirm',
+                cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    updateStatus(orderId, result.value);
+                    updateStatus(orderId, 'confirmed');
                 }
             });
         }
 
-        function updateStatus(orderId, newStatus) {
+        function declineOrder(orderId) {
+            Swal.fire({
+                title: 'Decline Order?',
+                text: "This will cancel the order. This action cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-times"></i> Yes, Decline',
+                cancelButtonText: 'Cancel',
+                input: 'textarea',
+                inputPlaceholder: 'Reason for declining (optional)...',
+                inputAttributes: {
+                    'aria-label': 'Reason for declining'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    updateStatus(orderId, 'cancelled', result.value);
+                }
+            });
+        }
+
+        function updateStatus(orderId, newStatus, notes = '') {
             const formData = new FormData();
             formData.append('order_id', orderId);
             formData.append('status', newStatus);
+            if (notes) {
+                formData.append('notes', notes);
+            }
             
             Swal.fire({
-                title: 'Updating Status...',
+                title: 'Updating Order...',
                 text: 'Please wait',
                 allowOutsideClick: false,
                 allowEscapeKey: false,
@@ -1237,8 +1407,8 @@ $emp_result = $conn->query($emp_sql);
                 if (data.success) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Updated!',
-                        text: 'Order status has been updated successfully.',
+                        title: 'Success!',
+                        text: data.message,
                         confirmButtonColor: '#e9b949'
                     }).then(() => {
                         location.reload();
@@ -1262,12 +1432,6 @@ $emp_result = $conn->query($emp_sql);
                 });
             });
         }
-
-        document.getElementById('assignEmployeeModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeAssignModal();
-            }
-        });
     </script>
 </body>
 </html>

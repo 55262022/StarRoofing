@@ -105,6 +105,197 @@ if ($productId) {
       overflow: hidden;
       background: #ffffff;
       border: 1px solid rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    /* FIXED: CENTERED LOADING OVERLAY WITH SCROLL */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .loading-content {
+      text-align: center;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      margin: auto;
+      max-height: 90vh;
+    }
+
+    .loading-spinner {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      border: 6px solid #e0e7ff;
+      border-top: 6px solid #0d6efd;
+      border-radius: 50%;
+      animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      box-shadow: 0 4px 15px rgba(13, 110, 253, 0.2);
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 12px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .loading-message {
+      font-size: 16px;
+      color: #4b5563;
+      margin-bottom: 25px;
+      line-height: 1.4;
+    }
+
+    /* PROGRESS BAR */
+    .progress-container {
+      width: 100%;
+      margin: 0 auto 20px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .progress-bar-wrapper {
+      width: 100%;
+      height: 12px;
+      background: #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0d6efd 0%, #0a58ca 100%);
+      border-radius: 8px;
+      width: 0%;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(13, 110, 253, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .progress-percentage {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0d6efd;
+      margin-top: 10px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress-status {
+      font-size: 14px;
+      color: #4b5563;
+      margin-top: 6px;
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    /* GENERATION STAGES */
+    .generation-stages {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .stage-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      background: #f9fafb;
+      transition: all 0.3s ease;
+    }
+
+    .stage-item.active {
+      background: #e0e7ff;
+      border-left: 3px solid #0d6efd;
+    }
+
+    .stage-item.completed {
+      background: #d1fae5;
+      border-left: 3px solid #10b981;
+    }
+
+    .stage-icon {
+      font-size: 16px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .stage-icon.pending {
+      color: #9ca3af;
+    }
+
+    .stage-icon.active {
+      color: #0d6efd;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .stage-icon.completed {
+      color: #10b981;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .stage-text {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
     }
 
     .upload-drop {
@@ -185,6 +376,20 @@ if ($productId) {
       .app-shell { flex-direction: column; padding: .75rem; }
       .left-col, .right-col { width: 100%; max-width: none; min-width: auto; }
       #threeViewport { height: 56vh; }
+      
+      .loading-content {
+        padding: 20px;
+        max-height: 85vh;
+      }
+      
+      .loading-title {
+        font-size: 20px;
+      }
+      
+      .loading-spinner {
+        width: 60px;
+        height: 60px;
+      }
     }
   </style>
 </head>
@@ -194,17 +399,9 @@ if ($productId) {
   <div class="d-flex align-items-center justify-content-between py-3">
     <h3 class="mb-0">3D Model Editor</h3>
     <div class="d-flex gap-2">
-      <?php if ($productId): ?>
-        <!-- Coming from inventory - show Back to Inventory button only -->
-        <a href="inventory.php" class="btn btn-sm btn-outline-secondary">
-          <i class="fa fa-arrow-left"></i> Back to Inventory
-        </a>
-      <?php else: ?>
-        <!-- Accessed directly - show 3D Gallery button only -->
-        <a href="3dmodel_gallery.php" class="btn btn-sm btn-outline-primary">
-          <i class="fa fa-images"></i> 3D Gallery
-        </a>
-      <?php endif; ?>
+      <a href="inventory.php" class="btn btn-sm btn-outline-secondary">
+        <i class="fa fa-arrow-left"></i> Back to Inventory
+      </a>
     </div>
   </div>
 
@@ -274,6 +471,48 @@ if ($productId) {
     <!-- CENTER -->
     <main class="canvas-col">
       <div class="card-panel" style="position: relative;">
+        <!-- FIXED: CENTERED LOADING OVERLAY WITH FULL VISIBILITY -->
+        <div id="loadingOverlay" class="loading-overlay">
+          <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-title">Generating 3D Model</div>
+            <div class="loading-message">Please wait while we process your image...</div>
+            
+            <!-- Progress Bar -->
+            <div class="progress-container">
+              <div class="progress-bar-wrapper">
+                <div id="progressBarFill" class="progress-bar-fill"></div>
+              </div>
+              <div id="progressPercentage" class="progress-percentage">0%</div>
+              <div id="progressStatus" class="progress-status">Initializing...</div>
+            </div>
+
+            <!-- Generation Stages -->
+            <div class="generation-stages">
+              <div id="stage1" class="stage-item">
+                <div class="stage-icon pending"><i class="fas fa-upload"></i></div>
+                <div class="stage-text">Uploading Image</div>
+              </div>
+              <div id="stage2" class="stage-item">
+                <div class="stage-icon pending"><i class="fas fa-brain"></i></div>
+                <div class="stage-text">AI Processing</div>
+              </div>
+              <div id="stage3" class="stage-item">
+                <div class="stage-icon pending"><i class="fas fa-cube"></i></div>
+                <div class="stage-text">Generating Geometry</div>
+              </div>
+              <div id="stage4" class="stage-item">
+                <div class="stage-icon pending"><i class="fas fa-paint-brush"></i></div>
+                <div class="stage-text">Applying Textures</div>
+              </div>
+              <div id="stage5" class="stage-item">
+                <div class="stage-icon pending"><i class="fas fa-check-circle"></i></div>
+                <div class="stage-text">Finalizing Model</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Tools Panel - Vertical Layout (Upper Left) -->
         <div style="position: absolute; top: 15px; left: 15px; z-index: 10; display: flex; flex-direction: column; gap: 8px;">
           <button id="selectTool" class="btn btn-outline-secondary btn-sm" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" title="Select Tool - Navigate Camera">
@@ -356,144 +595,6 @@ if ($productId) {
   </div>
 </div>
 
-<!-- 3D Print Settings Modal -->
-<div class="modal fade" id="print3DModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content" style="background: #ffffff; border-radius: 15px;">
-      <div class="modal-header" style="border-bottom: 2px solid #f0f0f0;">
-        <h5 class="modal-title" style="color: #111827; font-weight: 700;">
-          <i class="fa fa-print me-2"></i>3D Print Settings
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body" style="color: #111827;">
-        <div class="row g-3">
-          <!-- Print Material -->
-          <div class="col-md-6">
-            <label class="form-label fw-semibold">Print Material</label>
-            <select id="printMaterial" class="form-select">
-              <option value="pla">PLA (Polylactic Acid)</option>
-              <option value="abs">ABS (Acrylonitrile Butadiene Styrene)</option>
-              <option value="petg">PETG (Polyethylene Terephthalate Glycol)</option>
-              <option value="tpu">TPU (Thermoplastic Polyurethane)</option>
-              <option value="nylon">Nylon</option>
-              <option value="resin">Resin</option>
-            </select>
-            <small class="text-muted">Select the material for 3D printing</small>
-          </div>
-
-          <!-- Print Quality -->
-          <div class="col-md-6">
-            <label class="form-label fw-semibold">Print Quality</label>
-            <select id="printQuality" class="form-select">
-              <option value="draft">Draft (0.3mm layer height)</option>
-              <option value="normal" selected>Normal (0.2mm layer height)</option>
-              <option value="fine">Fine (0.1mm layer height)</option>
-              <option value="ultra">Ultra Fine (0.05mm layer height)</option>
-            </select>
-            <small class="text-muted">Higher quality = longer print time</small>
-          </div>
-
-          <!-- Infill Density -->
-          <div class="col-md-6">
-            <label class="form-label fw-semibold">Infill Density: <span id="infillValue">20%</span></label>
-            <input type="range" class="form-range" id="printInfill" min="0" max="100" step="5" value="20">
-            <small class="text-muted">Higher infill = stronger but heavier</small>
-          </div>
-
-          <!-- Support Structure -->
-          <div class="col-md-6">
-            <label class="form-label fw-semibold">Support Structure</label>
-            <select id="printSupport" class="form-select">
-              <option value="none">None</option>
-              <option value="touching" selected>Touching Build Plate</option>
-              <option value="everywhere">Everywhere</option>
-            </select>
-            <small class="text-muted">Supports for overhanging parts</small>
-          </div>
-
-          <!-- Print Scale -->
-          <div class="col-md-6">
-            <label class="form-label fw-semibold">Scale (%): <span id="printScaleValue">100%</span></label>
-            <input type="range" class="form-range" id="printScale" min="10" max="500" step="10" value="100">
-            <small class="text-muted">Adjust model size for printing</small>
-          </div>
-
-          <!-- Print Orientation -->
-          <div class="col-md-6">
-            <label class="form-label fw-semibold">Print Orientation</label>
-            <select id="printOrientation" class="form-select">
-              <option value="auto" selected>Auto (Optimal)</option>
-              <option value="flat">Flat (XY Plane)</option>
-              <option value="side">Side (XZ Plane)</option>
-              <option value="upright">Upright (YZ Plane)</option>
-            </select>
-            <small class="text-muted">Best orientation for printing</small>
-          </div>
-
-          <!-- Estimated Print Time -->
-          <div class="col-12">
-            <div class="alert alert-info mb-0">
-              <h6 class="mb-2"><i class="fa fa-clock me-2"></i>Estimated Print Time</h6>
-              <div id="estimatedPrintTime" class="fw-bold" style="font-size: 1.1rem;">Calculating...</div>
-              <small class="text-muted d-block mt-1">Based on selected settings</small>
-            </div>
-          </div>
-
-          <!-- Material Cost -->
-          <div class="col-12">
-            <div class="alert alert-success mb-0">
-              <h6 class="mb-2"><i class="fa fa-coins me-2"></i>Estimated Material Cost</h6>
-              <div id="estimatedCost" class="fw-bold" style="font-size: 1.1rem;">₱0.00</div>
-              <small class="text-muted d-block mt-1">Approximate cost based on material and infill</small>
-            </div>
-          </div>
-
-          <!-- Additional Options -->
-          <div class="col-12">
-            <label class="form-label fw-semibold">Additional Options</label>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="printRaft" checked>
-              <label class="form-check-label" for="printRaft">
-                Add Raft (Build Plate Adhesion)
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="printBrim">
-              <label class="form-check-label" for="printBrim">
-                Add Brim (Edge Adhesion)
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="hollowModel">
-              <label class="form-check-label" for="hollowModel">
-                Hollow Model (Save Material)
-              </label>
-            </div>
-          </div>
-
-          <!-- Notes -->
-          <div class="col-12">
-            <label class="form-label fw-semibold">Print Notes (Optional)</label>
-            <textarea id="printNotes" class="form-control" rows="3" placeholder="Add any special instructions or notes for the 3D print..."></textarea>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer" style="border-top: 2px solid #f0f0f0;">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          <i class="fa fa-times me-2"></i>Cancel
-        </button>
-        <button type="button" id="exportSTLBtn" class="btn btn-primary">
-          <i class="fa fa-file-export me-2"></i>Export STL for Printing
-        </button>
-        <button type="button" id="sendToPrinterBtn" class="btn btn-success">
-          <i class="fa fa-print me-2"></i>Send to 3D Printer
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
 // Pass PHP data to JavaScript
 const PRODUCT_ID = <?= $productId ? $productId : 'null' ?>;
@@ -513,7 +614,6 @@ const HAS_MODEL = <?= ($productData && isset($productData['final_model_path']) &
 </script>
 
 <script type="module" src="../javascript/3dmodel_editor.js"></script>
-<script src="../javascript/print3d_handler.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

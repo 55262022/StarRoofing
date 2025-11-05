@@ -1,15 +1,12 @@
 <?php
-// CRITICAL: Clear output buffer first
 ob_start();
 ob_clean();
 
-// Set JSON header FIRST before any output
 header('Content-Type: application/json');
 
-// Disable error display
-// ini_set('display_errors', 0);
-// ini_set('log_errors', 1);
-// error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL);
 
 require_once __DIR__ . '/../../database/starroofing_db.php';
 
@@ -20,6 +17,20 @@ function logDebug($message, $data = null) {
         $entry .= " | " . json_encode($data);
     }
     file_put_contents($logFile, $entry . "\n", FILE_APPEND);
+}
+
+function getProgressStage($progress) {
+    if ($progress < 20) {
+        return ['stage' => 'upload', 'message' => 'Uploading and analyzing image...'];
+    } elseif ($progress < 40) {
+        return ['stage' => 'ai_processing', 'message' => 'AI is processing your image...'];
+    } elseif ($progress < 60) {
+        return ['stage' => 'geometry', 'message' => 'Generating 3D geometry...'];
+    } elseif ($progress < 85) {
+        return ['stage' => 'textures', 'message' => 'Applying textures and materials...'];
+    } else {
+        return ['stage' => 'finalizing', 'message' => 'Finalizing your 3D model...'];
+    }
 }
 
 try {
@@ -86,7 +97,9 @@ try {
     
     // Handle different task states
     $state = strtolower($result['status'] ?? 'unknown');
-    logDebug("Task state", ['status' => $state]);
+    $progress = intval($result['progress'] ?? 0);
+    
+    logDebug("Task state", ['status' => $state, 'progress' => $progress]);
     
     if ($state === 'failed') {
         // Update database status to failed
@@ -94,13 +107,29 @@ try {
         $stmt->bind_param("s", $taskId);
         $stmt->execute();
         
-        echo json_encode(['status' => 'failed', 'message' => 'Model generation failed.']);
+        echo json_encode([
+            'status' => 'failed', 
+            'message' => 'Model generation failed.',
+            'progress' => 0
+        ]);
         exit;
     }
     
     if ($state !== 'succeeded') {
-        $progress = $result['progress'] ?? 0;
-        echo json_encode(['status' => 'pending', 'message' => 'Model is still processing...', 'progress' => $progress]);
+        // Still processing - return progress information
+        $stageInfo = getProgressStage($progress);
+        
+        // Update database with current progress
+        $stmt = $conn->prepare("UPDATE generated_3d_models SET generation_status = 'processing' WHERE meshy_task_id = ?");
+        $stmt->bind_param("s", $taskId);
+        $stmt->execute();
+        
+        echo json_encode([
+            'status' => 'pending',
+            'message' => $stageInfo['message'],
+            'progress' => $progress,
+            'stage' => $stageInfo['stage']
+        ]);
         exit;
     }
     
@@ -113,8 +142,7 @@ try {
     logDebug("Model URL found", ['url' => $modelUrl]);
     
     // Create upload directory if it doesn't exist
-    // Path: C:\xampp\htdocs\starroofing\uploads\3dmodels\
-    $projectRoot = __DIR__ . '/../../';  // Go up to starroofing/
+    $projectRoot = __DIR__ . '/../../';
     $saveDir = $projectRoot . 'uploads/3dmodels/';
     
     if (!is_dir($saveDir)) {
@@ -126,12 +154,9 @@ try {
     $uniqueId = uniqid();
     $filename = "model_{$uniqueId}.glb";
     $savePath = $saveDir . $filename;
-    
-    // FIXED: Path relative to project root (no ../)
-    // Store as: uploads/3dmodels/file.glb
     $relativePath = 'uploads/3dmodels/' . $filename;
     
-    // Download .glb file using cURL (better for large files and CORS bypass)
+    // Download .glb file using cURL
     $ch = curl_init($modelUrl);
     $fp = fopen($savePath, 'w+');
     
@@ -141,7 +166,7 @@ try {
     
     curl_setopt($ch, CURLOPT_FILE, $fp);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 300); // 5 minutes timeout
+    curl_setopt($ch, CURLOPT_TIMEOUT, 300);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     
     $success = curl_exec($ch);
@@ -152,7 +177,7 @@ try {
     fclose($fp);
     
     if (!$success || $httpCode !== 200) {
-        unlink($savePath); // Delete failed file
+        unlink($savePath);
         throw new Exception("Failed to download model from Meshy. HTTP $httpCode: $error");
     }
     
@@ -163,10 +188,8 @@ try {
         throw new Exception('Downloaded file is empty');
     }
     
-    // Set proper permissions
     chmod($savePath, 0644);
     
-    // Verify file really exists
     if (!file_exists($savePath)) {
         throw new Exception('File was not saved properly');
     }
@@ -174,12 +197,10 @@ try {
     logDebug("Model downloaded successfully", [
         'path' => $savePath,
         'relative_path' => $relativePath,
-        'size' => $fileSize,
-        'exists' => file_exists($savePath),
-        'readable' => is_readable($savePath)
+        'size' => $fileSize
     ]);
     
-    // Check if record already exists in generated_3d_models table
+    // Check if record already exists
     $checkStmt = $conn->prepare("SELECT id, product_id FROM generated_3d_models WHERE meshy_task_id = ?");
     $checkStmt->bind_param("s", $taskId);
     $checkStmt->execute();
@@ -210,7 +231,7 @@ try {
             throw new Exception('Database update error: ' . $stmt->error);
         }
         
-        logDebug("Database updated", ['id' => $generatedModelId, 'path' => $relativePath]);
+        logDebug("Database updated", ['id' => $generatedModelId]);
         
     } else {
         // Insert new record
@@ -226,10 +247,10 @@ try {
         }
         
         $generatedModelId = $conn->insert_id;
-        logDebug("Database inserted", ['id' => $generatedModelId, 'path' => $relativePath]);
+        logDebug("Database inserted", ['id' => $generatedModelId]);
     }
     
-    // Update products table if this model is linked to a product
+    // Update products table
     if ($productId) {
         $productStmt = $conn->prepare("
             UPDATE products 
@@ -240,9 +261,8 @@ try {
         ");
         $productStmt->bind_param("ssii", $relativePath, $relativePath, $generatedModelId, $productId);
         $productStmt->execute();
-        logDebug("Product table updated", ['product_id' => $productId, 'path' => $relativePath]);
+        logDebug("Product table updated", ['product_id' => $productId]);
     } else {
-        // Also check if any product has this task_id
         $productStmt = $conn->prepare("
             UPDATE products 
             SET model_url = ?, 
@@ -254,31 +274,32 @@ try {
         $productStmt->execute();
         
         if ($conn->affected_rows > 0) {
-            logDebug("Product table updated via task_id", ['task_id' => $taskId, 'path' => $relativePath]);
+            logDebug("Product table updated via task_id");
         }
     }
     
-    // IMPORTANT: Return the LOCAL path, not the Meshy URL
     echo json_encode([
         'status' => 'succeeded',
-        'message' => 'Model generated and saved successfully.',
-        'model_url' => $relativePath,  // Use local path without ../
+        'message' => 'Model generated and saved successfully!',
+        'model_url' => $relativePath,
         'model_path' => $relativePath,
         'file_size' => $fileSize,
         'task_id' => $taskId,
-        'generated_model_id' => $generatedModelId
+        'generated_model_id' => $generatedModelId,
+        'progress' => 100,
+        'stage' => 'complete'
     ]);
     
 } catch (Exception $e) {
-    logDebug("ERROR", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+    logDebug("ERROR", ['message' => $e->getMessage()]);
     
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
-        'message' => $e->getMessage()
+        'message' => $e->getMessage(),
+        'progress' => 0
     ]);
 }
 
-// Clean output buffer
 ob_end_flush();
 ?>

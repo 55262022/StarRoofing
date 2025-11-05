@@ -16,17 +16,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['order_id'], $_POST['
 
 $order_id = intval($_POST['order_id']);
 $new_status = $_POST['status'];
+$notes = isset($_POST['notes']) ? trim($_POST['notes']) : '';
 
-// Validate status
-$valid_statuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+// Validate status - only confirmed and cancelled allowed from admin
+$valid_statuses = ['confirmed', 'cancelled'];
 if (!in_array($new_status, $valid_statuses)) {
-    echo json_encode(['success' => false, 'message' => 'Invalid status']);
+    echo json_encode(['success' => false, 'message' => 'Invalid status. Only confirm or decline actions are allowed.']);
     exit();
 }
 
 try {
-    // Get current order status and assignment
-    $check_query = "SELECT order_status, assigned_employee_id FROM orders WHERE order_id = ?";
+    // Get current order status
+    $check_query = "SELECT order_status, order_number FROM orders WHERE order_id = ?";
     $check_stmt = $conn->prepare($check_query);
     $check_stmt->bind_param("i", $order_id);
     $check_stmt->execute();
@@ -39,28 +40,18 @@ try {
     }
 
     $current_status = $current_order['order_status'];
-    $assigned_employee_id = $current_order['assigned_employee_id'];
+    $order_number = $current_order['order_number'];
 
-    // Define valid status transitions for ADMIN
-    $valid_transitions = [
-        'pending' => ['confirmed', 'cancelled'],
-        'confirmed' => ['processing', 'cancelled'],
-        'processing' => ['cancelled'], // Admin cannot ship from processing - must assign employee
-        'shipped' => [], // Only employee can mark as delivered
-        'delivered' => [], // No transitions allowed from delivered
-        'cancelled' => []  // No transitions allowed from cancelled
-    ];
-
-    // Validate transition
-    if (!in_array($new_status, $valid_transitions[$current_status])) {
-        $error_messages = [
-            'processing' => 'To ship this order, please assign a delivery employee using the "Assign Employee & Ship" button.',
-            'shipped' => 'Only the assigned delivery employee can mark this order as delivered.',
-            'delivered' => 'This order is already delivered and cannot be modified.',
-            'cancelled' => 'Cancelled orders cannot be modified.'
+    // Only allow status changes from 'pending'
+    if ($current_status !== 'pending') {
+        $status_messages = [
+            'confirmed' => 'This order has already been confirmed.',
+            'to_ship' => 'This order is ready to ship and cannot be modified.',
+            'delivered' => 'This order has been delivered and cannot be modified.',
+            'cancelled' => 'This order has already been cancelled.'
         ];
-
-        $message = $error_messages[$current_status] ?? "Cannot change status from '{$current_status}' to '{$new_status}'";
+        
+        $message = $status_messages[$current_status] ?? "Cannot modify order with status: {$current_status}";
         
         echo json_encode([
             'success' => false, 
@@ -77,8 +68,6 @@ try {
     // Update timestamp fields based on status
     if ($new_status === 'confirmed') {
         $update_query .= ", confirmed_at = CURRENT_TIMESTAMP";
-    } elseif ($new_status === 'delivered') {
-        $update_query .= ", delivered_at = CURRENT_TIMESTAMP, payment_status = 'paid'";
     }
     
     $update_query .= " WHERE order_id = ?";
@@ -88,19 +77,35 @@ try {
     $stmt->execute();
     $stmt->close();
 
+    // Prepare history notes
+    if ($new_status === 'confirmed') {
+        $history_notes = "Order confirmed by admin";
+    } else { // cancelled
+        $history_notes = "Order declined/cancelled by admin";
+        if (!empty($notes)) {
+            $history_notes .= " | Reason: " . $notes;
+        }
+    }
+
     // Add to status history
     $history_query = "INSERT INTO order_status_history (order_id, status, created_by, notes) VALUES (?, ?, ?, ?)";
-    $notes = "Status updated from " . ucfirst($current_status) . " to " . ucfirst($new_status) . " by admin";
     $history_stmt = $conn->prepare($history_query);
-    $history_stmt->bind_param("isis", $order_id, $new_status, $_SESSION['account_id'], $notes);
+    $history_stmt->bind_param("isis", $order_id, $new_status, $_SESSION['account_id'], $history_notes);
     $history_stmt->execute();
     $history_stmt->close();
 
     $conn->commit();
 
+    // Prepare success message
+    if ($new_status === 'confirmed') {
+        $success_message = "Order #{$order_number} has been confirmed successfully! You can now assign a delivery employee.";
+    } else {
+        $success_message = "Order #{$order_number} has been declined and cancelled.";
+    }
+
     echo json_encode([
         'success' => true, 
-        'message' => 'Order status updated successfully',
+        'message' => $success_message,
         'new_status' => $new_status,
         'old_status' => $current_status
     ]);

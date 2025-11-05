@@ -230,17 +230,23 @@ $result = $conn->query($sql);
             gap: 8px;
         }
 
-        .btn-info,
-        .btn-success {
+        .btn-info {
             background-color: #17a2b8;
             color: white;
         }
 
-        .btn-info:hover,
-        .btn-success:hover {
+        .btn-info:hover {
             background-color: #138496;
         }
 
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #229954;
+        }
         
         .btn-primary {
             background-color: #3498db;
@@ -883,8 +889,18 @@ $result = $conn->query($sql);
                                                 </span>
                                             </td>
                                             <td>
+                                                <button class="btn btn-success restock-btn" 
+                                                        data-id="<?= $row['product_id'] ?>" 
+                                                        data-name="<?= htmlspecialchars($row['name']) ?>"
+                                                        data-current-stock="<?= $row['stock_quantity'] ?>"
+                                                        data-unit="<?= htmlspecialchars($row['unit']) ?>"
+                                                        data-category="<?= htmlspecialchars($row['category_name']) ?>"
+                                                        data-price="<?= $row['price'] ?>">
+                                                    <i class="fas fa-box"></i> Restock
+                                                </button>
+
                                                 <?php if (!empty($row['model_path']) || !empty($row['model_url'])): ?>
-                                                    <button class="btn btn-success" onclick="window.location.href='3dmodel.php?product_id=<?= $row['product_id'] ?>'">
+                                                    <button class="btn btn-info" onclick="window.location.href='3dmodel.php?product_id=<?= $row['product_id'] ?>'">
                                                         <i class="fas fa-cube"></i> View 3D
                                                     </button>
                                                 <?php else: ?>
@@ -964,8 +980,18 @@ $result = $conn->query($sql);
                                 </div>
 
                                 <div class="model-card-actions">
+                                    <button class="btn btn-success restock-btn" 
+                                            data-id="<?= $row['product_id'] ?>" 
+                                            data-name="<?= htmlspecialchars($row['name']) ?>"
+                                            data-current-stock="<?= $row['stock_quantity'] ?>"
+                                            data-unit="<?= htmlspecialchars($row['unit']) ?>"
+                                            data-category="<?= htmlspecialchars($row['category_name']) ?>"
+                                            data-price="<?= $row['price'] ?>">
+                                        <i class="fas fa-box"></i> Restock
+                                    </button>
+                                    
                                     <?php if (!empty($row['model_path']) || !empty($row['model_url'])): ?>
-                                        <button class="btn btn-success" onclick="window.location.href='3dmodel.php?product_id=<?= $row['product_id'] ?>'">
+                                        <button class="btn btn-info" onclick="window.location.href='3dmodel.php?product_id=<?= $row['product_id'] ?>'">
                                             <i class="fas fa-cube"></i> View 3D
                                         </button>
                                     <?php else: ?>
@@ -1276,6 +1302,77 @@ $result = $conn->query($sql);
     </div>
 </div>
 
+<!-- Restock Modal -->
+<div class="modal" id="restockModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title"><i class="fas fa-box"></i> Restock Product</h2>
+            <button class="modal-close" id="closeRestockModal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="restockForm" method="POST" action="../crud/restock_product.php">
+                <input type="hidden" name="restock_product" value="1">
+                <input type="hidden" id="restockProductId" name="product_id">
+                
+                <!-- Product Info (Read-only) -->
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="restockProductName" readonly style="background-color: #f8f9fa; cursor: not-allowed;">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <input type="text" id="restockCategory" readonly style="background-color: #f8f9fa; cursor: not-allowed;">
+                    </div>
+                    <div class="form-group">
+                        <label>Price</label>
+                        <input type="text" id="restockPrice" readonly style="background-color: #f8f9fa; cursor: not-allowed;">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Current Stock</label>
+                        <input type="text" id="restockCurrentStock" readonly style="background-color: #f8f9fa; cursor: not-allowed; font-weight: 600; color: #e74c3c;">
+                    </div>
+                    <div class="form-group">
+                        <label>Unit</label>
+                        <input type="text" id="restockUnit" readonly style="background-color: #f8f9fa; cursor: not-allowed;">
+                    </div>
+                </div>
+
+                <!-- Restock Quantity Input -->
+                <div class="form-group">
+                    <label for="restockQuantity">Add Quantity <span style="color: red;">*</span></label>
+                    <input type="number" id="restockQuantity" name="restock_quantity" min="1" required 
+                           placeholder="Enter quantity to add" style="border: 2px solid #27ae60; font-size: 16px;">
+                    <small style="color: #7f8c8d; display: block; margin-top: 5px;">
+                        <i class="fas fa-info-circle"></i> Enter the number of units you want to add to the current stock
+                    </small>
+                </div>
+
+                <!-- New Stock Preview -->
+                <div class="form-group" style="background-color: #e8f6f3; padding: 20px; border-radius: 8px; border-left: 4px solid #27ae60; margin-top: 20px;">
+                    <label style="color: #27ae60; margin-bottom: 10px; font-size: 14px;">
+                        <i class="fas fa-calculator"></i> New Stock After Restock
+                    </label>
+                    <div style="font-size: 32px; font-weight: 700; color: #27ae60; display: flex; align-items: center; gap: 10px;">
+                        <span id="newStockPreview">0</span> 
+                        <span id="newStockUnit" style="font-size: 20px; font-weight: 500;"></span>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" id="cancelRestockBtn">Cancel</button>
+            <button type="submit" form="restockForm" class="btn btn-success">
+                <i class="fas fa-check-circle"></i> Confirm Restock
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
     // JavaScript code for handling UI interactions
     document.addEventListener('DOMContentLoaded', function() {
@@ -1411,6 +1508,51 @@ $result = $conn->query($sql);
         });
         document.getElementById('cancelArchiveBtn').addEventListener('click', () => {
             document.getElementById('archiveModal').classList.remove('active');
+        });
+
+        /* -------------------------------
+           RESTOCK MODAL
+        ------------------------------- */
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('restock-btn') || e.target.closest('.restock-btn')) {
+                const btn = e.target.classList.contains('restock-btn') ? e.target : e.target.closest('.restock-btn');
+                
+                // Fill in restock modal data
+                document.getElementById('restockProductId').value = btn.dataset.id;
+                document.getElementById('restockProductName').value = btn.dataset.name;
+                document.getElementById('restockCategory').value = btn.dataset.category;
+                document.getElementById('restockPrice').value = '₱' + parseFloat(btn.dataset.price).toFixed(2);
+                document.getElementById('restockCurrentStock').value = btn.dataset.currentStock + ' ' + btn.dataset.unit;
+                document.getElementById('restockUnit').value = btn.dataset.unit;
+                document.getElementById('newStockUnit').textContent = btn.dataset.unit;
+                
+                // Reset quantity input
+                document.getElementById('restockQuantity').value = '';
+                document.getElementById('newStockPreview').textContent = btn.dataset.currentStock;
+                
+                // Store current stock for calculation
+                document.getElementById('restockModal').dataset.currentStock = btn.dataset.currentStock;
+                
+                // Show modal
+                document.getElementById('restockModal').classList.add('active');
+            }
+        });
+
+        // Calculate new stock preview when quantity changes
+        document.getElementById('restockQuantity').addEventListener('input', function() {
+            const currentStock = parseInt(document.getElementById('restockModal').dataset.currentStock) || 0;
+            const addQuantity = parseInt(this.value) || 0;
+            const newStock = currentStock + addQuantity;
+            document.getElementById('newStockPreview').textContent = newStock;
+        });
+
+        // Close restock modal
+        document.getElementById('closeRestockModal').addEventListener('click', () => {
+            document.getElementById('restockModal').classList.remove('active');
+        });
+        
+        document.getElementById('cancelRestockBtn').addEventListener('click', () => {
+            document.getElementById('restockModal').classList.remove('active');
         });
 
         /* -------------------------------
@@ -1557,6 +1699,43 @@ $result = $conn->query($sql);
                 }).then((result) => {
                     if (result.isConfirmed) {
                         editForm.submit();
+                    }
+                });
+            });
+        }
+
+        // Restock form confirmation
+        const restockForm = document.getElementById("restockForm");
+
+        if (restockForm) {
+            restockForm.addEventListener("submit", function(e) {
+                e.preventDefault();
+
+                const productName = document.getElementById("restockProductName").value;
+                const currentStock = document.getElementById("restockModal").dataset.currentStock;
+                const addQuantity = document.getElementById("restockQuantity").value;
+                const newStock = parseInt(currentStock) + parseInt(addQuantity);
+
+                Swal.fire({
+                    title: 'Confirm Restock',
+                    html: `
+                        <div style="text-align: left; padding: 10px;">
+                            <p><strong>Product:</strong> ${productName}</p>
+                            <p><strong>Current Stock:</strong> ${currentStock}</p>
+                            <p><strong>Adding:</strong> ${addQuantity}</p>
+                            <hr>
+                            <p style="color: #27ae60; font-size: 18px;"><strong>New Stock:</strong> ${newStock}</p>
+                        </div>
+                    `,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#27ae60',
+                    cancelButtonColor: '#e74c3c',
+                    confirmButtonText: '<i class="fas fa-check"></i> Yes, Restock',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        restockForm.submit();
                     }
                 });
             });

@@ -65,35 +65,29 @@ try {
         $productId = intval($_POST['product_id']);
         $imagePath = $_POST['image_path'];
         
-        // Clean the path - remove any leading slashes or '../'
+        // Clean the path - remove leading slashes and '../'
         $imagePath = ltrim($imagePath, './');
+        $imagePath = str_replace('../', '', $imagePath);
         
-        // Try different path combinations
-        $possiblePaths = [
-            __DIR__ . '/../../' . $imagePath,  // From meshy folder
-            __DIR__ . '/../' . $imagePath,     // From admin folder
-            __DIR__ . '/../../uploads/' . basename($imagePath)  // Direct to uploads
-        ];
+        // Build correct absolute path from project root
+        $projectRoot = __DIR__ . '/../../';
+        $fullPath = $projectRoot . $imagePath;
         
-        $foundPath = null;
-        foreach ($possiblePaths as $testPath) {
-            logDebug("Testing path: " . $testPath);
-            if (file_exists($testPath)) {
-                $foundPath = $testPath;
-                logDebug("Found at: " . $foundPath);
-                break;
-            }
+        logDebug("Attempting to load image", [
+            'original_path' => $imagePath,
+            'full_path' => $fullPath,
+            'exists' => file_exists($fullPath)
+        ]);
+        
+        if (!file_exists($fullPath)) {
+            throw new Exception('Product image not found at: ' . $imagePath);
         }
         
-        if (!$foundPath) {
-            throw new Exception('Product image not found. Tried paths: ' . implode(', ', $possiblePaths));
-        }
-        
-        $firstFile = $foundPath;
-        $fileName = basename($foundPath);
-        $fileType = mime_content_type($foundPath);
-        $fileSize = filesize($foundPath);
-        $imageHash = md5_file($foundPath);
+        $firstFile = $fullPath;
+        $fileName = basename($fullPath);
+        $fileType = mime_content_type($fullPath);
+        $fileSize = filesize($fullPath);
+        $imageHash = md5_file($fullPath);
         
         logDebug("Product image loaded", [
             'path' => $firstFile,
@@ -140,14 +134,14 @@ try {
     }
     
     // Validate image type
-    $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!in_array(strtolower($fileType), $allowedTypes)) {
-        throw new Exception('Invalid file type: ' . $fileType);
+        throw new Exception('Invalid file type: ' . $fileType . '. Allowed: JPG, PNG, WEBP');
     }
     
-    // Check file size (max 10MB)
-    if ($fileSize > 10 * 1024 * 1024) {
-        throw new Exception('File too large. Max 10MB allowed.');
+    // Check file size (max 100MB for image upload)
+    if ($fileSize > 100 * 1024 * 1024) {
+        throw new Exception('File too large. Max 100MB allowed.');
     }
     
     // Check for duplicates
@@ -171,7 +165,8 @@ try {
                 'existing' => true,
                 'model_url' => $existing['model_path'],
                 'model_path' => $existing['model_path'],
-                'message' => 'Image already converted'
+                'message' => 'Image already converted',
+                'progress' => 100
             ]);
             exit;
         } else {
@@ -180,7 +175,8 @@ try {
                 'status' => 'pending',
                 'existing' => true,
                 'task_id' => $existing['meshy_task_id'],
-                'message' => 'Image already processing'
+                'message' => 'Image already processing',
+                'progress' => 0
             ]);
             exit;
         }
@@ -280,7 +276,9 @@ try {
         echo json_encode([
             'status' => 'pending',
             'task_id' => $taskId,
-            'message' => 'Task created successfully. Processing...'
+            'message' => 'Task created successfully. Processing...',
+            'progress' => 0,
+            'stage' => 'upload'
         ]);
         
     } else {
@@ -297,7 +295,8 @@ try {
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
-        'message' => $e->getMessage()
+        'message' => $e->getMessage(),
+        'progress' => 0
     ]);
 }
 

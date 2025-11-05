@@ -1,0 +1,353 @@
+23:14:48 - === meshy_upload.php started ===
+23:14:48 - POST data | {"product_id":"24","image_path":"uploads\/products\/1762291412_690a6ed4ad9ac.jpg"}
+23:14:48 - FILES data | "NO"
+23:14:48 - Using product image mode
+23:14:48 - Testing path: C:\xampp\htdocs\starroofing\admin\meshy/../../uploads/products/1762291412_690a6ed4ad9ac.jpg
+23:14:48 - Found at: C:\xampp\htdocs\starroofing\admin\meshy/../../uploads/products/1762291412_690a6ed4ad9ac.jpg
+23:14:48 - Product image loaded | {"path":"C:\\xampp\\htdocs\\starroofing\\admin\\meshy\/..\/..\/uploads\/products\/1762291412_690a6ed4ad9ac.jpg","name":"1762291412_690a6ed4ad9ac.jpg","type":"image\/jpeg","size":16711,"hash":"c4e5431c37d5b6d46f32d9f466309c41"}
+23:14:48 - No duplicate found, proceeding with API call
+23:14:48 - Data URI created | {"length":22307}
+23:14:48 - JSON payload size: 22717 bytes
+23:14:49 - API Response | {"code":202,"response":"{\"result\":\"019a50ef-e19d-7cf2-bca9-992f8b999f34\"}"}
+23:14:49 - Task created successfully: 019a50ef-e19d-7cf2-bca9-992f8b999f34
+23:14:49 - Database record created for task: 019a50ef-e19d-7cf2-bca9-992f8b999f34
+23:14:49 - Product table updated with task_id | {"product_id":24}
+23:14:49 - === meshy_upload.php completed ===
+23:14:49 - Checking status | {"task_id":"019a50ef-e19d-7cf2-bca9-992f8b999f34"}
+23:14:50 - API Response | {"code":200}
+23:14:50 - Task state | {"status":"in_progress","progress":10}
+23:15:00 - Checking status | {"task_id":"019a50ef-e19d-7cf2-bca9-992f8b999f34"}
+23:15:00 - API Response | {"code":200}
+23:15:00 - Task state | {"status":"in_progress","progress":20}
+23:15:10 - Checking status | {"task_id":"019a50ef-e19d-7cf2-bca9-992f8b999f34"}
+23:15:11 - API Response | {"code":200}
+23:15:11 - Task state | {"status":"in_progress","progress":49}
+23:15:21 - Checking status | {"task_id":"019a50ef-e19d-7cf2-bca9-992f8b999f34"}
+23:15:22 - API Response | {"code":200}
+23:15:22 - Task state | {"status":"in_progress","progress":49}
+23:15:32 - Checking status | {"task_id":"019a50ef-e19d-7cf2-bca9-992f8b999f34"}
+23:15:32 - API Response | {"code":200}
+23:15:32 - Task state | {"status":"in_progress","progress":49}
+23:15:42 - Checking status | {"task_id":"019a50ef-e19d-7cf2-bca9-992f8b999f34"}
+23:15:43 - API Response | {"code":200}
+23:15:43 - Task state | {"status":"in_progress","progress":50}
+23:15:53 - Checking status | {"task_id":"019a50ef-e19d-7cf2-bca9-992f8b999f34"}
+23:15:53 - API Response | {"code":200}
+23:15:53 - Task state | {"status":"in_progress","progress":76}
+23:16:04 - Checking status | {"task_id":"019a50ef-e19d-7cf2-bca9-992f8b999f34"}
+23:16:04 - API Response | {"code":200}
+23:16:04 - Task state | {"status":"in_progress","progress":99}
+23:16:14 - Checking status | {"task_id":"019a50ef-e19d-7cf2-bca9-992f8b999f34"}
+23:16:15 - API Response | {"code":200}
+23:16:15 - Task state | {"status":"succeeded","progress":100}
+23:16:15 - Model URL found | {"url":"https:\/\/assets.meshy.ai\/3b7a3bf4-2114-49b6-b91c-d1ee797186b9\/tasks\/019a50ef-e19d-7cf2-bca9-992f8b999f34\/output\/model.glb?Expires=1762553771&Signature=Q4HYmBk~z~Q5fy4kCTk0ufs0jKn39oz9K0JF5D2jnkVf8xTGvvJN2Ojkm4tIQWSUSLkm4DemaQVEfq1ZQzEVmZi5U57NYu6np9iDQ8pFWT6mglhgZbN5zmI4LWjrMfyrTeRsubXpvf011Fi5SrNeE1~5nUee5flVCcXniHbcKzsHjRUg3fC99oBqrzg5fkWe~vke0rxR6U9K9kFfEyyG8hOV7QT5UX8yoZDgACcN8-328lCQFF-baCg5hiOaz1tGFHosL-1O1aUcqvVxRHgeICG6dG1W3nEtQIGsU872GDNOuBkjIi8gewtbvDgTTvIFEWk05n4AqqLURoF6nOBs~g__&Key-Pair-Id=KL5I0C8H7HX83"}
+23:16:16 - Model downloaded successfully | {"path":"C:\\xampp\\htdocs\\starroofing\\admin\\meshy\/..\/..\/uploads\/3dmodels\/model_690a7b2f32504.glb","relative_path":"uploads\/3dmodels\/model_690a7b2f32504.glb","size":7959836}
+23:16:16 - Database updated | {"id":8}
+23:16:16 - Product table updated | {"product_id":24}
+23:26:14 - === meshy_upload.php started ===
+23:26:14 - POST data | {"product_id":"27","image_path":"uploads\/products\/1762293280_690a7620b7884.png"}
+23:26:14 - FILES data | "NO"
+23:26:14 - Using product image mode
+23:26:14 - Testing path: C:\xampp\htdocs\starroofing\admin\meshy/../../uploads/products/1762293280_690a7620b7884.png
+23:26:14 - Found at: C:\xampp\htdocs\starroofing\admin\meshy/../../uploads/products/1762293280_690a7620b7884.png
+23:26:14 - Product image loaded | {"path":"C:\\xampp\\htdocs\\starroofing\\admin\\meshy\/..\/..\/uploads\/products\/1762293280_690a7620b7884.png","name":"1762293280_690a7620b7884.png","type":"image\/png","size":88291,"hash":"808f2cad7e99de155c4a5fb6df5e9a54"}
+23:26:14 - No duplicate found, proceeding with API call
+23:26:14 - Data URI created | {"length":117746}
+23:26:14 - JSON payload size: 120188 bytes
+23:26:15 - API Response | {"code":202,"response":"{\"result\":\"019a50fa-56de-7dd0-ad29-f82b015e43ce\"}"}
+23:26:15 - Task created successfully: 019a50fa-56de-7dd0-ad29-f82b015e43ce
+23:26:15 - Database record created for task: 019a50fa-56de-7dd0-ad29-f82b015e43ce
+23:26:15 - Product table updated with task_id | {"product_id":27}
+23:26:15 - === meshy_upload.php completed ===
+23:26:15 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:26:15 - API Response | {"code":200}
+23:26:15 - Task state | {"status":"in_progress","progress":10}
+23:26:18 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:26:19 - API Response | {"code":200}
+23:26:19 - Task state | {"status":"in_progress","progress":20}
+23:26:22 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:26:22 - API Response | {"code":200}
+23:26:22 - Task state | {"status":"in_progress","progress":20}
+23:26:25 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:26:26 - API Response | {"code":200}
+23:26:26 - Task state | {"status":"in_progress","progress":20}
+23:26:29 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:26:30 - API Response | {"code":200}
+23:26:30 - Task state | {"status":"in_progress","progress":20}
+23:26:33 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:26:33 - API Response | {"code":200}
+23:26:33 - Task state | {"status":"in_progress","progress":20}
+23:26:36 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:26:37 - API Response | {"code":200}
+23:26:37 - Task state | {"status":"in_progress","progress":20}
+23:26:40 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:26:40 - API Response | {"code":200}
+23:26:40 - Task state | {"status":"in_progress","progress":30}
+23:26:43 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:26:44 - API Response | {"code":200}
+23:26:44 - Task state | {"status":"in_progress","progress":49}
+23:26:47 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:26:48 - API Response | {"code":200}
+23:26:48 - Task state | {"status":"in_progress","progress":49}
+23:26:51 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:26:51 - API Response | {"code":200}
+23:26:51 - Task state | {"status":"in_progress","progress":49}
+23:26:54 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:26:55 - API Response | {"code":200}
+23:26:55 - Task state | {"status":"in_progress","progress":49}
+23:26:58 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:26:58 - API Response | {"code":200}
+23:26:58 - Task state | {"status":"in_progress","progress":49}
+23:27:01 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:02 - API Response | {"code":200}
+23:27:02 - Task state | {"status":"in_progress","progress":49}
+23:27:05 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:06 - API Response | {"code":200}
+23:27:06 - Task state | {"status":"in_progress","progress":49}
+23:27:09 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:09 - API Response | {"code":200}
+23:27:09 - Task state | {"status":"in_progress","progress":49}
+23:27:12 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:13 - API Response | {"code":200}
+23:27:13 - Task state | {"status":"in_progress","progress":49}
+23:27:16 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:16 - API Response | {"code":200}
+23:27:16 - Task state | {"status":"in_progress","progress":49}
+23:27:19 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:20 - API Response | {"code":200}
+23:27:20 - Task state | {"status":"in_progress","progress":49}
+23:27:23 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:24 - API Response | {"code":200}
+23:27:24 - Task state | {"status":"in_progress","progress":49}
+23:27:27 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:27 - API Response | {"code":200}
+23:27:27 - Task state | {"status":"in_progress","progress":49}
+23:27:30 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:31 - API Response | {"code":200}
+23:27:31 - Task state | {"status":"in_progress","progress":49}
+23:27:34 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:34 - API Response | {"code":200}
+23:27:34 - Task state | {"status":"in_progress","progress":49}
+23:27:38 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:38 - API Response | {"code":200}
+23:27:38 - Task state | {"status":"in_progress","progress":49}
+23:27:41 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:42 - API Response | {"code":200}
+23:27:42 - Task state | {"status":"in_progress","progress":49}
+23:27:45 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:45 - API Response | {"code":200}
+23:27:45 - Task state | {"status":"in_progress","progress":49}
+23:27:48 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:49 - API Response | {"code":200}
+23:27:49 - Task state | {"status":"in_progress","progress":49}
+23:27:52 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:52 - API Response | {"code":200}
+23:27:52 - Task state | {"status":"in_progress","progress":49}
+23:27:56 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:27:56 - API Response | {"code":200}
+23:27:56 - Task state | {"status":"in_progress","progress":49}
+23:27:59 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:28:00 - API Response | {"code":200}
+23:28:00 - Task state | {"status":"in_progress","progress":49}
+23:28:03 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:28:03 - API Response | {"code":200}
+23:28:03 - Task state | {"status":"in_progress","progress":49}
+23:28:06 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:28:07 - API Response | {"code":200}
+23:28:07 - Task state | {"status":"in_progress","progress":50}
+23:28:10 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:28:10 - API Response | {"code":200}
+23:28:10 - Task state | {"status":"in_progress","progress":60}
+23:28:14 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:28:14 - API Response | {"code":200}
+23:28:14 - Task state | {"status":"in_progress","progress":76}
+23:28:17 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:28:18 - API Response | {"code":200}
+23:28:18 - Task state | {"status":"in_progress","progress":76}
+23:28:21 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:28:21 - API Response | {"code":200}
+23:28:21 - Task state | {"status":"in_progress","progress":76}
+23:28:24 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:28:25 - API Response | {"code":200}
+23:28:25 - Task state | {"status":"in_progress","progress":97}
+23:28:28 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:28:28 - API Response | {"code":200}
+23:28:28 - Task state | {"status":"in_progress","progress":97}
+23:28:32 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:28:32 - API Response | {"code":200}
+23:28:32 - Task state | {"status":"in_progress","progress":99}
+23:28:35 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:28:36 - API Response | {"code":200}
+23:28:36 - Task state | {"status":"in_progress","progress":99}
+23:28:39 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:28:39 - API Response | {"code":200}
+23:28:39 - Task state | {"status":"in_progress","progress":99}
+23:28:42 - Checking status | {"task_id":"019a50fa-56de-7dd0-ad29-f82b015e43ce"}
+23:28:43 - API Response | {"code":200}
+23:28:43 - Task state | {"status":"succeeded","progress":100}
+23:28:43 - Model URL found | {"url":"https:\/\/assets.meshy.ai\/3b7a3bf4-2114-49b6-b91c-d1ee797186b9\/tasks\/019a50fa-56de-7dd0-ad29-f82b015e43ce\/output\/model.glb?Expires=1762554522&Signature=ZNsBc4FQIjg2D-SXNAZY81WIAFyyp54pX66b1q~P36V5Af5pdPkmN6UxzNZ26W84wrJjIO5nR953rZUr-jawi9lBv3LvNxVd~5br~Z3MvV9pyeNgQefceWbHI0Z5ha3A7mYa2kdGWL~ap8V5Vkp6aM~GI1ea8anHzzcoB-ERA4RQgOmtTxvz9h7FqUhnSQDRCWKLqQsWtksfhfSRu8jGpTfPoGB6fGPC2jpfqUx-jsFOwQjS2O0t6LioYNpqmqidX8A2X82DXSGG1s6oCVGNBHEwNIjUpYoy6e5at2fe2SISUYQvdV2PMBkNK3KIVwKNkGcl93nDzGB9r9wjXw~uDw__&Key-Pair-Id=KL5I0C8H7HX83"}
+23:28:44 - Model downloaded successfully | {"path":"C:\\xampp\\htdocs\\starroofing\\admin\\meshy\/..\/..\/uploads\/3dmodels\/model_690a7e1b615a1.glb","relative_path":"uploads\/3dmodels\/model_690a7e1b615a1.glb","size":7990516}
+23:28:44 - Database updated | {"id":9}
+23:28:44 - Product table updated | {"product_id":27}
+23:33:44 - === meshy_upload.php started ===
+23:33:44 - POST data | {"product_id":"30","image_path":"uploads\/products\/1762293375_690a767f50ad1.png"}
+23:33:44 - FILES data | "NO"
+23:33:44 - Using product image mode
+23:33:44 - Testing path: C:\xampp\htdocs\starroofing\admin\meshy/../../uploads/products/1762293375_690a767f50ad1.png
+23:33:44 - Found at: C:\xampp\htdocs\starroofing\admin\meshy/../../uploads/products/1762293375_690a767f50ad1.png
+23:33:44 - Product image loaded | {"path":"C:\\xampp\\htdocs\\starroofing\\admin\\meshy\/..\/..\/uploads\/products\/1762293375_690a767f50ad1.png","name":"1762293375_690a767f50ad1.png","type":"image\/png","size":175387,"hash":"821a9204590d13fa53cb3bdaabca5177"}
+23:33:44 - No duplicate found, proceeding with API call
+23:33:44 - Data URI created | {"length":233874}
+23:33:44 - JSON payload size: 238508 bytes
+23:33:45 - API Response | {"code":202,"response":"{\"result\":\"019a5101-371b-7e50-9246-c3d947adb1d1\"}"}
+23:33:45 - Task created successfully: 019a5101-371b-7e50-9246-c3d947adb1d1
+23:33:45 - Database record created for task: 019a5101-371b-7e50-9246-c3d947adb1d1
+23:33:45 - Product table updated with task_id | {"product_id":30}
+23:33:45 - === meshy_upload.php completed ===
+23:33:45 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:33:46 - API Response | {"code":200}
+23:33:46 - Task state | {"status":"in_progress","progress":1}
+23:33:49 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:33:49 - API Response | {"code":200}
+23:33:49 - Task state | {"status":"in_progress","progress":20}
+23:33:52 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:33:53 - API Response | {"code":200}
+23:33:53 - Task state | {"status":"in_progress","progress":20}
+23:33:56 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:33:57 - API Response | {"code":200}
+23:33:57 - Task state | {"status":"in_progress","progress":20}
+23:34:00 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:00 - API Response | {"code":200}
+23:34:00 - Task state | {"status":"in_progress","progress":20}
+23:34:03 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:04 - API Response | {"code":200}
+23:34:04 - Task state | {"status":"in_progress","progress":20}
+23:34:07 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:07 - API Response | {"code":200}
+23:34:07 - Task state | {"status":"in_progress","progress":20}
+23:34:10 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:11 - API Response | {"code":200}
+23:34:11 - Task state | {"status":"in_progress","progress":20}
+23:34:14 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:15 - API Response | {"code":200}
+23:34:15 - Task state | {"status":"in_progress","progress":20}
+23:34:18 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:18 - API Response | {"code":200}
+23:34:18 - Task state | {"status":"in_progress","progress":45}
+23:34:21 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:22 - API Response | {"code":200}
+23:34:22 - Task state | {"status":"in_progress","progress":49}
+23:34:25 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:25 - API Response | {"code":200}
+23:34:25 - Task state | {"status":"in_progress","progress":49}
+23:34:28 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:29 - API Response | {"code":200}
+23:34:29 - Task state | {"status":"in_progress","progress":49}
+23:34:32 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:33 - API Response | {"code":200}
+23:34:33 - Task state | {"status":"in_progress","progress":49}
+23:34:36 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:36 - API Response | {"code":200}
+23:34:36 - Task state | {"status":"in_progress","progress":49}
+23:34:39 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:40 - API Response | {"code":200}
+23:34:40 - Task state | {"status":"in_progress","progress":49}
+23:34:43 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:43 - API Response | {"code":200}
+23:34:43 - Task state | {"status":"in_progress","progress":49}
+23:34:46 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:47 - API Response | {"code":200}
+23:34:47 - Task state | {"status":"in_progress","progress":49}
+23:34:50 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:51 - API Response | {"code":200}
+23:34:51 - Task state | {"status":"in_progress","progress":49}
+23:34:54 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:54 - API Response | {"code":200}
+23:34:54 - Task state | {"status":"in_progress","progress":49}
+23:34:57 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:34:58 - API Response | {"code":200}
+23:34:58 - Task state | {"status":"in_progress","progress":49}
+23:35:01 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:01 - API Response | {"code":200}
+23:35:01 - Task state | {"status":"in_progress","progress":49}
+23:35:04 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:05 - API Response | {"code":200}
+23:35:05 - Task state | {"status":"in_progress","progress":49}
+23:35:08 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:09 - API Response | {"code":200}
+23:35:09 - Task state | {"status":"in_progress","progress":49}
+23:35:12 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:12 - API Response | {"code":200}
+23:35:12 - Task state | {"status":"in_progress","progress":49}
+23:35:15 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:16 - API Response | {"code":200}
+23:35:16 - Task state | {"status":"in_progress","progress":49}
+23:35:19 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:19 - API Response | {"code":200}
+23:35:19 - Task state | {"status":"in_progress","progress":49}
+23:35:22 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:23 - API Response | {"code":200}
+23:35:23 - Task state | {"status":"in_progress","progress":49}
+23:35:26 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:27 - API Response | {"code":200}
+23:35:27 - Task state | {"status":"in_progress","progress":49}
+23:35:30 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:30 - API Response | {"code":200}
+23:35:30 - Task state | {"status":"in_progress","progress":49}
+23:35:33 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:34 - API Response | {"code":200}
+23:35:34 - Task state | {"status":"in_progress","progress":49}
+23:35:37 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:38 - API Response | {"code":200}
+23:35:38 - Task state | {"status":"in_progress","progress":50}
+23:35:41 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:41 - API Response | {"code":200}
+23:35:41 - Task state | {"status":"in_progress","progress":60}
+23:35:44 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:45 - API Response | {"code":200}
+23:35:45 - Task state | {"status":"in_progress","progress":60}
+23:35:48 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:49 - API Response | {"code":200}
+23:35:49 - Task state | {"status":"in_progress","progress":76}
+23:35:52 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:52 - API Response | {"code":200}
+23:35:52 - Task state | {"status":"in_progress","progress":76}
+23:35:55 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:35:56 - API Response | {"code":200}
+23:35:56 - Task state | {"status":"in_progress","progress":76}
+23:35:59 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:36:00 - API Response | {"code":200}
+23:36:00 - Task state | {"status":"in_progress","progress":76}
+23:36:03 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:36:03 - API Response | {"code":200}
+23:36:03 - Task state | {"status":"in_progress","progress":97}
+23:36:06 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:36:07 - API Response | {"code":200}
+23:36:07 - Task state | {"status":"in_progress","progress":97}
+23:36:10 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:36:12 - API Response | {"code":200}
+23:36:12 - Task state | {"status":"in_progress","progress":99}
+23:36:15 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:36:16 - API Response | {"code":200}
+23:36:16 - Task state | {"status":"in_progress","progress":99}
+23:36:19 - Checking status | {"task_id":"019a5101-371b-7e50-9246-c3d947adb1d1"}
+23:36:19 - API Response | {"code":200}
+23:36:19 - Task state | {"status":"succeeded","progress":100}
+23:36:19 - Model URL found | {"url":"https:\/\/assets.meshy.ai\/3b7a3bf4-2114-49b6-b91c-d1ee797186b9\/tasks\/019a5101-371b-7e50-9246-c3d947adb1d1\/output\/model.glb?Expires=1762554978&Signature=FdYXjGAwz4tQfvKG1b6DpkRe9gdcvyVWzgLgeKyAk896VqxshWryB9Qtq31qNDrmIMg0B1X3~lxGrHYVQzQ6TUHjsYbZr3Qga8xsWWzEUvxo8Fe87sydkum8abGHEpkAvPTVGrIt3Wheohy~0sLZTXgatsQz~4kHZfktd7sESSy1OMaUAod~EI9mI-pEunhEl9hf2jh2-4xLmq3z0Mmbo7tVk66EMILXsFkRnOvJ35pZg~RpxBCb3UH5U1j75p7qHPQa2Kd0UiQsedDpr-Tfk3b6G8NeWniYn2L75gX7clZdxulLk2AYSPe9IFvY0kEEP9KjUcwy6udp2xBm0owfIg__&Key-Pair-Id=KL5I0C8H7HX83"}
+23:36:21 - Model downloaded successfully | {"path":"C:\\xampp\\htdocs\\starroofing\\admin\\meshy\/..\/..\/uploads\/3dmodels\/model_690a7fe3d4790.glb","relative_path":"uploads\/3dmodels\/model_690a7fe3d4790.glb","size":8739576}
+23:36:21 - Database updated | {"id":10}
+23:36:21 - Product table updated | {"product_id":30}
+23:57:11 - === meshy_upload.php started ===
+23:57:11 - POST data | {"product_id":"28","image_path":"uploads\/products\/1762293315_690a7643b6d4d.png"}
+23:57:11 - FILES data | "NO"
+23:57:11 - Using product image mode
+23:57:11 - Attempting to load image | {"original_path":"uploads\/products\/1762293315_690a7643b6d4d.png","full_path":"C:\\xampp\\htdocs\\starroofing\\admin\\meshy\/..\/..\/uploads\/products\/1762293315_690a7643b6d4d.png","exists":true}
+23:57:11 - Product image loaded | {"path":"C:\\xampp\\htdocs\\starroofing\\admin\\meshy\/..\/..\/uploads\/products\/1762293315_690a7643b6d4d.png","name":"1762293315_690a7643b6d4d.png","type":"image\/png","size":50560,"hash":"73c89729f22f69cc3349599be1b10395"}
+23:57:11 - No duplicate found, proceeding with API call
+23:57:11 - Data URI created | {"length":67438}
+23:57:11 - JSON payload size: 68843 bytes
+23:57:11 - API Response | {"code":202,"response":"{\"result\":\"019a5116-ac1a-7e3d-b322-f7f6f3017467\"}"}
+23:57:11 - Task created successfully: 019a5116-ac1a-7e3d-b322-f7f6f3017467
+23:57:11 - Database record created for task: 019a5116-ac1a-7e3d-b322-f7f6f3017467
+23:57:11 - Product table updated with task_id | {"product_id":28}
+23:57:11 - === meshy_upload.php completed ===

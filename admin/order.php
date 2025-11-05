@@ -446,6 +446,19 @@ $counts = $counts_result->fetch_assoc();
         margin-top: 5px;
     }
 
+    .delivery-date-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(14, 165, 233, 0.15);
+        color: #0ea5e9;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 5px;
+    }
+
     @media (max-width: 1024px) {
         .filter-grid {
             grid-template-columns: 1fr 1fr;
@@ -554,9 +567,15 @@ $counts = $counts_result->fetch_assoc();
                                         Assigned to: <?= htmlspecialchars($order['assigned_employee_name']) ?>
                                     </div>
                                 <?php endif; ?>
+                                <?php if (!empty($order['expected_delivery_date']) && $order['order_status'] === 'to_ship'): ?>
+                                    <div class="delivery-date-badge">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        Expected: <?= date('M j, Y', strtotime($order['expected_delivery_date'])) ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                             <div class="order-status status-<?= $order['order_status'] ?>">
-                                <?= ucfirst($order['order_status']) ?>
+                                <?= ucfirst(str_replace('_', ' ', $order['order_status'])) ?>
                             </div>
                             <div class="order-total">
                                 ₱<?= number_format($order['total_amount'], 2) ?>
